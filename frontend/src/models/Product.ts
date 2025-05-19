@@ -3,11 +3,12 @@ export class Product {
     public id: string,
     public name: string,
     public price: number,
-    public description: string = ''
+    public description: string = "",
+    public available: boolean = true
   ) {}
 }
 
-export class StoreCatalog {
+export class StoreCatalogue {
   private products: Product[] = [];
 
   addProduct(product: Product): void {
