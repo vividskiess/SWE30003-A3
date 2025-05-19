@@ -8,7 +8,6 @@ const Navbar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        {/* Left-aligned content */}
         <Typography variant="h6" component="div" sx={{ mr: 2, flexGrow: 1 }}>
           AWE Electronics
         </Typography>

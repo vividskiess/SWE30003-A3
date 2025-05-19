@@ -1,10 +1,10 @@
-
+import StoreCatalogComponent from './pages/StoreCatalog';
 import Layout from './components/Layout';
 
 function App() {
   return (
     <Layout>
-      <h1>Welcome to AWE Electronics</h1>
+      <StoreCatalogComponent />
     </Layout>
   );
 }
