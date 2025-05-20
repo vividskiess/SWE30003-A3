@@ -19,6 +19,25 @@ export class StoreCatalogue {
     return [...this.products];
   }
 
+  // Update product details
+  // Frontend: catalogue.modifyProduct("product-id", { price: 19.99, description: "New description" });
+  modifyProduct(productId: string, updates: Partial<Product>): boolean {
+    const product = this.products.find(p => p.id === productId);
+    if (product) {
+      Object.assign(product, updates);
+      return true;
+    }
+    return false;
+  }
+
+  // Remove a product
+  // Frontend: catalogue.removeProduct("product-id");
+  removeProduct(productId: string): boolean {
+    const initialLength = this.products.length;
+    this.products = this.products.filter(p => p.id !== productId);
+    return this.products.length !== initialLength;
+  }
+
   renderCatalog(): React.ReactElement {
     return (
       <div className="store-catalog" style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -41,6 +60,21 @@ export class StoreCatalogue {
               {product.description && 
                 <p style={{ color: '#666' }}>{product.description}</p>
               }
+              <button 
+                onClick={() => alert(`Added ${product.name} to cart!`)}
+                disabled={!product.available}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  backgroundColor: product.available ? '#4CAF50' : '#cccccc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: product.available ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {product.available ? 'Add to Cart' : 'Out of Stock'}
+              </button>
             </div>
           ))}
         </div>
