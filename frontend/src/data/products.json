@@ -1,0 +1,142 @@
+[
+  {
+    "id": "1",
+    "name": "Arduino UNO R4 Minima",
+    "price": 19.99,
+    "description": "A versatile microcontroller board with built-in USB connectivity.",
+    "available": true
+  },
+  {
+    "id": "2",
+    "name": "PIR Motion Sensor",
+    "price": 12.99,
+    "description": "Detects human presence through infrared radiation changes.",
+    "available": true
+  },
+  {
+    "id": "3",
+    "name": "DHT22 Temperature Sensor",
+    "price": 9.99,
+    "description": "Digital humidity and temperature sensor with high accuracy.",
+    "available": true
+  },
+  {
+    "id": "4",
+    "name": "Analog Ambient Light Sensor",
+    "price": 7.99,
+    "description": "Measures light intensity with analog output.",
+    "available": false
+  },
+  {
+    "id": "5",
+    "name": "Raspberry Pi 5 16GB",
+    "price": 212.50,
+    "description": "High-performance single-board computer with 16GB RAM.",
+    "available": true
+  },
+  {
+    "id": "6",
+    "name": "ESP32 Development Board",
+    "price": 15.99,
+    "description": "Wi-Fi and Bluetooth enabled microcontroller with dual-core processor.",
+    "available": true
+  },
+  {
+    "id": "7",
+    "name": "OLED Display 0.96\"",
+    "price": 8.50,
+    "description": "Small monochrome OLED display with I2C interface.",
+    "available": true
+  },
+  {
+    "id": "8",
+    "name": "Breadboard 400 Points",
+    "price": 5.99,
+    "description": "Reusable solderless breadboard for prototyping circuits.",
+    "available": true
+  },
+  {
+    "id": "9",
+    "name": "Jumper Wires Pack",
+    "price": 6.99,
+    "description": "Set of 120 male-to-male, male-to-female, and female-to-female jumper wires.",
+    "available": true
+  },
+  {
+    "id": "10",
+    "name": "5V Relay Module",
+    "price": 4.99,
+    "description": "Single channel relay module for controlling high voltage devices.",
+    "available": false
+  },
+  {
+    "id": "11",
+    "name": "Micro Servo Motor",
+    "price": 4.99,
+    "description": "Small servo motor perfect for robotics projects with 180-degree rotation.",
+    "available": true
+  },
+  {
+    "id": "12",
+    "name": "HC-SR04 Ultrasonic Sensor",
+    "price": 3.99,
+    "description": "Ultrasonic distance measurement sensor with 2cm-400cm range.",
+    "available": true
+  },
+  {
+    "id": "13",
+    "name": "Joystick Module",
+    "price": 6.50,
+    "description": "Analog joystick with push button for game controllers and robotics.",
+    "available": true
+  },
+  {
+    "id": "14",
+    "name": "RGB LED Strip",
+    "price": 14.99,
+    "description": "1 meter addressable RGB LED strip with 60 LEDs per meter.",
+    "available": false
+  },
+  {
+    "id": "15",
+    "name": "IR Remote Control Kit",
+    "price": 5.50,
+    "description": "Infrared remote control with receiver module for wireless projects.",
+    "available": true
+  },
+  {
+    "id": "16",
+    "name": "Rotary Encoder",
+    "price": 3.50,
+    "description": "Digital rotary encoder with push button for precise input control.",
+    "available": true
+  },
+  {
+    "id": "17",
+    "name": "4-Digit 7-Segment Display",
+    "price": 7.25,
+    "description": "Common cathode 4-digit display with colon for time projects.",
+    "available": true
+  },
+  {
+    "id": "18",
+    "name": "Tilt Switch Sensor",
+    "price": 2.99,
+    "description": "Simple tilt-activated switch for orientation detection.",
+    "available": true
+  },
+  {
+    "id": "19",
+    "name": "Capacitive Touch Sensor",
+    "price": 4.25,
+    "description": "Touch-sensitive module that works through non-conductive materials.",
+    "available": true
+  },
+  {
+    "id": "20",
+    "name": "DC Motor with Wheel",
+    "price": 8.99,
+    "description": "TT gear motor with rubber wheel for robotics projects.",
+    "available": true
+  }
+]
