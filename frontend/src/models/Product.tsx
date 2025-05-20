@@ -167,4 +167,10 @@ export class Cart {
   clear(): void {
     this.items = [];
   }
+
+  renderCart(): React.ReactElement {
+    return (
+      <h1>Hello World!</h1>
+    );
+  }
 }

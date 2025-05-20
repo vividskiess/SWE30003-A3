@@ -15,10 +15,10 @@ products.forEach((product: any) => {
 
 const catalogElement = catalog.renderCatalog();
 
-const StoreCatalogComponent: React.FC = () => {
+const StoreCatalog: React.FC = () => {
   return (
     <div>{catalogElement}</div>
   );
 };
 
-export default StoreCatalogComponent;
+export default StoreCatalog;
