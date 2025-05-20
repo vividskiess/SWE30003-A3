@@ -54,7 +54,7 @@ export class Cart {
 
   renderCart(): React.ReactElement {
     return (
-      <h1>Hello World!</h1>
+      <h1>Cart Page Rendered in Cart class in Cart.tsx</h1>
     );
   }
 }
