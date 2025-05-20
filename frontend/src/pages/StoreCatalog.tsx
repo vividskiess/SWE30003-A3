@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product, StoreCatalogue } from '../models/Product';
+import { Product, StoreCatalogue } from '../models';
 import products from '../data/products.json';
 
 const catalog = new StoreCatalogue();
