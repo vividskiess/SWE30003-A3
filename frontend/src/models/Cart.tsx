@@ -1,7 +1,8 @@
 import { StoreCatalogue } from "./StoreCatalogue";
-
+// import { sharedCart, sharedCatalogue } from '../models';
 export class Cart {
   private items: [string, number][] = [];
+  private listeners: (() => void)[] = [];
 
   // Add a product to cart
   addProduct(productId: string, quantity: number = 1): void {
@@ -11,6 +12,7 @@ export class Cart {
     } else {
       this.items.push([productId, quantity]);
     }
+    this.notifyListeners();
   }
 
   // Remove a product from cart
@@ -52,9 +54,93 @@ export class Cart {
     this.items = [];
   }
 
-  renderCart(): React.ReactElement {
-    return (
-      <h1>Cart Page Rendered in Cart class in Cart.tsx</h1>
+  renderCart(catalogue: StoreCatalogue): React.ReactElement {
+    // Log cart contents and total price
+    console.log('Catalogue products:', catalogue.getProducts());
+  console.log('Cart items:', this.items);
+
+    console.log(
+      'Cart updated:',
+      this.items.map(([id, qty]) => {
+        const prod = catalogue.getProducts().find(p => p.id === id);
+        return `${prod?.name} (${qty}x)`;
+      })
     );
+    console.log('Total price:', this.getTotalPrice(catalogue));
+
+    return (
+      <div className="shopping-cart" style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Shopping Cart</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {this.items.map(([productId, quantity]) => {
+            const product = catalogue.getProducts().find(p => p.id === productId);
+            if (!product) return null;
+
+            return (
+              <div key={productId} style={{
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <h3 style={{ margin: 0 }}>{product.name}</h3>
+                  <p style={{ margin: 0, color: '#777' }}>
+                    ${product.price.toFixed(2)} × {quantity}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    onClick={() => this.modifyQuantity(productId, quantity - 1)}
+                    disabled={quantity <= 1}
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: '#4CAF50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    -
+                  </button>
+                  <span>{quantity}</span>
+                  <button
+                    onClick={() => this.modifyQuantity(productId, quantity + 1)}
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: '#4CAF50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ textAlign: 'right', marginTop: '2rem' }}>
+          <h3>Total: ${this.getTotalPrice(catalogue).toFixed(2)}</h3>
+        </div>
+      </div>
+    );
+  }
+
+  addListener(callback: () => void) {
+    this.listeners.push(callback);
+  }
+
+  removeListener(callback: () => void) {
+    this.listeners = this.listeners.filter(cb => cb !== callback);
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach(cb => cb());
   }
 }

@@ -1,14 +1,9 @@
 import { Product } from './Product';
-import { Cart } from './Cart';
+// import { Cart } from './Cart';
+import { sharedCart } from '.';
 
 export class StoreCatalogue {
   private products: Product[] = [];
-  private cart: Cart;
-
-  constructor() {
-    this.cart = new Cart();
-  }
-
   addProduct(product: Product): void {
     this.products.push(product);
   }
@@ -63,12 +58,12 @@ export class StoreCatalogue {
               }
               <button 
                 onClick={() => {
-                  this.cart.addProduct(product.id);
-                  console.log('Cart updated:', this.cart.getItems().map(([id, qty]) => {
+                  sharedCart.addProduct(product.id);
+                  console.log('Cart updated:', sharedCart.getItems().map(([id, qty]) => {
                     const prod = this.products.find(p => p.id === id);
                     return `${prod?.name} (${qty}x)`;
                   }));
-                  console.log('Total price:', this.cart.getTotalPrice(this));
+                  console.log('Total price:', sharedCart.getTotalPrice(this));
                 }}
                 disabled={!product.available}
                 style={{

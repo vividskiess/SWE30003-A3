@@ -1,10 +1,10 @@
 import React from 'react';
-import { Product, StoreCatalogue } from '../models';
+import { Product, sharedCatalogue } from '../models';
 import products from '../data/products.json';
 
-const catalog = new StoreCatalogue();
+// Initialize the shared catalogue
 products.forEach((product: any) => {
-  catalog.addProduct(new Product(
+  sharedCatalogue.addProduct(new Product(
     product.id,
     product.name,
     product.price,
@@ -13,7 +13,7 @@ products.forEach((product: any) => {
   ));
 });
 
-const catalogElement = catalog.renderCatalog();
+const catalogElement = sharedCatalogue.renderCatalog();
 
 const StoreCatalog: React.FC = () => {
   return (
