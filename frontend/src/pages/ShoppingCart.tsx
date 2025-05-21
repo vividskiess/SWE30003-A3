@@ -1,11 +1,9 @@
 import { sharedCart, sharedCatalogue } from '../models';
-import { useState, useEffect } from 'react';
 
 const ShoppingCart: React.FC = () => {
-
-
   return (
     <div>
+      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Shopping Cart</h1>
       {sharedCart.renderCart(sharedCatalogue)}
     </div>
   );

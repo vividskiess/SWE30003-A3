@@ -2,7 +2,6 @@ import { StoreCatalogue } from "./StoreCatalogue";
 // import { sharedCart, sharedCatalogue } from '../models';
 export class Cart {
   private items: [string, number][] = [];
-  private listeners: (() => void)[] = [];
 
   // Add a product to cart
   addProduct(productId: string, quantity: number = 1): void {
@@ -56,7 +55,7 @@ export class Cart {
   renderCart(catalogue: StoreCatalogue): React.ReactElement {
     // Log cart contents and total price
     console.log('Catalogue products:', catalogue.getProducts());
-  console.log('Cart items:', this.items);
+    console.log('Cart items:', this.items);
 
     console.log(
       'Cart updated:',
@@ -69,7 +68,6 @@ export class Cart {
 
     return (
       <div className="shopping-cart" style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Shopping Cart</h1>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {this.items.map(([productId, quantity]) => {
             const product = catalogue.getProducts().find(p => p.id === productId);
