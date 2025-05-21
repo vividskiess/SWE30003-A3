@@ -12,7 +12,6 @@ export class Cart {
     } else {
       this.items.push([productId, quantity]);
     }
-    this.notifyListeners();
   }
 
   // Remove a product from cart
@@ -130,17 +129,5 @@ export class Cart {
         </div>
       </div>
     );
-  }
-
-  addListener(callback: () => void) {
-    this.listeners.push(callback);
-  }
-
-  removeListener(callback: () => void) {
-    this.listeners = this.listeners.filter(cb => cb !== callback);
-  }
-
-  private notifyListeners() {
-    this.listeners.forEach(cb => cb());
   }
 }
