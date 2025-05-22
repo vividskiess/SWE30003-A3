@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <AppBar position="static">
+    <AppBar position="fixed">
       <Toolbar>
         <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
           <Typography variant="h6" component="div" sx={{ mr: 2, flexGrow: 1 }}>
