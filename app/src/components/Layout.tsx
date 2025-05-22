@@ -1,4 +1,4 @@
-import { Box, Container } from '@mui/material';
+import { Box, Container, Toolbar  } from '@mui/material';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { ReactNode } from 'react';
@@ -12,6 +12,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
+      <Toolbar /> {/* Add this spacer to push content below the fixed navbar */}
       <Container component="main" sx={{ flex: 1, p: 0 }} maxWidth={false} disableGutters>
         {children}
       </Container>

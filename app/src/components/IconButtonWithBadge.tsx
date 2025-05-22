@@ -25,7 +25,18 @@ export const IconButtonWithBadge = ({
       }}
     >
       {badgeContent ? (
-        <Badge badgeContent={badgeContent} color={badgeColor}>
+        <Badge 
+          badgeContent={badgeContent} 
+          color={badgeColor}
+          sx={{
+            '& .MuiBadge-badge': {
+              right: -3,
+              top: -3,
+              border: '2px solid white',
+              padding: '0 4px',
+            },
+          }}
+        >
           {icon}
         </Badge>
       ) : (
