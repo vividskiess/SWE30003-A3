@@ -16,6 +16,11 @@ app.use("/storeCatalogue", StoreCatalogue)
 app.use("/product", Product)
 
 
+app.get("/test", function (req, res) {
+	res.status(200).send = (test: "test")
+})
+
+
 app.listen(PORT, () => {
 	console.log(`Server is running on ${PORT}`)
 })
