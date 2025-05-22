@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Breadcrumbs, Link } from '@mui/material';
-import { sharedCart, sharedCatalogue } from '../models';
 import HomeIcon from '@mui/icons-material/Home';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { sharedCart, sharedCatalogue } from '../models';
+import { sharedCart, sharedCatalogue } from '../models'; // Only import once
 
 /**
  * ShoppingCart component displays all items in the user's cart
@@ -18,7 +17,6 @@ const ShoppingCart: React.FC = () => {
     const unsubscribe = sharedCart.subscribe(() => {
       setCartItemCount(sharedCart.getItemCount());
     });
-    
     // Clean up subscription on component unmount
     return unsubscribe;
   }, []);
@@ -64,10 +62,6 @@ const ShoppingCart: React.FC = () => {
         {sharedCart.renderCart(sharedCatalogue)}
       </Box>
     </Container>
-    <div>
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Shopping Cart</h1>
-      {sharedCart.renderCart(sharedCatalogue)}
-    </div>
   );
 };
 
