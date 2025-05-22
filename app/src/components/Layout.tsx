@@ -2,7 +2,6 @@ import { Box, Container, Toolbar  } from '@mui/material';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { ReactNode } from 'react';
-import '../styles/global.css';
 
 interface LayoutProps {
   children: ReactNode;
