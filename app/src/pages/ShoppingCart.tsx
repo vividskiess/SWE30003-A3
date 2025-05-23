@@ -61,10 +61,6 @@ const ShoppingCart: React.FC = () => {
       <Box>
         {sharedCart.renderCart(sharedCatalogue)}
       </Box>
-      <div>
-        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Shopping Cart</h1>
-        {sharedCart.renderCart(sharedCatalogue)}
-      </div>
     </Container>
 
   );
