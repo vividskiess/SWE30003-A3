@@ -1,13 +1,15 @@
-import { sharedCart, sharedCatalogue } from '../models';
+import { Typography, Container } from '@mui/material';
+import { sharedCheckoutManager } from '../models/CheckoutManager';
 
-const CheckOut: React.FC = () => {
+const CheckoutPage = () => {
   return (
-    <div>
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>CheckOut</h1>
-      {sharedCart.renderCart(sharedCatalogue)}
-    </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Checkout
+      </Typography>
+      {sharedCheckoutManager.renderCheckoutItems()}
+    </Container>
   );
 };
 
-export default CheckOut;
-
+export default CheckoutPage;

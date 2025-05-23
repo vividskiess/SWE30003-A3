@@ -142,8 +142,8 @@ export class Cart {
             <Button 
               variant="contained" 
               color="primary"
-              component="a"
-              href="/"
+              component={Link} 
+              to="/"
               sx={{ mt: 2 }}
             >
               Continue Shopping

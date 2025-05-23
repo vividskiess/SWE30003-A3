@@ -61,6 +61,7 @@ const ShoppingCart: React.FC = () => {
       <Box>
         {sharedCart.renderCart(sharedCatalogue)}
       </Box>
+      
     </Container>
 
   );
