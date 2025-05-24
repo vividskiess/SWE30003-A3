@@ -171,6 +171,23 @@ export class CheckoutManager {
               ${this.calculateSubtotal().toFixed(2)}
             </Typography>
           </Box>
+          <Box sx={{ mt: 3 }}>
+            <Button 
+              fullWidth
+              variant="contained" 
+              color="primary"
+              component={Link} 
+              to="/checkout"
+              sx={{ 
+                fontSize: '16px', 
+                fontWeight: 'bold',
+                py: 1.5,
+                textTransform: 'none'
+              }}
+            >
+              Place Order
+            </Button>
+          </Box>
         </Paper>
       </Box>
     );
