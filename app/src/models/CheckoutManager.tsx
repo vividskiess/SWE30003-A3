@@ -48,37 +48,44 @@ export class CheckoutManager {
 
     return (
       <Box sx={{ maxWidth: '800px', mx: 'auto', p: 2 }}>
-        {items.map(({ product, quantity }) => (
-          <Paper 
-            key={product.id} 
-            elevation={2} 
-            sx={{ 
-              mb: 2, 
-              p: 2,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              '&:hover': {
-                boxShadow: 3,
-              },
-              transition: 'box-shadow 0.3s ease-in-out',
-            }}
-          >
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" component="h3" sx={{ fontWeight: 'medium' }}>
-                {product.name}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
-                <Typography variant="body1" color="text.secondary">
-                  ${product.price.toFixed(2)} × {quantity}
+        <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Cart Items ({items.reduce((total, { quantity }) => total + quantity, 0)})
+          </Typography>
+          {items.map(({ product, quantity }) => (
+            <Paper 
+              key={product.id} 
+              elevation={2} 
+              sx={{ 
+                mb: 2, 
+                p: 2,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                '&:hover': {
+                  boxShadow: 3,
+                },
+                transition: 'box-shadow 0.3s ease-in-out',
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" component="h3" sx={{ fontWeight: 'medium' }}>
+                  {product.name}
                 </Typography>
-                <Typography variant="body1" color="primary" sx={{ fontWeight: 'bold' }}>
-                  ${(product.price * quantity).toFixed(2)}
-                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    ${product.price.toFixed(2)} × {quantity}
+                  </Typography>
+                  <Typography variant="body1" color="primary" sx={{ fontWeight: 'bold' }}>
+                    ${(product.price * quantity).toFixed(2)}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-          </Paper>
-        ))}
+            </Paper>
+          ))}
+        </Paper>
+
+        {/* Shipping Information */}
         <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
             Shipping Information
@@ -118,6 +125,7 @@ export class CheckoutManager {
           </Box>
         </Paper>
 
+        {/* Payment Information */}
         <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
             Payment Information
