@@ -1,4 +1,4 @@
-import { Box, Typography, Paper, Button } from '@mui/material';
+import { Box, Typography, Paper, Button, TextField } from '@mui/material';
 import { sharedCart, sharedCatalogue } from './index';
 import { Product } from './Product';
 import { Link } from 'react-router-dom';
@@ -79,9 +79,71 @@ export class CheckoutManager {
             </Box>
           </Paper>
         ))}
-        <h1>Shipping Form</h1>
+        <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Shipping Information
+          </Typography>
+          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
+            <TextField
+              fullWidth
+              required
+              label="Street Address"
+              variant="outlined"
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              required
+              label="Town/Suburb"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              required
+              label="State/Region"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              required
+              label="Postcode"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              required
+              label="Country"
+              variant="outlined"
+            />
+          </Box>
+        </Paper>
 
-        <h1>Payment Form</h1>
+        <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Payment Information
+          </Typography>
+          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
+            <TextField
+              fullWidth
+              required
+              label="Card Number"
+              variant="outlined"
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              required
+              label="Expiry Date"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              required
+              label="CVV"
+              variant="outlined"
+            />
+          </Box>
+        </Paper>
         {/* Order Summary */}
         <Paper elevation={2} sx={{ mt: 4, p: 3 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
@@ -93,10 +155,10 @@ export class CheckoutManager {
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
             <Typography>Shipping</Typography>
-            <Typography>Calculated at next step</Typography>
+            <Typography>Not yet calculated</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2, borderTop: '1px solid #eee' }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Grand Total</Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
               ${this.calculateSubtotal().toFixed(2)}
             </Typography>
