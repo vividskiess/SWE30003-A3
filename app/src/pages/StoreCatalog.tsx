@@ -18,15 +18,6 @@ const StoreCatalog: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Typography 
-        variant="h3" 
-        component="h1" 
-        align="center" 
-        sx={{ my: 4 }}
-      >
-        Store Catalog
-      </Typography>
-      
       {/* Render the catalog using the shared instance */}
       {sharedCatalogue.getProducts().length > 0 ? (
         <Box>

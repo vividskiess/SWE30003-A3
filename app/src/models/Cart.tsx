@@ -4,6 +4,7 @@ import { Button, Typography, Box, Paper, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Link } from 'react-router-dom';
 
 export class Cart {
   private items: [string, number][] = []; // Array of [productId, quantity] tuples
@@ -141,8 +142,8 @@ export class Cart {
             <Button 
               variant="contained" 
               color="primary"
-              component="a"
-              href="/"
+              component={Link} 
+              to="/"
               sx={{ mt: 2 }}
             >
               Continue Shopping
@@ -258,8 +259,9 @@ export class Cart {
               <Button 
                 variant="contained" 
                 color="primary"
-                component="a"
-                href="/checkout"
+                component={Link} 
+                to="/checkout"
+                sx={{ fontSize: '14px', fontWeight: 'bold' }}
               >
                 Proceed to Checkout
               </Button>
