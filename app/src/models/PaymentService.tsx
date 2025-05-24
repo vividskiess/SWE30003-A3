@@ -1,4 +1,4 @@
-type PaymentDetails = {
+export type PaymentDetails = {
   cardNumber: string;
   expiryDate: string;
   cvv: string;
@@ -6,7 +6,7 @@ type PaymentDetails = {
   amount: number;
 };
 
-type PaymentResponse = {
+export type PaymentResponse = {
   success: boolean;
   transactionId?: string;
   error?: string;

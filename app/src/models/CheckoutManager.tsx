@@ -1,30 +1,71 @@
-import { Box, Typography, Paper, Button, TextField } from '@mui/material';
+import React from 'react';
+import { Box, Typography, Paper, Button } from '@mui/material';
 import { sharedCart, sharedCatalogue } from './index';
 import { Product } from './Product';
 import { Link } from 'react-router-dom';
+import { PaymentForm } from './PaymentProcessor';
+import { ShippingForm } from './ShippingManager';
 
-export class CheckoutManager {
-  // Get cart items with product details
-  getCartItems(): { product: Product; quantity: number }[] {
+interface CheckoutManagerState {
+  isPaymentFormValid: boolean;
+  isShippingFormValid: boolean;
+}
+
+type CartItemWithProduct = {
+  product: Product;
+  quantity: number;
+};
+
+export class CheckoutManager extends React.Component<{}, CheckoutManagerState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      isPaymentFormValid: false,
+      isShippingFormValid: false
+    };
+  }
+
+  private getCartItems = (): CartItemWithProduct[] => {
     return sharedCart.getItems()
       .map(([productId, quantity]) => ({
-        product: sharedCatalogue.getProducts().find(p => String(p.id) === productId),
+        product: sharedCatalogue.getProducts().find(p => String(p.id) === productId) as Product,
         quantity
       }))
-      .filter((item): item is { product: Product; quantity: number } => 
-        item.product !== undefined
-      );
+      .filter((item): item is CartItemWithProduct => item.product !== undefined);
   }
 
-  // Calculate subtotal for all items in cart
-  calculateSubtotal(): number {
-    return this.getCartItems().reduce((total, { product, quantity }) => {
+  private calculateSubtotal = (): number => {
+    return this.getCartItems().reduce((total: number, { product, quantity }) => {
       return total + (product.price * quantity);
     }, 0);
-  }
+  };
 
-  // Render cart items for checkout
-  renderCheckoutItems() {
+  private handlePaymentFormValidityChange = (isValid: boolean): void => {
+    this.setState({ isPaymentFormValid: isValid }, () => {
+      console.log('Payment form valid:', isValid);
+      console.log('Checkout valid:', this.isCheckoutValid());
+    });
+  };
+
+  private handleShippingFormValidityChange = (isValid: boolean): void => {
+    this.setState({ isShippingFormValid: isValid }, () => {
+      console.log('Shipping form valid:', isValid);
+      console.log('Checkout valid:', this.isCheckoutValid());
+    });
+  };
+
+  private isCheckoutValid = (): boolean => {
+    const { isPaymentFormValid, isShippingFormValid } = this.state;
+    const isValid = isPaymentFormValid && isShippingFormValid;
+    console.log('isCheckoutValid called:', { 
+      payment: isPaymentFormValid, 
+      shipping: isShippingFormValid, 
+      isValid 
+    });
+    return isValid;
+  };
+
+  render() {
     const items = this.getCartItems();
     
     if (items.length === 0) {
@@ -90,39 +131,12 @@ export class CheckoutManager {
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
             Shipping Information
           </Typography>
-          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
-            <TextField
-              fullWidth
-              required
-              label="Street Address"
-              variant="outlined"
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              required
-              label="Town/Suburb"
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              required
-              label="State/Region"
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              required
-              label="Postcode"
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              required
-              label="Country"
-              variant="outlined"
-            />
-          </Box>
+          <ShippingForm 
+            onChange={(data) => {
+              console.log('Shipping data updated:', data);
+            }}
+            onValidityChange={this.handleShippingFormValidityChange}
+          />
         </Paper>
 
         {/* Payment Information */}
@@ -130,27 +144,13 @@ export class CheckoutManager {
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
             Payment Information
           </Typography>
-          <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
-            <TextField
-              fullWidth
-              required
-              label="Card Number"
-              variant="outlined"
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              required
-              label="Expiry Date"
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              required
-              label="CVV"
-              variant="outlined"
-            />
-          </Box>
+          <PaymentForm 
+            onChange={(data) => {
+              // Handle payment form data changes here
+              console.log('Payment data updated:', data);
+            }}
+            onValidityChange={this.handlePaymentFormValidityChange}
+          />
         </Paper>
         {/* Order Summary */}
         <Paper elevation={2} sx={{ mt: 4, p: 3 }}>
@@ -176,13 +176,18 @@ export class CheckoutManager {
               fullWidth
               variant="contained" 
               color="primary"
-              component={Link} 
+              component={Link}
               to="/checkout"
+              disabled={!this.isCheckoutValid()}
               sx={{ 
                 fontSize: '16px', 
                 fontWeight: 'bold',
                 py: 1.5,
-                textTransform: 'none'
+                textTransform: 'none',
+                '&:disabled': {
+                  backgroundColor: 'action.disabled',
+                  color: 'text.disabled'
+                }
               }}
             >
               Place Order
@@ -192,6 +197,16 @@ export class CheckoutManager {
       </Box>
     );
   }
+
+
 }
 
-export const sharedCheckoutManager = new CheckoutManager();
+// Create a React component that uses the CheckoutManager
+const CheckoutManagerComponent: React.FC = () => {
+  return <CheckoutManager />;
+};
+
+export default CheckoutManagerComponent;
+
+// For backward compatibility, export a singleton instance
+export const sharedCheckoutManager = new CheckoutManager({});
