@@ -17,6 +17,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
+import Authentication from '../server/api';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -60,11 +61,13 @@ const Login: React.FC = () => {
 
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
-
+    let test = Authentication.test()
+    console.log(test)
+    
     if (isEmailValid && isPasswordValid) {
 
       console.log('Login attempt with:', { email, password });
-      
+
       // TODO: Replace with actual authentication logic that would connect with User/Customer classes
       if (email === 'demo@example.com' && password === 'password123') {
         // Successful login
