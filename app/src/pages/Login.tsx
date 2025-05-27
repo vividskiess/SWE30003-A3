@@ -17,7 +17,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
-import Authentication from '../server/api';
+// import Authentication from '../server/api'; // Temporarily disabled to prevent server interference
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -61,8 +61,9 @@ const Login: React.FC = () => {
 
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
-    let test = Authentication.test()
-    console.log(test)
+    // Temporarily disabled server authentication
+    // let test = Authentication.test()
+    // console.log(test)
     
     if (isEmailValid && isPasswordValid) {
 

@@ -8,8 +8,8 @@ import SignUp from './pages/SignUp';
 import ShoppingCart from './pages/ShoppingCart';
 import Login from './pages/Login';
 import CheckOut from './pages/CheckOut';
-import Authentication from './server/api';
-import Dashboard from './Templates/Dashboard';
+// import Authentication from './server/api'; // Temporarily disabled to prevent server interference
+// import Dashboard from './Templates/Dashboard';
 
 // Import the font you want to use (e.g., Google Fonts)
 import '@fontsource/roboto/300.css';
@@ -19,21 +19,22 @@ import '@fontsource/roboto/700.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-      
-        <Routes>
-          <Route path="/" element={<StoreCatalog />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/cart" element={<ShoppingCart />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/checkout" element={<CheckOut />} />
-          <Route path="/dashboard" element = {<Dashboard />} />
-        </Routes>
-      
-      </Layout>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<StoreCatalog />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/cart" element={<ShoppingCart />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/checkout" element={<CheckOut />} />
+            {/* <Route path="/dashboard" element = {<Dashboard />} /> */}
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
