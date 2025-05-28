@@ -18,8 +18,9 @@ type FormErrors = {
 };
 
 type ShippingFormProps = {
-  onChange: (data: ShippingFormData, isValid: boolean) => void;
+  onChange?: (data: ShippingFormData, isValid: boolean) => void;
   onValidityChange: (isValid: boolean) => void;
+  readOnly?: boolean;
 };
 
 type ShippingFormState = {
@@ -99,17 +100,20 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
     console.log('Shipping form validation:', {
       formData: this.state.formData,
       errors: formErrors,
-      allFieldsFilled,
-      isFormValid,
-      wasValid: this.state.isFormValid
+      isFormValid
     });
     
-    // Always update the parent with current validity state
-    this.props.onValidityChange(isFormValid);
-    this.props.onChange(this.state.formData, isFormValid);
-    
-    // Update local state
-    this.setState({ isFormValid });
+    this.setState(
+      (prevState) => ({
+        ...prevState,
+        errors: formErrors,
+        isFormValid,
+      }),
+      () => {
+        this.props.onChange?.(this.state.formData, isFormValid);
+        this.props.onValidityChange(isFormValid);
+      }
+    );
   };
 
   private handleBlur = (e: React.FocusEvent<HTMLInputElement>): void => {
@@ -129,112 +133,83 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
     }, this.validateFormAndNotify);
   };
 
-  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
-    console.log(`Input changed: ${name}`, value);
+  private handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (this.props.readOnly) return;
     
-    this.setState(prevState => {
-      const newData = { ...prevState.formData, [name]: value };
-      const newErrors = { ...prevState.errors };
-      
-      // Clear error when user types
-      if (prevState.touched[name]) {
-        const error = this.validateField(name, value);
-        if (error) {
-          newErrors[name as keyof FormErrors] = error;
-        } else {
-          delete newErrors[name as keyof FormErrors];
-        }
+    const { name, value } = e.target;
+    this.setState(
+      (prevState) => {
+        const newFormData = {
+          ...prevState.formData,
+          [name]: value,
+        };
+        const errors = this.validateForm(newFormData);
+        const allFieldsFilled = Object.values(newFormData).every((val) => val.trim() !== '');
+        const isFormValid = Object.keys(errors).length === 0 && allFieldsFilled;
+
+        return {
+          formData: newFormData,
+          errors,
+          isFormValid,
+        };
+      },
+      () => {
+        this.props.onChange?.(this.state.formData, this.state.isFormValid);
+        this.props.onValidityChange(this.state.isFormValid);
       }
-      
-      return {
-        formData: newData,
-        errors: newErrors
-      };
-    }, this.validateFormAndNotify);
+    );
   };
 
-  private getHelperText(field: keyof FormErrors): string | undefined {
-    return this.state.touched[field] ? this.state.errors[field] : undefined;
-  }
 
-  private isFieldValid(field: keyof FormErrors): boolean {
-    return !this.state.touched[field] || !this.state.errors[field];
-  }
 
   render() {
-    const { formData } = this.state;
-    
+    const { formData, errors, touched } = this.state;
+    const { readOnly = false } = this.props;
+
+    const textFieldProps = (name: keyof typeof formData) => ({
+      fullWidth: true,
+      margin: 'normal' as const,
+      name,
+      value: formData[name],
+      onChange: this.handleChange,
+      onBlur: this.handleBlur,
+      error: touched[name] && !!errors[name],
+      helperText: touched[name] && errors[name],
+      disabled: readOnly,
+      InputProps: {
+        readOnly,
+      },
+      InputLabelProps: {
+        shrink: readOnly ? true : undefined,
+      },
+      ...(readOnly ? { variant: 'filled' as const } : { variant: 'outlined' as const })
+    });
+
     return (
-      <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
+      <Box component="form" noValidate autoComplete="off">
         <TextField
-          fullWidth
-          required
-          name="streetAddress"
+          {...textFieldProps('streetAddress')}
           label="Street Address"
-          variant="outlined"
-          margin="normal"
-          value={formData.streetAddress}
-          onChange={this.handleInputChange}
-          onBlur={this.handleBlur}
-          error={!this.isFieldValid('streetAddress')}
-          helperText={this.getHelperText('streetAddress')}
-          placeholder="123 Example St"
         />
         <Box sx={{ display: 'flex', gap: 2 }}>
           <TextField
-            fullWidth
-            required
-            name="suburb"
+            {...textFieldProps('suburb')}
             label="Suburb"
-            variant="outlined"
-            value={formData.suburb}
-            onChange={this.handleInputChange}
-            onBlur={this.handleBlur}
-            error={!this.isFieldValid('suburb')}
-            helperText={this.getHelperText('suburb')}
           />
           <TextField
-            fullWidth
-            required
-            name="state"
+            {...textFieldProps('state')}
             label="State"
-            variant="outlined"
-            value={formData.state}
-            onChange={this.handleInputChange}
-            onBlur={this.handleBlur}
-            error={!this.isFieldValid('state')}
-            helperText={this.getHelperText('state')}
-            placeholder="e.g. VIC, NSW, QLD"
           />
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
           <TextField
-            fullWidth
-            required
-            name="postcode"
+            {...textFieldProps('postcode')}
             label="Postcode"
-            variant="outlined"
-            value={formData.postcode}
-            onChange={this.handleInputChange}
-            onBlur={this.handleBlur}
-            error={!this.isFieldValid('postcode')}
-            helperText={this.getHelperText('postcode')}
-          />
-          <TextField
-            fullWidth
-            required
-            name="country"
-            label="Country"
-            variant="outlined"
-            value={formData.country}
-            onChange={this.handleInputChange}
-            onBlur={this.handleBlur}
-            error={!this.isFieldValid('country')}
-            helperText={this.getHelperText('country')}
-            placeholder="e.g. Australia, United States, etc."
+            inputProps={{ maxLength: 4 }}
           />
         </Box>
+        <TextField
+          {...textFieldProps('country')}
+          label="Country"
+        />
       </Box>
     );
   }

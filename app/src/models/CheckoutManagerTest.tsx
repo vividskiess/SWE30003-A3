@@ -1,17 +1,6 @@
 import { sharedCart, sharedCatalogue } from './index';
 import { Product } from './Product';
 
-// Simple debounce function for class methods
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
-  return function(...args: Parameters<T>) {
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
 
 export type CartItemWithProduct = {
   product: Product;
@@ -22,11 +11,7 @@ export class CheckoutManagerTest {
   private isPaymentFormValid: boolean = false;
   private isShippingFormValid: boolean = false;
   private notifyValidityChange: (isValid: boolean) => void = () => {};
-  
-  // Debounced version of the validity change notifier
-  private debouncedNotifyValidityChange = debounce((isValid: boolean) => {
-    this.notifyValidityChange(isValid);
-  }, 100);
+  private lastValidity: boolean = false; // Initialize as false since no forms are valid initially
 
   constructor() {
     this.handlePaymentFormValidityChange = this.handlePaymentFormValidityChange.bind(this);
@@ -67,7 +52,11 @@ export class CheckoutManagerTest {
   }
 
   private checkValidity(): void {
-    this.debouncedNotifyValidityChange(this.isCheckoutValid());
+    const isValid = this.isCheckoutValid();
+    if (this.lastValidity !== isValid) {
+      this.lastValidity = isValid;
+      this.notifyValidityChange(isValid);
+    }
   }
 }
 

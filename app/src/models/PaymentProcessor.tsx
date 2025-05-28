@@ -1,4 +1,4 @@
-import { TextField, Box } from '@mui/material';
+import { TextField, Box, Button, Typography } from '@mui/material';
 import * as React from 'react';
 
 type PaymentFormData = {
@@ -14,8 +14,10 @@ type FormErrors = {
 };
 
 type PaymentFormProps = {
-  onChange?: (data: PaymentFormData, isValid: boolean) => void;
+  amount: number;
+  onPaymentProcessed?: (success: boolean, data?: any) => void;
   onValidityChange?: (isValid: boolean) => void;
+  readOnly?: boolean;
 };
 
 type PaymentFormState = {
@@ -25,6 +27,9 @@ type PaymentFormState = {
     [key: string]: boolean;
   };
   isFormValid: boolean;
+  isSubmitting: boolean;
+  isSubmitted: boolean;
+  submitError: string | null;
 };
 
 export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormState> {
@@ -42,7 +47,10 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
         expiryDate: false,
         cvv: false
       },
-      isFormValid: false
+      isFormValid: false,
+      isSubmitting: false,
+      isSubmitted: false,
+      submitError: null
     };
   }
 
@@ -123,10 +131,6 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
           this.props.onValidityChange(isFormValid);
         }
       });
-    }
-    
-    if (this.props.onChange) {
-      this.props.onChange(this.state.formData, isFormValid);
     }
   }
 
@@ -209,61 +213,125 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
     e.target.value = formatted;
   };
 
-  private getHelperText(field: keyof FormErrors): string | undefined {
-    return this.state.touched[field] ? this.state.errors[field] : undefined;
-  }
+  // Removed unused methods to clean up the code
+  // Helper methods can be added back if needed in the future
 
-  private isFieldValid(field: keyof FormErrors): boolean {
-    return !this.state.touched[field] || !this.state.errors[field];
-  }
+  private handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!this.state.isFormValid) return;
+    
+    this.setState({ isSubmitting: true, submitError: null });
+    
+    try {
+      // In a real app, you would call your payment service here
+      // For now, we'll simulate a successful payment
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      this.setState({ isSubmitted: true });
+      
+      if (this.props.onPaymentProcessed) {
+        this.props.onPaymentProcessed(true, this.state.formData);
+      }
+      
+      if (this.props.onValidityChange) {
+        this.props.onValidityChange(true);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
+      this.setState({ 
+        submitError: errorMessage,
+        isSubmitting: false 
+      });
+      
+      if (this.props.onPaymentProcessed) {
+        this.props.onPaymentProcessed(false, { error: errorMessage });
+      }
+    }
+  };
 
   render() {
-    const { formData } = this.state;
-    
+    const { readOnly } = this.props;
+    const { isSubmitting, isSubmitted, submitError } = this.state;
+
+    if (isSubmitted) {
+      return (
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Typography color="success.main" gutterBottom>
+            Payment information verified
+          </Typography>
+          <Button 
+            variant="outlined" 
+            color="primary"
+            onClick={() => this.setState({ isSubmitted: false })}
+            sx={{ mt: 2 }}
+          >
+            Edit Payment
+          </Button>
+        </Box>
+      );
+    }
+
     return (
-      <Box component="form" sx={{ '& .MuiTextField-root': { mb: 2 } }}>
+      <Box component="form" noValidate autoComplete="off" onSubmit={this.handleSubmit}>
         <TextField
           fullWidth
-          required
-          name="cardNumber"
-          label="Card Number"
-          variant="outlined"
           margin="normal"
-          value={formData.cardNumber}
+          label="Card Number"
+          name="cardNumber"
+          value={this.state.formData.cardNumber}
           onChange={this.handleCardNumberChange}
           onBlur={this.handleBlur}
-          error={!this.isFieldValid('cardNumber')}
-          helperText={this.getHelperText('cardNumber')}
-          placeholder="1234 5678 9012 3456"
+          error={!!this.state.errors.cardNumber}
+          helperText={this.state.errors.cardNumber}
+          inputProps={{ maxLength: 19 }}
+          disabled={readOnly || isSubmitting}
         />
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
           <TextField
             fullWidth
-            required
-            name="expiryDate"
             label="Expiry Date (MM/YY)"
-            variant="outlined"
-            value={formData.expiryDate}
+            name="expiryDate"
+            value={this.state.formData.expiryDate}
             onChange={this.handleExpiryDateChange}
             onBlur={this.handleBlur}
-            error={!this.isFieldValid('expiryDate')}
-            helperText={this.getHelperText('expiryDate')}
-            placeholder="MM/YY"
+            error={!!this.state.errors.expiryDate}
+            helperText={this.state.errors.expiryDate}
+            inputProps={{ maxLength: 5 }}
+            disabled={readOnly || isSubmitting}
           />
           <TextField
             fullWidth
-            required
-            name="cvv"
             label="CVV"
-            variant="outlined"
-            value={formData.cvv}
+            name="cvv"
+            value={this.state.formData.cvv}
             onChange={this.handleInputChange}
             onBlur={this.handleBlur}
-            error={!this.isFieldValid('cvv')}
-            helperText={this.getHelperText('cvv')}
-            placeholder="123"
+            error={!!this.state.errors.cvv}
+            helperText={this.state.errors.cvv}
+            inputProps={{ maxLength: 4 }}
+            disabled={readOnly || isSubmitting}
           />
         </Box>
+        
+        {submitError && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {submitError}
+          </Typography>
+        )}
+        
+        {!readOnly && (
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={!this.state.isFormValid || isSubmitting}
+            sx={{ mt: 3, mb: 2 }}
+          >
+            {isSubmitting ? 'Processing...' : 'Verify Payment'}
+          </Button>
+        )}
       </Box>
     );
   }
