@@ -10,6 +10,12 @@ import PaymentView from './PaymentView';
 interface CheckOutViewState {
   isCheckoutValid: boolean;
   cartItems: CartItemWithProduct[];
+  selectedShippingOption: {
+    name: string;
+    price: number;
+    estimatedDays: string;
+  } | null;
+  shippingCost: number;
 }
 
 export class CheckOutView extends React.Component<{}, CheckOutViewState> {
@@ -18,6 +24,8 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
     this.state = {
       isCheckoutValid: false,
       cartItems: [],
+      selectedShippingOption: null,
+      shippingCost: 0
     };
   }
 
@@ -69,9 +77,25 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
   };
 
   private handlePlaceOrder = () => {
-    if (this.state.isCheckoutValid) {
-      console.log('Placing order...');
-      // Handle order placement
+    console.log('Placing order with shipping option:', this.state.selectedShippingOption);
+    // TODO: Implement order placement logic
+  };
+
+  private handleShippingOptionSelect = (option: any) => {
+    if (option) {
+      this.setState({
+        selectedShippingOption: {
+          name: option.name,
+          price: option.price,
+          estimatedDays: option.estimatedDays
+        },
+        shippingCost: option.price
+      });
+    } else {
+      this.setState({
+        selectedShippingOption: null,
+        shippingCost: 0
+      });
     }
   };
 
@@ -81,6 +105,10 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
     return cartItems.reduce((total, { product, quantity }) => {
       return total + (product.price * quantity);
     }, 0);
+  }
+
+  private calculateTotal = (): number => {
+    return this.calculateSubtotal() + this.state.shippingCost;
   };
 
   render() {
@@ -115,8 +143,17 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           {/* Left Column - Forms */}
           <Box sx={{ flex: 2 }}>
-            <ShippingView onNext={() => {}} />
-            <PaymentView />
+            <ShippingView 
+              onNext={() => {}}
+              onShippingOptionSelect={this.handleShippingOptionSelect}
+            />
+            <PaymentView 
+              amount={this.calculateTotal()}
+              onPaymentProcessed={(success) => {
+                // Update the checkout validity when payment is processed
+                checkoutManager.handlePaymentFormValidityChange(success);
+              }}
+            />
           </Box>
 
           {/* Right Column - Order Summary */}
@@ -144,11 +181,18 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography>Shipping</Typography>
-                  <Typography>Complete the shipping form to calculate shipping cost</Typography>
+                  <Typography>
+                    {this.state.selectedShippingOption 
+                      ? `${this.state.selectedShippingOption.name} (${this.state.selectedShippingOption.estimatedDays}) - $${this.state.shippingCost.toFixed(2)}`
+                      : 'Complete the shipping form to calculate shipping cost'}
+                  </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #eee', pt: 2, mb: 3 }}>
                   <Typography variant="subtitle1">Total</Typography>
-                  <Typography variant="subtitle1">${subtotal.toFixed(2)}</Typography>
+                  <Typography variant="subtitle1">
+                    ${(subtotal + (this.state.shippingCost || 0)).toFixed(2)}
+                    {this.state.shippingCost > 0 && ` ($${subtotal.toFixed(2)} + $${this.state.shippingCost.toFixed(2)} shipping)`}
+                  </Typography>
                 </Box>
 
                 <Button
@@ -158,6 +202,12 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
                   size="large"
                   disabled={!isCheckoutValid}
                   onClick={this.handlePlaceOrder}
+                  sx={{
+                    mt: 2,
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold'
+                  }}
                 >
                   Place Order
                 </Button>
