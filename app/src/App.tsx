@@ -7,7 +7,7 @@ import UserProfile from './pages/UserProfile';
 import SignUp from './pages/SignUp';
 import ShoppingCart from './pages/ShoppingCart';
 import Login from './pages/Login';
-import CheckOut from './pages/CheckOut';
+// import CheckOut from './pages/CheckOut';
 import CheckOutView from './pages/CheckOutView';
 // import Authentication from './server/api'; // Temporarily disabled to prevent server interference
 // import Dashboard from './Templates/Dashboard';
@@ -30,9 +30,7 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/cart" element={<ShoppingCart />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/checkout" element={<CheckOut />} />
             <Route path="/checkoutView" element={<CheckOutView />} />
-            {/* <Route path="/dashboard" element = {<Dashboard />} /> */}
           </Routes>
         </Layout>
       </BrowserRouter>
