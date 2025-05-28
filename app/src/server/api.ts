@@ -1,16 +1,22 @@
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 
 class Authentication {
 
-	private static BACKEND_URL: string = "http://localhost:1234"
+	private static BACKEND_URL: string = "http://localhost:3000"
 
-	static test(): void {
-		// console.log("test")
-		axios.get(`${Authentication.BACKEND_URL}/`)
-			.then(res => res)
+	static test(): any {
+		let data
+		axios.get(`${Authentication.BACKEND_URL}/user/getAll`)
+			.then(res => {
+				data = res
+				console.log(res)
+				return data
+			})
 			.catch(err => err)
+		
+		
 	}
 
 	static register_new_user(): void {

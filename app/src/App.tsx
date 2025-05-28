@@ -17,6 +17,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import Test from './pages/test';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/checkout" element={<CheckOut />} />
             <Route path="/checkoutView" element={<CheckOutView />} />
             {/* <Route path="/dashboard" element = {<Dashboard />} /> */}
+            <Route path="/test" element={<Test />} />
           </Routes>
         </Layout>
       </BrowserRouter>
