@@ -1,10 +1,11 @@
 import React from 'react';
-import { Container, Typography, Paper, Box, Button } from '@mui/material';
+import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { PaymentForm } from '../models/PaymentProcessor';
-import { ShippingForm } from '../models/ShippingManager';
-import { checkoutManager, CartItemWithProduct } from '../models/CheckoutManagerTest';
+import { CartItemWithProduct } from '../models/CheckoutManagerTest';
 import { sharedCart } from '../models';
+import { checkoutManager } from '../models/CheckoutManagerTest';
+import ShippingView from './ShippingView';
+import PaymentView from './PaymentView';
 
 interface CheckOutViewState {
   isCheckoutValid: boolean;
@@ -50,7 +51,7 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
     // Simple check to prevent unnecessary re-renders
     const itemsChanged = 
       newItems.length !== currentItems.length ||
-      newItems.some((item, index) => 
+      newItems.some((item: CartItemWithProduct, index: number) => 
         currentItems[index]?.product.id !== item.product.id ||
         currentItems[index]?.quantity !== item.quantity
       );
@@ -113,38 +114,10 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
         
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           {/* Left Column - Forms */}
-
-            {/* Shipping Information */}
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Shipping Information
-              </Typography>
-              <ShippingForm 
-                onChange={() => {}}
-                onValidityChange={checkoutManager.handleShippingFormValidityChange}
-              />
-              <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                //   disabled={!isCheckoutValid}
-                //   onClick={this.handlePlaceOrder}
-                >
-                  Calculate Shipping
-              </Button>
-            </Paper>
-
-            {/* Payment Information */}
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Payment Information
-              </Typography>
-              <PaymentForm 
-                onChange={() => {}}
-                onValidityChange={checkoutManager.handlePaymentFormValidityChange}
-              />
-            </Paper>
+          <Box sx={{ flex: 2 }}>
+            <ShippingView onNext={() => {}} />
+            <PaymentView />
+          </Box>
 
           {/* Right Column - Order Summary */}
           <Box sx={{ flex: 1 }}>
@@ -171,7 +144,7 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography>Shipping</Typography>
-                  <Typography>Calculated at next step</Typography>
+                  <Typography>Complete the shipping form to calculate shipping cost</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #eee', pt: 2, mb: 3 }}>
                   <Typography variant="subtitle1">Total</Typography>
