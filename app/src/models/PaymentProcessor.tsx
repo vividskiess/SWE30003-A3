@@ -1,5 +1,6 @@
 import { TextField, Box, Button, Typography } from '@mui/material';
 import * as React from 'react';
+import { paymentService } from './PaymentService';
 
 type PaymentFormData = {
   cardNumber: string;
@@ -17,6 +18,7 @@ type PaymentFormProps = {
   amount: number;
   onPaymentProcessed?: (success: boolean, data?: any) => void;
   onValidityChange?: (isValid: boolean) => void;
+  onEdit?: () => void;
   readOnly?: boolean;
 };
 
@@ -213,6 +215,37 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
     e.target.value = formatted;
   };
 
+  private handleEdit = (): void => {
+    // First call the parent's onEdit handler to update the verification state
+    if (this.props.onEdit) {
+      this.props.onEdit();
+    }
+
+    // Then update the local state
+    this.setState({
+      isSubmitted: false,
+      submitError: null,
+      isSubmitting: false,
+      isFormValid: false,
+      errors: {},
+      // Keep the existing form data
+      // Mark all fields as touched to show any validation errors
+      touched: {
+        cardNumber: true,
+        expiryDate: true,
+        cvv: true
+      }
+    }, () => {
+      // Re-validate the form after enabling edit mode
+      this.validateFormAndNotify();
+      
+      // Notify parent about the validity change
+      if (this.props.onValidityChange) {
+        this.props.onValidityChange(false);
+      }
+    });
+  };
+
   // Removed unused methods to clean up the code
   // Helper methods can be added back if needed in the future
 
@@ -221,116 +254,175 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
     
     if (!this.state.isFormValid) return;
     
-    this.setState({ isSubmitting: true, submitError: null });
+    this.setState({ 
+      isSubmitting: true, 
+      submitError: null,
+      // Mark all fields as touched to show any validation errors
+      touched: {
+        cardNumber: true,
+        expiryDate: true,
+        cvv: true
+      }
+    });
     
     try {
-      // In a real app, you would call your payment service here
-      // For now, we'll simulate a successful payment
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Format the card number to match the service's format (remove spaces)
+      const cardNumber = this.state.formData.cardNumber.replace(/\s+/g, '');
       
-      this.setState({ isSubmitted: true });
+      // Create payment details object for validation
+      const paymentDetails = {
+        cardNumber,
+        expiryDate: this.state.formData.expiryDate,
+        cvv: this.state.formData.cvv,
+        cardHolderName: 'VALID CARD',
+        amount: this.props.amount
+      };
       
-      if (this.props.onPaymentProcessed) {
-        this.props.onPaymentProcessed(true, this.state.formData);
-      }
+      // Validate payment details against the payment service
+      const response = await paymentService.processPayment(paymentDetails);
       
-      if (this.props.onValidityChange) {
-        this.props.onValidityChange(true);
+      if (response.success) {
+        this.setState(prevState => {
+          // Create the updated form data with cleared CVV
+          const updatedFormData = {
+            ...prevState.formData,
+            cvv: '' // Clear CVV for security
+          };
+          
+          // Call callbacks with the updated state
+          if (this.props.onPaymentProcessed) {
+            this.props.onPaymentProcessed(true, updatedFormData);
+          }
+          
+          if (this.props.onValidityChange) {
+            this.props.onValidityChange(true);
+          }
+          
+          // Return the new state
+          return {
+            isSubmitted: true,
+            isSubmitting: false,
+            errors: {},
+            formData: updatedFormData
+          };
+        });
+      } else {
+        throw new Error(response.error || 'Payment verification failed');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
-      this.setState({ 
-        submitError: errorMessage,
-        isSubmitting: false 
-      });
       
-      if (this.props.onPaymentProcessed) {
-        this.props.onPaymentProcessed(false, { error: errorMessage });
-      }
+      this.setState(prevState => {
+        // Call callbacks with the updated state
+        if (this.props.onPaymentProcessed) {
+          this.props.onPaymentProcessed(false, { error: errorMessage });
+        }
+        
+        if (this.props.onValidityChange) {
+          this.props.onValidityChange(false);
+        }
+        
+        // Return the new state
+        return {
+          submitError: errorMessage,
+          isSubmitting: false,
+          formData: {
+            ...prevState.formData
+          }
+        };
+      });
     }
   };
 
-  render() {
+  public render() {
     const { readOnly } = this.props;
-    const { isSubmitting, isSubmitted, submitError } = this.state;
-
-    if (isSubmitted) {
-      return (
-        <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography color="success.main" gutterBottom>
-            Payment information verified
-          </Typography>
-          <Button 
-            variant="outlined" 
-            color="primary"
-            onClick={() => this.setState({ isSubmitted: false })}
-            sx={{ mt: 2 }}
-          >
-            Edit Payment
-          </Button>
-        </Box>
-      );
-    }
+    const { formData, errors, touched, isSubmitting, isSubmitted, submitError } = this.state;
+    // Only show read-only view if we're not in edit mode and there's no submission error
+    const isFormReadOnly = readOnly && isSubmitted && !submitError && !isSubmitting;
 
     return (
-      <Box component="form" noValidate autoComplete="off" onSubmit={this.handleSubmit}>
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Card Number"
-          name="cardNumber"
-          value={this.state.formData.cardNumber}
-          onChange={this.handleCardNumberChange}
-          onBlur={this.handleBlur}
-          error={!!this.state.errors.cardNumber}
-          helperText={this.state.errors.cardNumber}
-          inputProps={{ maxLength: 19 }}
-          disabled={readOnly || isSubmitting}
-        />
-        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-          <TextField
-            fullWidth
-            label="Expiry Date (MM/YY)"
-            name="expiryDate"
-            value={this.state.formData.expiryDate}
-            onChange={this.handleExpiryDateChange}
-            onBlur={this.handleBlur}
-            error={!!this.state.errors.expiryDate}
-            helperText={this.state.errors.expiryDate}
-            inputProps={{ maxLength: 5 }}
-            disabled={readOnly || isSubmitting}
-          />
-          <TextField
-            fullWidth
-            label="CVV"
-            name="cvv"
-            value={this.state.formData.cvv}
-            onChange={this.handleInputChange}
-            onBlur={this.handleBlur}
-            error={!!this.state.errors.cvv}
-            helperText={this.state.errors.cvv}
-            inputProps={{ maxLength: 4 }}
-            disabled={readOnly || isSubmitting}
-          />
-        </Box>
-        
-        {submitError && (
-          <Typography color="error" sx={{ mt: 1 }}>
+      <Box component="form" onSubmit={this.handleSubmit} noValidate>
+        {submitError && !isFormReadOnly && (
+          <Typography color="error" sx={{ mb: 2 }}>
             {submitError}
           </Typography>
         )}
-        
-        {!readOnly && (
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={!this.state.isFormValid || isSubmitting}
-            sx={{ mt: 3, mb: 2 }}
-          >
-            {isSubmitting ? 'Processing...' : 'Verify Payment'}
-          </Button>
+
+        {isFormReadOnly ? (
+          <Box sx={{ mt: 2 }}>
+            <Typography>Card ending in {formData.cardNumber.slice(-4)}</Typography>
+            <Typography>Expires: {formData.expiryDate}</Typography>
+            <Button 
+              type="button"
+              variant="outlined" 
+              onClick={this.handleEdit}
+              sx={{ mt: 2 }}
+            >
+              Edit Card Details
+            </Button>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label="Card Number"
+              name="cardNumber"
+              value={formData.cardNumber}
+              onChange={this.handleCardNumberChange}
+              onBlur={this.handleBlur}
+              error={touched.cardNumber && !!errors.cardNumber}
+              helperText={touched.cardNumber ? errors.cardNumber : ' '}
+              FormHelperTextProps={{ style: { height: '20px' } }}
+              disabled={isSubmitting}
+              fullWidth
+              margin="normal"
+              placeholder="1234 5678 9012 3456"
+              inputProps={{ maxLength: 19 }}
+            />
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Expiry Date (MM/YY)"
+                name="expiryDate"
+                value={formData.expiryDate}
+                onChange={this.handleExpiryDateChange}
+                onBlur={this.handleBlur}
+                error={touched.expiryDate && !!errors.expiryDate}
+                helperText={touched.expiryDate ? errors.expiryDate : ' '}
+              FormHelperTextProps={{ style: { height: '20px' } }}
+                disabled={isSubmitting}
+                placeholder="MM/YY"
+                sx={{ flex: 1 }}
+                inputProps={{ maxLength: 5 }}
+              />
+
+              <TextField
+                label="CVV"
+                name="cvv"
+                type="password"
+                value={formData.cvv}
+                onChange={this.handleInputChange}
+                onBlur={this.handleBlur}
+                error={touched.cvv && !!errors.cvv}
+                helperText={touched.cvv ? errors.cvv : ' '}
+              FormHelperTextProps={{ style: { height: '20px' } }}
+                disabled={isSubmitting}
+                placeholder="123"
+                sx={{ flex: 1 }}
+                inputProps={{ maxLength: 4 }}
+              />
+            </Box>
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={!this.state.isFormValid || isSubmitting}
+              fullWidth
+              sx={{ mt: 2, alignSelf: 'flex-start' }}
+            >
+              {isSubmitting ? 'Verifying...' : 'Verify Payment'}
+            </Button>
+          </Box>
         )}
       </Box>
     );
