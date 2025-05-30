@@ -16,16 +16,26 @@ interface CheckOutViewState {
     estimatedDays: string;
   } | null;
   shippingCost: number;
+  isPaymentVerified: boolean;
+  paymentError: string | null;
+  isProcessing: boolean;
 }
 
-export class CheckOutView extends React.Component<{}, CheckOutViewState> {
+type CheckOutViewProps = {
+  onPaymentProcessed?: (success: boolean) => void;
+};
+
+export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutViewState> {
   constructor(props: {}) {
     super(props);
     this.state = {
       isCheckoutValid: false,
       cartItems: [],
       selectedShippingOption: null,
-      shippingCost: 0
+      shippingCost: 0,
+      isPaymentVerified: false,
+      paymentError: null,
+      isProcessing: false
     };
   }
 
@@ -69,11 +79,38 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
     }
   };
 
-  private handleValidityChange = (isValid: boolean) => {
+  private updateCheckoutValidity = () => {
+    // Check both payment verification and shipping validity
+    const { isPaymentVerified, selectedShippingOption } = this.state;
+    const isShippingValid = selectedShippingOption !== null;
+    const isCheckoutValidNow = isPaymentVerified && isShippingValid;
+    
     // Only update state if validity actually changed
-    if (this.state.isCheckoutValid !== isValid) {
-      this.setState({ isCheckoutValid: isValid });
+    if (this.state.isCheckoutValid !== isCheckoutValidNow) {
+      this.setState({ isCheckoutValid: isCheckoutValidNow });
     }
+    
+    // Always notify the parent about the current validity
+    if (this.props.onPaymentProcessed) {
+      this.props.onPaymentProcessed(isPaymentVerified);
+    }
+  };
+
+  // This is kept for backward compatibility with the payment form
+  private handleValidityChange = (_isValid?: boolean) => {
+    this.updateCheckoutValidity();
+  };
+
+  private handleEdit = (): void => {
+    this.setState({
+      isPaymentVerified: false,
+      paymentError: null,
+      isProcessing: false,
+      isCheckoutValid: false
+    }, () => {
+      // Update the checkout validity which will also notify parent
+      this.updateCheckoutValidity();
+    });
   };
 
   private handlePlaceOrder = () => {
@@ -90,11 +127,15 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
           estimatedDays: option.estimatedDays
         },
         shippingCost: option.price
+      }, () => {
+        // Update the checkout validity when shipping option changes
+        this.updateCheckoutValidity();
       });
     } else {
       this.setState({
         selectedShippingOption: null,
-        shippingCost: 0
+        shippingCost: 0,
+        isCheckoutValid: false // Explicitly set to false when no shipping option is selected
       });
     }
   };
@@ -150,9 +191,19 @@ export class CheckOutView extends React.Component<{}, CheckOutViewState> {
             <PaymentView 
               amount={this.calculateTotal()}
               onPaymentProcessed={(success) => {
-                // Update the checkout validity when payment is processed
-                checkoutManager.handlePaymentFormValidityChange(success);
+                this.setState({ 
+                  isPaymentVerified: success,
+                  paymentError: success ? null : this.state.paymentError
+                }, () => {
+                  // Update the overall checkout validity after state is updated
+                  this.updateCheckoutValidity();
+                  // Notify parent component about the payment status
+                  if (this.props.onPaymentProcessed) {
+                    this.props.onPaymentProcessed(success);
+                  }
+                });
               }}
+              onEdit={this.handleEdit}
             />
           </Box>
 

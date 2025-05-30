@@ -6,6 +6,8 @@ import { checkoutManager } from '../models/CheckoutManagerTest';
 interface PaymentViewProps {
   amount: number;
   onPaymentProcessed?: (success: boolean) => void;
+  onEdit?: () => void;
+  readOnly?: boolean;
 }
 
 interface PaymentViewState {
@@ -31,7 +33,11 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
 
   private handlePaymentProcessed = (success: boolean, data?: any) => {
     if (success) {
-      this.setState({ isPaymentVerified: true });
+      this.setState({ 
+        isPaymentVerified: true,
+        isProcessing: false,
+        paymentError: null
+      });
       checkoutManager.handlePaymentFormValidityChange(true);
     } else {
       this.setState({ 
@@ -46,9 +52,11 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
     }
   };
 
+
   render() {
-    const { amount } = this.props;
-    const { paymentError, isPaymentVerified } = this.state;
+    const { amount, onEdit, readOnly } = this.props;
+    const { isPaymentVerified } = this.state;
+    const isActuallyReadOnly = readOnly || isPaymentVerified;
 
     return (
       <Paper elevation={2} sx={{ p: 3 }}>
@@ -56,21 +64,17 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
           Payment Information
         </Typography>
         
-        {paymentError && (
-          <Typography color="error" sx={{ mb: 2 }}>
-            {paymentError}
-          </Typography>
-        )}
-
-        <PaymentForm 
+        <PaymentForm
           amount={amount}
           onPaymentProcessed={this.handlePaymentProcessed}
           onValidityChange={(isValid) => {
-            if (!isValid) {
-              checkoutManager.handlePaymentFormValidityChange(false);
+            if (!isPaymentVerified) {
+              checkoutManager.handlePaymentFormValidityChange(isValid);
             }
           }}
-          readOnly={isPaymentVerified}
+          readOnly={isActuallyReadOnly}
+          onEdit={onEdit}
+          key={isActuallyReadOnly ? 'readonly' : 'editable'}
         />
       </Paper>
     );
