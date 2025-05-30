@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Box, 
   Container, 
@@ -10,185 +10,317 @@ import {
   InputAdornment,
   IconButton,
   Alert,
-  Divider
+  Divider,
+  CircularProgress
 } from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
-// import Authentication from '../server/api'; // Temporarily disabled to prevent server interference
+import { User } from '../models/User';
 
-const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [loginError, setLoginError] = useState('');
-  const navigate = useNavigate();
 
-  const validateEmail = (email: string): boolean => {
+interface LoginViewState {
+  formData: {
+    email: string;
+    password: string;
+  };
+  showPassword: boolean;
+  errors: {
+    email: string;
+    password: string;
+    login: string;
+  };
+  isAuthenticated: boolean;
+  isSubmitting: boolean;
+  redirectTo: string | null;
+}
+
+class LoginView extends React.Component<{}, LoginViewState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      formData: {
+        email: '',
+        password: ''
+      },
+      showPassword: false,
+      errors: {
+        email: '',
+        password: '',
+        login: ''
+      },
+      isAuthenticated: false,
+      isSubmitting: false,
+      redirectTo: null
+    };
+  }
+
+  componentDidMount() {
+    // Check if user is already authenticated
+    if (User.isAuthenticated()) {
+      this.setState({ isAuthenticated: true });
+    }
+
+    // Check for redirect from URL query params
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    if (redirect) {
+      this.setState({ redirectTo: redirect });
+    }
+  }
+
+  private validateEmail = (email: string): boolean => {
     if (!email) {
-      setEmailError('Email is required');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          email: 'Email is required'
+        }
+      }));
       return false;
     }
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setEmailError('Please enter a valid email address');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          email: 'Please enter a valid email address'
+        }
+      }));
       return false;
     }
-    setEmailError('');
+    
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        email: ''
+      }
+    }));
     return true;
   };
 
-  const validatePassword = (password: string): boolean => {
+  private validatePassword = (password: string): boolean => {
     if (!password) {
-      setPasswordError('Password is required');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          password: 'Password is required'
+        }
+      }));
       return false;
     }
+    
+    // Basic password validation
     if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          password: 'Password must be at least 6 characters'
+        }
+      }));
       return false;
     }
-    setPasswordError('');
+    
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        password: ''
+      }
+    }));
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
+  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+    
+    this.setState(prevState => ({
+      formData: {
+        ...prevState.formData,
+        [name]: value
+      }
+    }));
+  };
 
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-    // Temporarily disabled server authentication
-    // let test = Authentication.test()
-    // console.log(test)
+  private togglePasswordVisibility = (): void => {
+    this.setState(prevState => ({
+      showPassword: !prevState.showPassword
+    }));
+  };
+
+  private handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    this.setState({ isSubmitting: true });
+    
+    const { email, password } = this.state.formData;
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        login: ''
+      }
+    }));
+
+    const isEmailValid = this.validateEmail(email);
+    const isPasswordValid = this.validatePassword(password);
     
     if (isEmailValid && isPasswordValid) {
-
-      console.log('Login attempt with:', { email, password });
-
-      // TODO: Replace with actual authentication logic that would connect with User/Customer classes
-      if (email === 'demo@example.com' && password === 'password123') {
-        // Successful login
-        navigate('/profile');
-      } else {
-        // Failed login
-        setLoginError('Invalid email or password');
+      try {
+        // Use the User model to authenticate
+        // For demonstration purposes, using simulation
+        const response = await User.simulateLogin(email, password);
+        
+        if (response.success) {
+          this.setState({ 
+            isAuthenticated: true,
+            isSubmitting: false
+          });
+        } else {
+          this.setState({
+            errors: {
+              ...this.state.errors,
+              login: response.message || 'Authentication failed'
+            },
+            isSubmitting: false
+          });
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        this.setState({
+          errors: {
+            ...this.state.errors,
+            login: 'An unexpected error occurred'
+          },
+          isSubmitting: false
+        });
       }
+    } else {
+      this.setState({ isSubmitting: false });
     }
   };
 
-  return (
-    <Container component="main" maxWidth="sm">
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          mt: 8, 
-          p: 4, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center' 
-        }}
-      >
-        <Box sx={{ 
-          p: 2, 
-          backgroundColor: 'primary.main', 
-          borderRadius: '50%', 
-          mb: 2,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <LockOutlinedIcon sx={{ color: 'white' }} />
-        </Box>
-        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-          Sign in to AWE Electronics
-        </Typography>
+  render() {
+    const { formData, showPassword, errors, isAuthenticated, isSubmitting, redirectTo } = this.state;
 
-        {loginError && (
-          <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
-            {loginError}
-          </Alert>
-        )}
+    if (isAuthenticated) {
+      return <Navigate to={redirectTo || "/profile"} />;
+    }
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={!!emailError}
-            helperText={emailError}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <EmailIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            id="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={!!passwordError}
-            helperText={passwordError}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5 }}
-          >
-            Sign In
-          </Button>
-          
-          <Divider sx={{ my: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              OR
-            </Typography>
-          </Divider>
-          
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2">
-              Don't have an account?{' '}
-              <Link component={RouterLink} to="/signup" variant="body2">
-                Sign Up
-              </Link>
-            </Typography>
+    return (
+      <Container component="main" maxWidth="sm">
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            mt: 8, 
+            p: 4, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center' 
+          }}
+        >
+          <Box sx={{ 
+            p: 2, 
+            backgroundColor: 'primary.main', 
+            borderRadius: '50%', 
+            mb: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <LockOutlinedIcon sx={{ color: 'white' }} />
           </Box>
-        </Box>
-      </Paper>
-    </Container>
-  );
-};
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+            Sign in to AWE Electronics
+          </Typography>
 
-export default Login;
+          {errors.login && (
+            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              {errors.login}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={this.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={formData.email}
+              onChange={this.handleInputChange}
+              error={!!errors.email}
+              helperText={errors.email}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              autoComplete="current-password"
+              value={formData.password}
+              onChange={this.handleInputChange}
+              error={!!errors.password}
+              helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={this.togglePasswordVisibility}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+              ) : null}
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
+            </Button>
+            
+            <Divider sx={{ my: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR
+              </Typography>
+            </Divider>
+            
+            <Box sx={{ textAlign: 'center', mt: 2 }}>
+              <Typography variant="body2">
+                Don't have an account?{' '}
+                <Link component={RouterLink} to="/signup" variant="body2">
+                  Sign Up
+                </Link>
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
+    );
+  }
+}
+
+export default LoginView;

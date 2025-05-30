@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Box, 
   Container, 
@@ -11,70 +11,147 @@ import {
   InputAdornment,
   IconButton,
   Alert,
-  Divider
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  CircularProgress
 } from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { User, UserData } from '../models/User';
 
-const SignUp: React.FC = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const [signUpSuccess, setSignUpSuccess] = useState(false);
-  
-  const navigate = useNavigate();
+interface SignUpViewState {
+  formData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    gender: 'M' | 'F' | '';
+    address: string;
+  };
+  showPassword: boolean;
+  showConfirmPassword: boolean;
+  errors: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    gender: string;
+    address: string;
+    form: string;
+  };
+  isSubmitting: boolean;
+  isRegistered: boolean;
+  registrationSuccess: boolean;
+}
 
-  const validateName = (name: string, field: 'first' | 'last'): boolean => {
+class SignUpView extends React.Component<{}, SignUpViewState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      formData: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        gender: '',
+        address: ''
+      },
+      showPassword: false,
+      showConfirmPassword: false,
+      errors: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        gender: '',
+        address: '',
+        form: ''
+      },
+      isSubmitting: false,
+      isRegistered: false,
+      registrationSuccess: false
+    };
+  }
+
+  private validateName = (name: string, field: 'firstName' | 'lastName'): boolean => {
     if (!name.trim()) {
-      if (field === 'first') {
-        setFirstNameError('First name is required');
-      } else {
-        setLastNameError('Last name is required');
-      }
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          [field]: `${field === 'firstName' ? 'First' : 'Last'} name is required`
+        }
+      }));
       return false;
     }
     
-    if (field === 'first') {
-      setFirstNameError('');
-    } else {
-      setLastNameError('');
-    }
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        [field]: ''
+      }
+    }));
     return true;
   };
 
-  const validateEmail = (email: string): boolean => {
+  private validateEmail = (email: string): boolean => {
     if (!email) {
-      setEmailError('Email is required');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          email: 'Email is required'
+        }
+      }));
       return false;
     }
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setEmailError('Please enter a valid email address');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          email: 'Please enter a valid email address'
+        }
+      }));
       return false;
     }
-    setEmailError('');
+    
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        email: ''
+      }
+    }));
     return true;
   };
 
-  const validatePassword = (password: string): boolean => {
+  private validatePassword = (password: string): boolean => {
     if (!password) {
-      setPasswordError('Password is required');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          password: 'Password is required'
+        }
+      }));
       return false;
     }
+    
     if (password.length < 8) {
-      setPasswordError('Password must be at least 8 characters');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          password: 'Password must be at least 8 characters'
+        }
+      }));
       return false;
     }
     
@@ -84,209 +161,404 @@ const SignUp: React.FC = () => {
     const hasNumber = /\d/.test(password);
     
     if (!hasUppercase || !hasLowercase || !hasNumber) {
-      setPasswordError('Password must include uppercase, lowercase, and number');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          password: 'Password must include uppercase, lowercase, and number'
+        }
+      }));
       return false;
     }
     
-    setPasswordError('');
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        password: ''
+      }
+    }));
     return true;
   };
 
-  const validateConfirmPassword = (confirmPassword: string): boolean => {
+  private validateConfirmPassword = (confirmPassword: string, password: string): boolean => {
     if (!confirmPassword) {
-      setConfirmPasswordError('Please confirm your password');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          confirmPassword: 'Please confirm your password'
+        }
+      }));
       return false;
     }
+    
     if (confirmPassword !== password) {
-      setConfirmPasswordError('Passwords do not match');
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          confirmPassword: 'Passwords do not match'
+        }
+      }));
       return false;
     }
-    setConfirmPasswordError('');
+    
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        confirmPassword: ''
+      }
+    }));
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  private validateGender = (gender: string): boolean => {
+    if (!gender) {
+      this.setState(prevState => ({
+        errors: {
+          ...prevState.errors,
+          gender: 'Gender is required'
+        }
+      }));
+      return false;
+    }
+    
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        gender: ''
+      }
+    }));
+    return true;
+  };
 
-    const isFirstNameValid = validateName(firstName, 'first');
-    const isLastNameValid = validateName(lastName, 'last');
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-    const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
+  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+    
+    this.setState(prevState => ({
+      formData: {
+        ...prevState.formData,
+        [name]: value
+      }
+    }));
+  };
 
-    if (isFirstNameValid && isLastNameValid && isEmailValid && 
-        isPasswordValid && isConfirmPasswordValid) {
-      
-      console.log('Sign up data:', { firstName, lastName, email, password });
-      
-      // TODO: Create a new Customer instance based on the UML diagram
-      
-      // Show success message and redirect after a delay
-      setSignUpSuccess(true);
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+  private handleSelectChange = (e: SelectChangeEvent): void => {
+    const { name, value } = e.target;
+    
+    this.setState(prevState => ({
+      formData: {
+        ...prevState.formData,
+        [name]: value
+      } as any
+    }));
+  };
+
+  private togglePasswordVisibility = (field: 'password' | 'confirmPassword'): void => {
+    if (field === 'password') {
+      this.setState(prevState => ({
+        showPassword: !prevState.showPassword
+      }));
+    } else {
+      this.setState(prevState => ({
+        showConfirmPassword: !prevState.showConfirmPassword
+      }));
     }
   };
 
-  return (
-    <Container component="main" maxWidth="sm">
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          mt: 8, 
-          p: 4, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center',
-          mb: 4
-        }}
-      >
-        <Box sx={{ 
-          p: 2, 
-          bgcolor: 'primary.main', 
-          borderRadius: '50%', 
-          mb: 2,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <PersonAddIcon sx={{ color: 'white' }} />
-        </Box>
-        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-          Create an Account
-        </Typography>
+  private handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    this.setState({ isSubmitting: true });
+    
+    const { firstName, lastName, email, password, confirmPassword, gender, address } = this.state.formData;
+    
+    // Reset form error
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        form: ''
+      }
+    }));
 
-        {signUpSuccess && (
-          <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
-            Account created successfully! Redirecting to login...
-          </Alert>
-        )}
+    // Validate all fields
+    const isFirstNameValid = this.validateName(firstName, 'firstName');
+    const isLastNameValid = this.validateName(lastName, 'lastName');
+    const isEmailValid = this.validateEmail(email);
+    const isPasswordValid = this.validatePassword(password);
+    const isConfirmPasswordValid = this.validateConfirmPassword(confirmPassword, password);
+    const isGenderValid = this.validateGender(gender);
+    
+    if (isFirstNameValid && isLastNameValid && isEmailValid && 
+        isPasswordValid && isConfirmPasswordValid && isGenderValid) {
+      
+      // Create user data object
+      const userData: UserData = {
+        accountType: 'CUSTOMER', // Always register as customer
+        firstName,
+        lastName,
+        email,
+        password,
+        gender: gender as 'M' | 'F',
+        address
+      };
+      
+      try {
+        // Use the User model to register a new user
+        // For demonstration purposes, using simulation
+        const response = await User.simulateRegister(userData);
+        
+        if (response.success) {
+          this.setState({ 
+            registrationSuccess: true,
+            isSubmitting: false
+          });
+          
+          // Redirect to login after a delay
+          setTimeout(() => {
+            this.setState({ isRegistered: true });
+          }, 3000);
+        } else {
+          this.setState({
+            errors: {
+              ...this.state.errors,
+              form: response.message || 'Registration failed'
+            },
+            isSubmitting: false
+          });
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        this.setState({
+          errors: {
+            ...this.state.errors,
+            form: 'An unexpected error occurred'
+          },
+          isSubmitting: false
+        });
+      }
+    } else {
+      this.setState({ 
+        isSubmitting: false,
+        errors: {
+          ...this.state.errors,
+          form: 'Please correct the errors in the form'
+        }
+      });
+    }
+  };
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
-            <TextField
-              autoComplete="given-name"
-              name="firstName"
-              required
-              fullWidth
-              id="firstName"
-              label="First Name"
-              autoFocus
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              error={!!firstNameError}
-              helperText={firstNameError}
-            />
-            <TextField
-              required
-              fullWidth
-              id="lastName"
-              label="Last Name"
-              name="lastName"
-              autoComplete="family-name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              error={!!lastNameError}
-              helperText={lastNameError}
-            />
+  render() {
+    const { 
+      formData, 
+      showPassword, 
+      showConfirmPassword, 
+      errors, 
+      isSubmitting, 
+      isRegistered,
+      registrationSuccess 
+    } = this.state;
+
+    if (isRegistered) {
+      return <Navigate to="/login" />;
+    }
+
+    return (
+      <Container component="main" maxWidth="sm">
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            mt: 8, 
+            p: 4, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            mb: 4
+          }}
+        >
+          <Box sx={{ 
+            p: 2, 
+            backgroundColor: 'primary.main', 
+            borderRadius: '50%', 
+            mb: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <PersonAddIcon sx={{ color: 'white' }} />
           </Box>
-          
-          <Stack spacing={2}>
-            <TextField
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={!!emailError}
-              helperText={emailError}
-            />
-            
-            <TextField
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={!!passwordError}
-              helperText={passwordError}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            
-            <TextField
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={!!confirmPasswordError}
-              helperText={confirmPasswordError}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle confirm password visibility"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Stack>
-          
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5 }}
-          >
-            Sign Up
-          </Button>
-          
-          <Divider sx={{ my: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              OR
-            </Typography>
-          </Divider>
-          
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2">
-              Already have an account?{' '}
-              <Link component={RouterLink} to="/login" variant="body2">
-                Sign In
-              </Link>
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
-    </Container>
-  );
-};
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+            Create an Account
+          </Typography>
 
-export default SignUp;
+          {registrationSuccess && (
+            <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
+              Account created successfully! Redirecting to login...
+            </Alert>
+          )}
+
+          {errors.form && (
+            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              {errors.form}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={this.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
+              <TextField
+                autoComplete="given-name"
+                name="firstName"
+                required
+                fullWidth
+                id="firstName"
+                label="First Name"
+                autoFocus
+                value={formData.firstName}
+                onChange={this.handleInputChange}
+                error={!!errors.firstName}
+                helperText={errors.firstName}
+              />
+              <TextField
+                required
+                fullWidth
+                id="lastName"
+                label="Last Name"
+                name="lastName"
+                autoComplete="family-name"
+                value={formData.lastName}
+                onChange={this.handleInputChange}
+                error={!!errors.lastName}
+                helperText={errors.lastName}
+              />
+            </Box>
+            
+            <Stack spacing={2}>
+              <TextField
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={this.handleInputChange}
+                error={!!errors.email}
+                helperText={errors.email}
+              />
+              
+              <FormControl fullWidth required error={!!errors.gender}>
+                <InputLabel id="gender-label">Gender</InputLabel>
+                <Select
+                  labelId="gender-label"
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  label="Gender"
+                  onChange={this.handleSelectChange}
+                >
+                  <MenuItem value="M">Male</MenuItem>
+                  <MenuItem value="F">Female</MenuItem>
+                </Select>
+                {errors.gender && (
+                  <Typography variant="caption" color="error">
+                    {errors.gender}
+                  </Typography>
+                )}
+              </FormControl>
+              
+              <TextField
+                fullWidth
+                id="address"
+                label="Address"
+                name="address"
+                multiline
+                rows={2}
+                value={formData.address}
+                onChange={this.handleInputChange}
+              />
+              
+              <TextField
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                autoComplete="new-password"
+                value={formData.password}
+                onChange={this.handleInputChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => this.togglePasswordVisibility('password')}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              
+              <TextField
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={this.handleInputChange}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirm password visibility"
+                        onClick={() => this.togglePasswordVisibility('confirmPassword')}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Stack>
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+              ) : null}
+              {isSubmitting ? 'Creating Account...' : 'Sign Up'}
+            </Button>
+            
+            <Divider sx={{ my: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR
+              </Typography>
+            </Divider>
+            
+            <Box sx={{ textAlign: 'center', mt: 2 }}>
+              <Typography variant="body2">
+                Already have an account?{' '}
+                <Link component={RouterLink} to="/login" variant="body2">
+                  Sign In
+                </Link>
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
+    );
+  }
+}
+
+export default SignUpView;
