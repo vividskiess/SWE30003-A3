@@ -349,79 +349,109 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
         )}
 
         {isFormReadOnly ? (
-          <Box sx={{ mt: 2 }}>
-            <Typography>Card ending in {formData.cardNumber.slice(-4)}</Typography>
-            <Typography>Expires: {formData.expiryDate}</Typography>
+          <Box sx={{ mt: 2, mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1, backgroundColor: '#f9f9f9' }}>
+            <Typography variant="body1" sx={{ mb: 1 }}>Card ending in {formData.cardNumber.slice(-4)}</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Expires: {formData.expiryDate}</Typography>
             <Button 
               type="button"
               variant="outlined" 
+              size="small"
               onClick={this.handleEdit}
-              sx={{ mt: 2 }}
+              sx={{ mt: 1 }}
             >
               Edit Card Details
             </Button>
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="Card Number"
-              name="cardNumber"
-              value={formData.cardNumber}
-              onChange={this.handleCardNumberChange}
-              onBlur={this.handleBlur}
-              error={touched.cardNumber && !!errors.cardNumber}
-              helperText={touched.cardNumber ? errors.cardNumber : ' '}
-              FormHelperTextProps={{ style: { height: '20px' } }}
-              disabled={isSubmitting}
-              fullWidth
-              margin="normal"
-              placeholder="1234 5678 9012 3456"
-              inputProps={{ maxLength: 19 }}
-            />
-
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
+            <Box sx={{ mb: 1 }}>
               <TextField
-                label="Expiry Date (MM/YY)"
-                name="expiryDate"
-                value={formData.expiryDate}
-                onChange={this.handleExpiryDateChange}
+                label="Card Number"
+                name="cardNumber"
+                value={formData.cardNumber}
+                onChange={this.handleCardNumberChange}
                 onBlur={this.handleBlur}
-                error={touched.expiryDate && !!errors.expiryDate}
-                helperText={touched.expiryDate ? errors.expiryDate : ' '}
-              FormHelperTextProps={{ style: { height: '20px' } }}
+                error={touched.cardNumber && !!errors.cardNumber}
+                helperText={touched.cardNumber ? errors.cardNumber : ' '}
+                FormHelperTextProps={{ style: { height: '20px', marginTop: 0 } }}
                 disabled={isSubmitting}
-                placeholder="MM/YY"
-                sx={{ flex: 1 }}
-                inputProps={{ maxLength: 5 }}
-              />
-
-              <TextField
-                label="CVV"
-                name="cvv"
-                type="password"
-                value={formData.cvv}
-                onChange={this.handleInputChange}
-                onBlur={this.handleBlur}
-                error={touched.cvv && !!errors.cvv}
-                helperText={touched.cvv ? errors.cvv : ' '}
-              FormHelperTextProps={{ style: { height: '20px' } }}
-                disabled={isSubmitting}
-                placeholder="123"
-                sx={{ flex: 1 }}
-                inputProps={{ maxLength: 4 }}
+                fullWidth
+                placeholder="1234 5678 9012 3456"
+                inputProps={{ maxLength: 19 }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1,
+                  },
+                }}
               />
             </Box>
 
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={!this.state.isFormValid || isSubmitting}
-              fullWidth
-              sx={{ mt: 2, alignSelf: 'flex-start' }}
-            >
-              {isSubmitting ? 'Verifying...' : 'Verify Payment'}
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  label="Expiry Date (MM/YY)"
+                  name="expiryDate"
+                  value={formData.expiryDate}
+                  onChange={this.handleExpiryDateChange}
+                  onBlur={this.handleBlur}
+                  error={touched.expiryDate && !!errors.expiryDate}
+                  helperText={touched.expiryDate ? errors.expiryDate : ' '}
+                  FormHelperTextProps={{ style: { height: '20px', marginTop: 0 } }}
+                  disabled={isSubmitting}
+                  placeholder="MM/YY"
+                  fullWidth
+                  inputProps={{ maxLength: 5 }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1,
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  label="CVV"
+                  name="cvv"
+                  type="password"
+                  value={formData.cvv}
+                  onChange={this.handleInputChange}
+                  onBlur={this.handleBlur}
+                  error={touched.cvv && !!errors.cvv}
+                  helperText={touched.cvv ? errors.cvv : ' '}
+                  FormHelperTextProps={{ style: { height: '20px', marginTop: 0 } }}
+                  disabled={isSubmitting}
+                  placeholder="123"
+                  fullWidth
+                  inputProps={{ maxLength: 4 }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1,
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            <Box sx={{ mt: 1, mb: 1 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={!this.state.isFormValid || isSubmitting}
+                fullWidth
+                size="large"
+                sx={{
+                  py: 1.5,
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 'medium'
+                }}
+              >
+                {isSubmitting ? 'Verifying...' : 'Verify Payment'}
+              </Button>
+            </Box>
           </Box>
         )}
       </Box>

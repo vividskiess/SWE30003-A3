@@ -321,16 +321,24 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
                 Order Summary
               </Typography>
               
-              {cartItems.map(({ product, quantity }) => (
-                <Box key={product.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="body2">
-                    {product.name} × {quantity}
-                  </Typography>
-                  <Typography variant="body2">
-                    ${(product.price * quantity).toFixed(2)}
-                  </Typography>
-                </Box>
-              ))}
+              {cartItems.map(({ product, quantity }) => {
+                const itemTotal = product.price * quantity;
+                return (
+                  <Box key={product.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {quantity} × ${product.price.toFixed(2)} each
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                      ${itemTotal.toFixed(2)}
+                    </Typography>
+                  </Box>
+                );
+              })}
 
               <Box sx={{ borderTop: '1px solid #eee', mt: 2, pt: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>

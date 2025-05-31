@@ -143,15 +143,19 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
 
   private validateFormAndNotify = (): void => {
     const formErrors = this.validateForm(this.state.formData);
-    const allFieldsFilled = Object.entries(this.state.formData).every(([key, val]) => {
-      const isTouched = this.state.touched[key as keyof typeof this.state.touched];
-      // Only require validation for touched fields
-      return !isTouched || (val && val.trim() !== '');
+    
+    // Check if all required fields are filled and valid
+    const requiredFields: (keyof typeof this.state.formData)[] = ['streetAddress', 'suburb', 'state', 'postcode'];
+    const allRequiredFieldsFilled = requiredFields.every(field => {
+      const value = this.state.formData[field];
+      return value && value.trim().length > 0;
     });
-    const isFormValid = Object.entries(formErrors).every(([key, error]) => {
-      // Only consider errors for touched fields
-      return !this.state.touched[key as keyof typeof this.state.touched] || !error;
-    }) && allFieldsFilled;
+    
+    // Check if there are any validation errors in the form
+    const hasErrors = Object.values(formErrors).some(error => error !== undefined);
+    
+    // Form is only valid if all required fields are filled and there are no validation errors
+    const isFormValid = allRequiredFieldsFilled && !hasErrors;
     
     console.log('Shipping form validation:', {
       formData: this.state.formData,

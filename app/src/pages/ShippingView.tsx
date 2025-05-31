@@ -68,6 +68,29 @@ class ShippingViewComponent extends React.Component<ShippingViewProps, ShippingV
     checkoutManager.handleShippingFormValidityChange(selectedOption !== null && isValid);
   };
 
+  private isFormFilled = (): boolean => {
+    if (!this.formRef.current) return false;
+    
+    // Get the form data and validation state
+    const formData = this.formRef.current.getFormData();
+    if (!formData) return false;
+    
+    // Check if all required fields are filled
+    const requiredFields: (keyof typeof formData)[] = ['streetAddress', 'suburb', 'state', 'postcode'];
+    const allFieldsFilled = requiredFields.every(field => {
+      const value = formData[field];
+      return value && value.toString().trim().length > 0;
+    });
+    
+    // Also check if there are any validation errors
+    const formElement = this.formRef.current as any;
+    const hasErrors = formElement.state ? 
+      Object.values(formElement.state.errors || {}).some((error: any) => error) : 
+      false;
+    
+    return allFieldsFilled && !hasErrors;
+  };
+
   private handleEditShipping = () => {
     this.setState({
       isFormReadOnly: false,
@@ -241,7 +264,7 @@ class ShippingViewComponent extends React.Component<ShippingViewProps, ShippingV
             size="large"
             sx={{ mt: 2 }}
             onClick={isFormReadOnly ? this.handleEditShipping : this.handleCalculateShipping}
-            disabled={!this.state.isFormValid && !isFormReadOnly || isCalculating}
+            disabled={!this.isFormFilled() || isCalculating}
           >
             {isCalculating 
               ? 'Calculating...' 
