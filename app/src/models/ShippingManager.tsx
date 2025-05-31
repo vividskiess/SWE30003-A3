@@ -64,12 +64,13 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
   }
 
   componentDidMount() {
+    // Initialize form without showing errors
     this.validateFormAndNotify();
   }
 
-  private validateField = (name: string, value: string): string | undefined => {
-    // Skip validation if field is empty (handled by required check)
-    if (!value || value.trim().length === 0) {
+  private validateField = (name: string, value: string, touched: boolean): string | undefined => {
+    // Only validate required fields if the field has been touched or has a value
+    if ((!value || value.trim().length === 0) && touched) {
       return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
     }
 
@@ -124,21 +125,33 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
     return undefined;
   }
 
-  private validateForm(formData: ShippingFormData): FormErrors {
+  private validateForm = (formData: ShippingFormData): FormErrors => {
     const errors: FormErrors = {};
-    Object.keys(formData).forEach(key => {
-      const error = this.validateField(key, formData[key as keyof ShippingFormData]);
-      if (error) {
-        errors[key as keyof FormErrors] = error;
+    
+    Object.entries(formData).forEach(([key, value]) => {
+      const isTouched = this.state.touched[key as keyof typeof this.state.touched];
+      if (isTouched) {
+        const error = this.validateField(key, value, true);
+        if (error) {
+          errors[key as keyof FormErrors] = error;
+        }
       }
     });
+    
     return errors;
-  }
+  };
 
   private validateFormAndNotify = (): void => {
     const formErrors = this.validateForm(this.state.formData);
-    const allFieldsFilled = Object.values(this.state.formData).every(val => val.trim() !== '');
-    const isFormValid = Object.keys(formErrors).length === 0 && allFieldsFilled;
+    const allFieldsFilled = Object.entries(this.state.formData).every(([key, val]) => {
+      const isTouched = this.state.touched[key as keyof typeof this.state.touched];
+      // Only require validation for touched fields
+      return !isTouched || (val && val.trim() !== '');
+    });
+    const isFormValid = Object.entries(formErrors).every(([key, error]) => {
+      // Only consider errors for touched fields
+      return !this.state.touched[key as keyof typeof this.state.touched] || !error;
+    }) && allFieldsFilled;
     
     console.log('Shipping form validation:', {
       formData: this.state.formData,
@@ -164,10 +177,16 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
     
     const { name, value } = e.target;
     
-    this.setState(prevState => ({
-      touched: { ...prevState.touched, [name]: true },
-      errors: { ...prevState.errors, [name]: this.validateField(name, value) }
-    }), this.validateFormAndNotify);
+    this.setState(prevState => {
+      const touched = { ...prevState.touched, [name]: true };
+      return {
+        touched,
+        errors: { 
+          ...prevState.errors, 
+          [name]: this.validateField(name, value, true) 
+        }
+      };
+    }, this.validateFormAndNotify);
   };
 
   private handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -180,8 +199,24 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
           ...prevState.formData,
           [name]: value,
         };
-        const errors = this.validateForm(newFormData);
-        const allFieldsFilled = Object.values(newFormData).every((val) => val.trim() !== '');
+        
+        // Only validate touched fields
+        const errors = { ...prevState.errors };
+        if (prevState.touched[name as keyof typeof prevState.touched]) {
+          const error = this.validateField(name, value, true);
+          if (error) {
+            errors[name as keyof typeof errors] = error;
+          } else {
+            delete errors[name as keyof typeof errors];
+          }
+        }
+        
+        // Check if form is valid
+        const allFieldsFilled = Object.entries(newFormData).every(([key, val]) => {
+          const isTouched = this.state.touched[key as keyof typeof this.state.touched];
+          return !isTouched || (val && val.trim() !== '');
+        });
+        
         const isFormValid = Object.keys(errors).length === 0 && allFieldsFilled;
 
         return {
