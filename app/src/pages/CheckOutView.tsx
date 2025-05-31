@@ -3,6 +3,7 @@ import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { CartItemWithProduct } from '../models/CheckoutManagerTest';
 import { sharedCart } from '../models';
+import { sharedOrder } from '../models/Order';
 import { checkoutManager } from '../models/CheckoutManagerTest';
 import ShippingView from './ShippingView';
 
@@ -144,77 +145,78 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
       return;
     }
 
-    const shippingAddress = {
+    // Set shipping information in the order
+    sharedOrder.setShippingInfo({
       streetAddress: shippingFormData.streetAddress,
-      suburb: shippingFormData.suburb,
+      town: shippingFormData.suburb,
       state: shippingFormData.state,
-      postcode: shippingFormData.postcode
-    };
-
-    // Get payment information (mask sensitive data)
-    // Note: In a real app, you'd want to get this from the payment form component
-    // For now, we'll just log a placeholder
-    const paymentInfo = {
-      cardNumber: '•••• •••• •••• 1234', // Placeholder - in a real app, get from payment form
-      expiryDate: '••/••' // Placeholder
-    };
-
-    // Prepare order summary
-    const orderSummary = {
-      items: this.state.cartItems.map(item => ({
-        id: item.product.id,
-        name: item.product.name,
-        quantity: item.quantity,
-        price: item.product.price,
-        subtotal: item.product.price * item.quantity
-      })),
-      subtotal: this.calculateSubtotal(),
-      shipping: this.state.shippingCost,
-      total: this.calculateTotal(),
-      shippingMethod: this.state.selectedShippingOption
-    };
-
-    // Log all order details
-    console.group('=== ORDER PLACED SUCCESSFULLY ===');
-    
-    // Shipping Information
-    console.group('Shipping Information');
-    console.log('Street Address:', shippingAddress.streetAddress);
-    console.log('Suburb:', shippingAddress.suburb);
-    console.log('State:', shippingAddress.state);
-    console.log('Postcode:', shippingAddress.postcode);
-    console.groupEnd();
-
-    // Payment Information (masked)
-    console.group('Payment Information');
-    console.log('Card Number:', paymentInfo.cardNumber);
-    console.log('Expiry Date:', paymentInfo.expiryDate);
-    console.groupEnd();
-
-    // Order Summary
-    console.group('Order Summary');
-    orderSummary.items.forEach(item => {
-      console.log(`- ${item.quantity}x ${item.name}: $${item.price.toFixed(2)} each = $${item.subtotal.toFixed(2)}`);
+      postcode: shippingFormData.postcode,
+      country: 'Australia' // Default country
     });
-    console.log('Subtotal:', `$${orderSummary.subtotal.toFixed(2)}`);
-    console.log('Shipping:', `$${orderSummary.shipping.toFixed(2)} (${orderSummary.shippingMethod?.name || 'Standard'})`);
-    console.log('Total:', `$${orderSummary.total.toFixed(2)}`);
-    console.groupEnd();
 
-    // Shipping Method
-    if (orderSummary.shippingMethod) {
-      console.group('Shipping Method');
-      console.log('Provider:', orderSummary.shippingMethod.companyName);
-      console.log('Service:', orderSummary.shippingMethod.name);
-      console.log('Estimated Delivery:', orderSummary.shippingMethod.estimatedDays);
-      console.log('Cost:', `$${orderSummary.shippingMethod.price.toFixed(2)}`);
+    // Set payment information in the order
+    // Note: In a real app, you'd want to get this from the payment form component
+    sharedOrder.setPaymentInfo({
+      cardNumber: '•••• •••• •••• 1234', // In a real app, get from payment form
+      expiryDate: '••/••', // In a real app, get from payment form
+      cvv: '•••' // In a real app, get from payment form
+    });
+
+    // Add items to the order
+    sharedOrder.addItems(this.state.cartItems.map(item => ({
+      product: item.product,
+      quantity: item.quantity
+    })));
+
+    // Submit the order
+    const isOrderSubmitted = sharedOrder.submitOrder();
+
+    if (isOrderSubmitted) {
+      // Get the order summary for display
+      const orderSummary = sharedOrder.getOrderSummary();
+      
+      // Log order details
+      console.group('=== ORDER PLACED SUCCESSFULLY ===');
+      console.log('Order ID:', orderSummary.orderId);
+      console.log('Order Date:', orderSummary.orderDate);
+      console.log('Status:', orderSummary.status);
+      
+      // Shipping Information
+      console.group('Shipping Information');
+      console.log('Street Address:', orderSummary.shippingInfo?.streetAddress);
+      console.log('Town:', orderSummary.shippingInfo?.town);
+      console.log('State:', orderSummary.shippingInfo?.state);
+      console.log('Postcode:', orderSummary.shippingInfo?.postcode);
+      console.log('Country:', orderSummary.shippingInfo?.country);
       console.groupEnd();
+
+      // Payment Information (masked)
+      console.group('Payment Information');
+      console.log('Card Number:', orderSummary.paymentInfo?.cardNumber);
+      console.log('Expiry Date:', orderSummary.paymentInfo?.expiryDate);
+      console.groupEnd();
+
+      // Order Items
+      console.group('Order Items');
+      orderSummary.items.forEach((item: any) => {
+        console.log(`- ${item.quantity}x ${item.name}: $${item.unitPrice.toFixed(2)} each = $${item.price.toFixed(2)}`);
+      });
+      console.groupEnd();
+
+      // Order Summary
+      console.group('Order Summary');
+      console.log('Subtotal:', `$${orderSummary.subtotal.toFixed(2)}`);
+      console.log('Total:', `$${orderSummary.total.toFixed(2)}`);
+      console.groupEnd();
+
+      console.groupEnd(); // End of order details
+
+      // Navigate to the order confirmation page
+      window.location.href = `/order/${orderSummary.orderId}`;
+    } else {
+      console.error('Failed to submit order');
+      alert('There was an error processing your order. Please try again.');
     }
-
-    console.groupEnd(); // End of order details
-
-    // Show success message to user
-    alert('Your order has been placed successfully! Check the browser console for order details.');
   };
 
   private handleShippingOptionSelect = (option: any) => {
@@ -366,6 +368,8 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
                   variant="contained"
                   color="primary"
                   size="large"
+                  component={Link} 
+                  to={`/order/${sharedOrder.getOrderSummary().orderId}`}
                   disabled={!isCheckoutValid}
                   onClick={this.handlePlaceOrder}
                   sx={{

@@ -29,6 +29,7 @@ interface ShippingViewState {
 interface ShippingViewProps {
   onNext?: () => void;
   onShippingOptionSelect?: (option: ShippingOption | null) => void;
+  readOnly?: boolean;
 }
 
 // Export the ShippingForm type for use in CheckOutView
@@ -47,6 +48,10 @@ class ShippingViewComponent extends React.Component<ShippingViewProps, ShippingV
       return null;
     }
     return this.formRef.current.getFormData();
+  };
+
+  static defaultProps = {
+    readOnly: false
   };
 
   constructor(props: ShippingViewProps) {

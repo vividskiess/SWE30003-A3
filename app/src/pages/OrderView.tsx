@@ -1,0 +1,217 @@
+import React from 'react';
+import { Container, Typography, Paper, Box, Button, Divider, List, ListItem, ListItemText, CircularProgress } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { sharedOrder } from '../models/Order';
+
+interface OrderViewProps {}
+
+interface OrderViewState {
+  orderDetails: any;
+  isLoading: boolean;
+  error: string | null;
+}
+
+class OrderView extends React.Component<OrderViewProps, OrderViewState> {
+  
+  constructor(props: OrderViewProps) {
+    super(props);
+    this.state = {
+      orderDetails: null,
+      isLoading: true,
+      error: null
+    };
+  }
+
+  componentDidMount() {
+    this.loadOrderDetails();
+  }
+
+  private loadOrderDetails = () => {
+    try {
+      // Get the order ID from the URL path
+      const pathParts = window.location.pathname.split('/');
+      const orderId = pathParts[pathParts.length - 1];
+      
+      if (!orderId) {
+        this.setState({ 
+          error: 'No order ID provided',
+          isLoading: false 
+        });
+        return;
+      }
+      
+      // In a real app, you would fetch the order details from an API using the ID
+      // For now, we'll use the sharedOrder instance
+      const orderDetails = sharedOrder.getOrderSummary();
+      
+      if (!orderDetails) {
+        this.setState({ 
+          error: 'Order not found',
+          isLoading: false 
+        });
+        return;
+      }
+      
+      this.setState({ 
+        orderDetails,
+        isLoading: false,
+        error: null 
+      });
+      
+    } catch (error) {
+      console.error('Error loading order details:', error);
+      this.setState({ 
+        error: 'Failed to load order details',
+        isLoading: false 
+      });
+    }
+  }
+
+  private formatDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      return dateObj.toLocaleDateString('en-AU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Date not available';
+    }
+  };
+
+  render() {
+    const { orderDetails, isLoading, error } = this.state;
+    if (isLoading) {
+      return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (error || !orderDetails) {
+      return (
+        <Container maxWidth="md" sx={{ py: 4 }}>
+          <Typography variant="h5" gutterBottom>Order Not Found</Typography>
+          <Typography paragraph>{error || 'We couldn\'t find the order you\'re looking for.'}</Typography>
+          <Button 
+            component={Link} 
+            to="/" 
+            variant="contained" 
+            color="primary"
+            sx={{ mt: 2 }}
+          >
+            Back to Home
+          </Button>
+        </Container>
+      );
+    }
+
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+        <Box textAlign="center" mb={4}>
+          <Typography variant="h4" component="h1" gutterBottom color="primary">
+            Order Confirmation
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Thank you for your order!
+          </Typography>
+          <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold' }}>
+            Order #{orderDetails.orderId}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {this.formatDate(orderDetails.orderDate)}
+          </Typography>
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, mb: 4 }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" gutterBottom>Shipping Information</Typography>
+            {orderDetails.shippingInfo && (
+              <Box>
+                <Typography>{orderDetails.shippingInfo.streetAddress}</Typography>
+                <Typography>{orderDetails.shippingInfo.town}</Typography>
+                <Typography>{orderDetails.shippingInfo.state} {orderDetails.shippingInfo.postcode}</Typography>
+                <Typography>{orderDetails.shippingInfo.country}</Typography>
+              </Box>
+            )}
+          </Box>
+
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" gutterBottom>Payment Method</Typography>
+            {orderDetails.paymentInfo && (
+              <Box>
+                <Typography>Credit Card ending in {orderDetails.paymentInfo.cardNumber.split(' ').pop()}</Typography>
+                <Typography>Expires: {orderDetails.paymentInfo.expiryDate}</Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        <Typography variant="h6" gutterBottom>Order Summary</Typography>
+        <List>
+          {orderDetails.items.map((item: any, index: number) => (
+            <React.Fragment key={index}>
+              <ListItem alignItems="flex-start" sx={{ px: 0 }}>
+                <ListItemText
+                  primary={item.name}
+                  secondary={`Quantity: ${item.quantity}`}
+                  primaryTypographyProps={{ fontWeight: 'medium' }}
+                />
+                <Typography variant="body1">
+                  ${(item.unitPrice * item.quantity).toFixed(2)}
+                </Typography>
+              </ListItem>
+              {index < orderDetails.items.length - 1 && <Divider component="li" />}
+            </React.Fragment>
+          ))}
+        </List>
+
+        <Box sx={{ mt: 3, textAlign: 'right' }}>
+          <Typography variant="body1" gutterBottom>
+            Subtotal: ${orderDetails.subtotal.toFixed(2)}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Shipping: ${(orderDetails.total - orderDetails.subtotal).toFixed(2)}
+          </Typography>
+          <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
+            Total: ${orderDetails.total.toFixed(2)}
+          </Typography>
+        </Box>
+
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Button
+            component={Link}
+            to="/"
+            variant="contained"
+            color="primary"
+            sx={{ mr: 2 }}
+          >
+            Back to Home
+          </Button>
+          <Button
+            component={Link}
+            to="/orders"
+            variant="outlined"
+            color="primary"
+            sx={{ ml: 2 }}
+          >
+            View All Orders
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
+    );
+  }
+}
+
+export default OrderView;
