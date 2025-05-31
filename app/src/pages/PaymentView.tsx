@@ -74,7 +74,6 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
           }}
           readOnly={isActuallyReadOnly}
           onEdit={onEdit}
-          key={isActuallyReadOnly ? 'readonly' : 'editable'}
         />
       </Paper>
     );
