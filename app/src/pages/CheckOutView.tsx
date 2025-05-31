@@ -5,15 +5,31 @@ import { CartItemWithProduct } from '../models/CheckoutManagerTest';
 import { sharedCart } from '../models';
 import { checkoutManager } from '../models/CheckoutManagerTest';
 import ShippingView from './ShippingView';
+
+type ShippingViewRef = {
+  getFormData: () => {
+    streetAddress: string;
+    suburb: string;
+    state: string;
+    postcode: string;
+  } | null;
+};
 import PaymentView from './PaymentView';
 
 interface CheckOutViewState {
   isCheckoutValid: boolean;
   cartItems: CartItemWithProduct[];
   selectedShippingOption: {
+    id: string;
+    companyId: string;
     name: string;
+    companyName: string;
+    description: string;
     price: number;
     estimatedDays: string;
+    hasSurcharge?: boolean;
+    surchargeAmount?: number;
+    isFree?: boolean;
   } | null;
   shippingCost: number;
   isPaymentVerified: boolean;
@@ -113,18 +129,108 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
     });
   };
 
+  private shippingViewRef = React.createRef<ShippingViewRef>();
+
   private handlePlaceOrder = () => {
-    console.log('Placing order with shipping option:', this.state.selectedShippingOption);
-    // TODO: Implement order placement logic
+    // Get the shipping form data from the ShippingView
+    if (!this.shippingViewRef.current) {
+      console.error('Shipping view reference not found');
+      return;
+    }
+
+    const shippingFormData = this.shippingViewRef.current.getFormData();
+    if (!shippingFormData) {
+      console.error('Shipping form data is not valid');
+      return;
+    }
+
+    const shippingAddress = {
+      streetAddress: shippingFormData.streetAddress,
+      suburb: shippingFormData.suburb,
+      state: shippingFormData.state,
+      postcode: shippingFormData.postcode
+    };
+
+    // Get payment information (mask sensitive data)
+    // Note: In a real app, you'd want to get this from the payment form component
+    // For now, we'll just log a placeholder
+    const paymentInfo = {
+      cardNumber: '•••• •••• •••• 1234', // Placeholder - in a real app, get from payment form
+      expiryDate: '••/••' // Placeholder
+    };
+
+    // Prepare order summary
+    const orderSummary = {
+      items: this.state.cartItems.map(item => ({
+        id: item.product.id,
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.product.price,
+        subtotal: item.product.price * item.quantity
+      })),
+      subtotal: this.calculateSubtotal(),
+      shipping: this.state.shippingCost,
+      total: this.calculateTotal(),
+      shippingMethod: this.state.selectedShippingOption
+    };
+
+    // Log all order details
+    console.group('=== ORDER PLACED SUCCESSFULLY ===');
+    
+    // Shipping Information
+    console.group('Shipping Information');
+    console.log('Street Address:', shippingAddress.streetAddress);
+    console.log('Suburb:', shippingAddress.suburb);
+    console.log('State:', shippingAddress.state);
+    console.log('Postcode:', shippingAddress.postcode);
+    console.groupEnd();
+
+    // Payment Information (masked)
+    console.group('Payment Information');
+    console.log('Card Number:', paymentInfo.cardNumber);
+    console.log('Expiry Date:', paymentInfo.expiryDate);
+    console.groupEnd();
+
+    // Order Summary
+    console.group('Order Summary');
+    orderSummary.items.forEach(item => {
+      console.log(`- ${item.quantity}x ${item.name}: $${item.price.toFixed(2)} each = $${item.subtotal.toFixed(2)}`);
+    });
+    console.log('Subtotal:', `$${orderSummary.subtotal.toFixed(2)}`);
+    console.log('Shipping:', `$${orderSummary.shipping.toFixed(2)} (${orderSummary.shippingMethod?.name || 'Standard'})`);
+    console.log('Total:', `$${orderSummary.total.toFixed(2)}`);
+    console.groupEnd();
+
+    // Shipping Method
+    if (orderSummary.shippingMethod) {
+      console.group('Shipping Method');
+      console.log('Provider:', orderSummary.shippingMethod.companyName);
+      console.log('Service:', orderSummary.shippingMethod.name);
+      console.log('Estimated Delivery:', orderSummary.shippingMethod.estimatedDays);
+      console.log('Cost:', `$${orderSummary.shippingMethod.price.toFixed(2)}`);
+      console.groupEnd();
+    }
+
+    console.groupEnd(); // End of order details
+
+    // Show success message to user
+    alert('Your order has been placed successfully! Check the browser console for order details.');
   };
 
   private handleShippingOptionSelect = (option: any) => {
     if (option) {
       this.setState({
         selectedShippingOption: {
+          id: option.id || 'standard',
+          companyId: option.companyId || option.id || 'standard',
           name: option.name,
+          companyName: option.companyName || option.name,
+          description: option.description || `Estimated delivery: ${option.estimatedDays}`,
           price: option.price,
-          estimatedDays: option.estimatedDays
+          estimatedDays: option.estimatedDays,
+          hasSurcharge: option.hasSurcharge,
+          surchargeAmount: option.surchargeAmount,
+          isFree: option.isFree
         },
         shippingCost: option.price
       }, () => {
@@ -185,6 +291,7 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
           {/* Left Column - Forms */}
           <Box sx={{ flex: 2 }}>
             <ShippingView 
+              ref={this.shippingViewRef as any}
               onNext={() => {}}
               onShippingOptionSelect={this.handleShippingOptionSelect}
             />

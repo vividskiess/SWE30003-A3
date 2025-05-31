@@ -6,7 +6,6 @@ type ShippingFormData = {
   suburb: string;
   state: string;
   postcode: string;
-  country: string;
 };
 
 type FormErrors = {
@@ -14,7 +13,6 @@ type FormErrors = {
   suburb?: string;
   state?: string;
   postcode?: string;
-  country?: string;
 };
 
 type ShippingFormProps = {
@@ -33,6 +31,18 @@ type ShippingFormState = {
 };
 
 export class ShippingForm extends React.Component<ShippingFormProps, ShippingFormState> {
+  // Add public method to get form data
+  public getFormData(): ShippingFormData | null {
+    const { formData } = this.state;
+    // Basic validation to ensure all required fields are filled
+    const requiredFields: (keyof ShippingFormData)[] = ['streetAddress', 'suburb', 'state', 'postcode'];
+    const isValid = requiredFields.every(field => {
+      const value = formData[field];
+      return value && value.trim().length > 0;
+    });
+    
+    return isValid ? { ...formData } : null;
+  }
   constructor(props: ShippingFormProps) {
     super(props);
     this.state = {
@@ -40,16 +50,14 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
         streetAddress: '',
         suburb: '',
         state: '',
-        postcode: '',
-        country: '' // Start with empty country
+        postcode: ''
       },
       errors: {},
       touched: {
         streetAddress: false,
         suburb: false,
         state: false,
-        postcode: false,
-        country: false
+        postcode: false
       },
       isFormValid: false
     };
@@ -59,25 +67,60 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
     this.validateFormAndNotify();
   }
 
-  private validateField(name: string, value: string): string | undefined {
-    switch (name) {
-      case 'streetAddress':
-        if (!value.trim()) return 'Street address is required';
-        if (value.trim().length < 5) return 'Please enter a valid address';
-        break;
-      case 'suburb':
-        if (!value.trim()) return 'Suburb is required';
-        break;
-      case 'state':
-        if (!value.trim()) return 'State is required';
-        break;
-      case 'postcode':
-        if (!/^\d{4}$/.test(value)) return 'Please enter a valid 4-digit postcode';
-        break;
-      case 'country':
-        if (!value.trim()) return 'Country is required';
-        break;
+  private validateField = (name: string, value: string): string | undefined => {
+    // Skip validation if field is empty (handled by required check)
+    if (!value || value.trim().length === 0) {
+      return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
     }
+
+    const trimmedValue = value.trim();
+    
+    // Enhanced validation patterns with better error messages
+    const patterns = {
+      streetAddress: /^[a-zA-Z0-9\s,.-]{5,100}$/,
+      suburb: /^[a-zA-Z\s-]{2,50}$/,
+      state: /^(VIC|NSW|QLD|TAS|SA|WA|NT|ACT)$/i,
+      postcode: /^\d{4}$/
+    };
+
+    const errorMessages = {
+      streetAddress: 'Please enter a valid street address (5-100 characters, alphanumeric and basic punctuation)',
+      suburb: 'Please enter a valid suburb (2-50 letters, spaces and hyphens only)',
+      state: 'Please select a valid Australian state/territory (VIC, NSW, QLD, TAS, SA, WA, NT, or ACT)',
+      postcode: 'Please enter a valid 4-digit postcode'
+    };
+
+    // Pattern validation
+    if (patterns[name as keyof typeof patterns] && 
+        !patterns[name as keyof typeof patterns].test(trimmedValue)) {
+      return errorMessages[name as keyof typeof errorMessages];
+    }
+
+    // Additional postcode validation for Australian states
+    if (name === 'postcode' && this.state.formData.state) {
+      const state = this.state.formData.state.toUpperCase();
+      const postcode = parseInt(trimmedValue, 10);
+      
+      // Basic state-based postcode validation
+      const stateRanges: Record<string, [number, number]> = {
+        'NSW': [1000, 2599],
+        'VIC': [3000, 3999],
+        'QLD': [4000, 4999],
+        'SA': [5000, 5799],
+        'WA': [6000, 6797],
+        'TAS': [7000, 7999],
+        'NT': [800, 899],
+        'ACT': [2600, 2618],
+      };
+
+      if (state in stateRanges) {
+        const [min, max] = stateRanges[state];
+        if (postcode < min || postcode > max) {
+          return `Postcode does not match the selected state (${state})`;
+        }
+      }
+    }
+
     return undefined;
   }
 
@@ -117,20 +160,14 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
   };
 
   private handleBlur = (e: React.FocusEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
-    console.log(`Field blurred: ${name}`, value);
+    if (this.props.readOnly) return;
     
-    this.setState(prevState => {
-      const newTouched = { ...prevState.touched, [name]: true };
-      const newErrors = { ...prevState.errors, [name]: this.validateField(name, value) };
-      
-      console.log('Blur state update:', { name, value, newTouched, newErrors });
-      
-      return {
-        touched: newTouched,
-        errors: newErrors
-      };
-    }, this.validateFormAndNotify);
+    const { name, value } = e.target;
+    
+    this.setState(prevState => ({
+      touched: { ...prevState.touched, [name]: true },
+      errors: { ...prevState.errors, [name]: this.validateField(name, value) }
+    }), this.validateFormAndNotify);
   };
 
   private handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -163,7 +200,7 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
 
 
   render() {
-    const { formData, errors, touched } = this.state;
+    const { formData, errors } = this.state;
     const { readOnly = false } = this.props;
 
     const textFieldProps = (name: keyof typeof formData) => ({
@@ -173,8 +210,8 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
       value: formData[name],
       onChange: this.handleChange,
       onBlur: this.handleBlur,
-      error: touched[name] && !!errors[name],
-      helperText: touched[name] && errors[name],
+      error: !!errors[name],
+      helperText: errors[name],
       disabled: readOnly,
       InputProps: {
         readOnly,
@@ -206,10 +243,6 @@ export class ShippingForm extends React.Component<ShippingFormProps, ShippingFor
             inputProps={{ maxLength: 4 }}
           />
         </Box>
-        <TextField
-          {...textFieldProps('country')}
-          label="Country"
-        />
       </Box>
     );
   }
