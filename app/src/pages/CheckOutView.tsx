@@ -138,85 +138,87 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
       console.error('Shipping view reference not found');
       return;
     }
+    
+    // Log that we're starting the order placement process
+    console.group('Placing Order');
 
-    const shippingFormData = this.shippingViewRef.current.getFormData();
-    if (!shippingFormData) {
-      console.error('Shipping form data is not valid');
+    const formData = this.shippingViewRef.current.getFormData();
+    if (!formData) {
+      console.error('Shipping form data is null');
       return;
     }
 
-    // Set shipping information in the order
-    sharedOrder.setShippingInfo({
-      streetAddress: shippingFormData.streetAddress,
-      town: shippingFormData.suburb,
-      state: shippingFormData.state,
-      postcode: shippingFormData.postcode,
-      country: 'Australia' // Default country
-    });
-
-    // Set payment information in the order
-    // Note: In a real app, you'd want to get this from the payment form component
-    sharedOrder.setPaymentInfo({
-      cardNumber: '•••• •••• •••• 1234', // In a real app, get from payment form
-      expiryDate: '••/••', // In a real app, get from payment form
-      cvv: '•••' // In a real app, get from payment form
-    });
-
-    // Add items to the order
-    sharedOrder.addItems(this.state.cartItems.map(item => ({
+    // Get cart items from checkoutManager
+    const cartItems = checkoutManager.getCartItems();
+    
+    // Transfer cart items to sharedOrder
+    sharedOrder.addItems(cartItems.map(item => ({
       product: item.product,
       quantity: item.quantity
     })));
-
-    // Submit the order
-    const isOrderSubmitted = sharedOrder.submitOrder();
-
-    if (isOrderSubmitted) {
-      // Get the order summary for display
-      const orderSummary = sharedOrder.getOrderSummary();
-      
-      // Log order details
-      console.group('=== ORDER PLACED SUCCESSFULLY ===');
-      console.log('Order ID:', orderSummary.orderId);
-      console.log('Order Date:', orderSummary.orderDate);
-      console.log('Status:', orderSummary.status);
-      
-      // Shipping Information
-      console.group('Shipping Information');
-      console.log('Street Address:', orderSummary.shippingInfo?.streetAddress);
-      console.log('Town:', orderSummary.shippingInfo?.town);
-      console.log('State:', orderSummary.shippingInfo?.state);
-      console.log('Postcode:', orderSummary.shippingInfo?.postcode);
-      console.log('Country:', orderSummary.shippingInfo?.country);
-      console.groupEnd();
-
-      // Payment Information (masked)
-      console.group('Payment Information');
-      console.log('Card Number:', orderSummary.paymentInfo?.cardNumber);
-      console.log('Expiry Date:', orderSummary.paymentInfo?.expiryDate);
-      console.groupEnd();
-
-      // Order Items
-      console.group('Order Items');
-      orderSummary.items.forEach((item: any) => {
-        console.log(`- ${item.quantity}x ${item.name}: $${item.unitPrice.toFixed(2)} each = $${item.price.toFixed(2)}`);
+    
+    // Set shipping information in sharedOrder
+    sharedOrder.setShippingInfo({
+      streetAddress: formData.streetAddress,
+      town: formData.suburb, // Using suburb as town
+      state: formData.state,
+      postcode: formData.postcode,
+      country: 'Australia' // Default to Australia
+    });
+    
+    // For payment info, we'll use mock data since we don't have a direct reference to payment form data
+    // In a real app, you would get this from a payment form reference
+    const paymentInfo = {
+      cardNumber: '4242 4242 4242 4242', // Mock data
+      expiryDate: '12/25',
+      cvv: '123'
+    };
+    sharedOrder.setPaymentInfo(paymentInfo);
+    
+    // Update the order's total to include shipping cost
+    const subtotal = checkoutManager.calculateSubtotal();
+    const total = subtotal + this.state.shippingCost;
+    
+    // Set the shipping cost in the order
+    sharedOrder.setShippingCost(this.state.shippingCost);
+    
+    // Set the shipping option details if available
+    if (this.state.selectedShippingOption) {
+      sharedOrder.setShippingOption({
+        name: this.state.selectedShippingOption.name,
+        companyName: this.state.selectedShippingOption.companyName,
+        estimatedDays: this.state.selectedShippingOption.estimatedDays
       });
-      console.groupEnd();
-
-      // Order Summary
-      console.group('Order Summary');
-      console.log('Subtotal:', `$${orderSummary.subtotal.toFixed(2)}`);
-      console.log('Total:', `$${orderSummary.total.toFixed(2)}`);
-      console.groupEnd();
-
-      console.groupEnd(); // End of order details
-
-      // Navigate to the order confirmation page
-      window.location.href = `/order/${orderSummary.orderId}`;
-    } else {
+    }
+    
+    // Submit the order
+    const success = sharedOrder.submitOrder();
+    
+    if (!success) {
       console.error('Failed to submit order');
       alert('There was an error processing your order. Please try again.');
+      return;
     }
+    
+    // Calculate order summary for logging
+    const orderSummary = {
+      subtotal: subtotal,
+      shipping: this.state.shippingCost,
+      total: total
+    };
+
+    console.group('Order Summary');
+    console.log('Subtotal:', `$${orderSummary.subtotal.toFixed(2)}`);
+    console.log('Shipping:', `$${orderSummary.shipping.toFixed(2)}`);
+    console.log('Total:', `$${orderSummary.total.toFixed(2)}`);
+    console.groupEnd();
+    console.groupEnd(); // End the 'Placing Order' group
+    
+    // The navigation to the order page is handled by the Link component's 'to' prop
+    // Log the final order summary for verification
+    const orderSummaryObj = sharedOrder.getOrderSummary();
+    console.log('Final Order Summary:', orderSummaryObj);
+    console.log('Order Total (should include shipping):', orderSummaryObj.total.toFixed(2));
   };
 
   private handleShippingOptionSelect = (option: any) => {

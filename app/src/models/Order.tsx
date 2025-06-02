@@ -27,6 +27,12 @@ export class Order {
   private orderDate: Date = new Date();
   private orderId: string;
   private status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' = 'pending';
+  private shippingCost: number = 0;
+  private shippingOption: {
+    name: string;
+    companyName: string;
+    estimatedDays: string;
+  } | null = null;
 
   constructor() {
     this.orderId = this.generateOrderId();
@@ -58,8 +64,22 @@ export class Order {
 
   // Calculate total (including potential shipping costs, taxes, etc.)
   public calculateTotal(): number {
-    // For now, just return subtotal. Can be extended to include shipping, taxes, etc.
-    return this.calculateSubtotal();
+    // Return subtotal plus shipping cost
+    return this.calculateSubtotal() + this.shippingCost;
+  }
+  
+  // Set shipping cost
+  public setShippingCost(cost: number): void {
+    this.shippingCost = cost;
+  }
+  
+  // Set shipping option details
+  public setShippingOption(option: {
+    name: string;
+    companyName: string;
+    estimatedDays: string;
+  }): void {
+    this.shippingOption = option;
   }
 
   // Get order summary for display
@@ -76,7 +96,9 @@ export class Order {
       })),
       subtotal: this.calculateSubtotal(),
       total: this.calculateTotal(),
+      shippingCost: this.shippingCost,
       shippingInfo: this.shippingInfo,
+      shippingOption: this.shippingOption,
       // Mask sensitive payment info
       paymentInfo: this.paymentInfo ? {
         cardNumber: `•••• •••• •••• ${this.paymentInfo.cardNumber.slice(-4)}`,

@@ -136,10 +136,37 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
             <Typography variant="h6" gutterBottom>Shipping Information</Typography>
             {orderDetails.shippingInfo && (
               <Box>
-                <Typography>{orderDetails.shippingInfo.streetAddress}</Typography>
-                <Typography>{orderDetails.shippingInfo.town}</Typography>
-                <Typography>{orderDetails.shippingInfo.state} {orderDetails.shippingInfo.postcode}</Typography>
-                <Typography>{orderDetails.shippingInfo.country}</Typography>
+                {/* Add shipping brand name if available */}
+                {orderDetails.shippingOption && (
+                  <Box sx={{ display: 'flex', mb: 2 }}>
+                    <Typography sx={{ fontWeight: 'medium', width: '120px' }}>Shipping Method:</Typography>
+                    <Typography>
+                      {orderDetails.shippingOption.companyName} - {orderDetails.shippingOption.name}
+                      {orderDetails.shippingOption.estimatedDays && ` (${orderDetails.shippingOption.estimatedDays})`}
+                    </Typography>
+                  </Box>
+                )}
+                
+                {/* Address with labels */}
+                <Box sx={{ display: 'flex', mb: 1 }}>
+                  <Typography sx={{ fontWeight: 'medium', width: '120px' }}>Address:</Typography>
+                  <Typography>{orderDetails.shippingInfo.streetAddress}</Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', mb: 1 }}>
+                  <Typography sx={{ fontWeight: 'medium', width: '120px' }}>Suburb:</Typography>
+                  <Typography>{orderDetails.shippingInfo.town}</Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', mb: 1 }}>
+                  <Typography sx={{ fontWeight: 'medium', width: '120px' }}>State/Postcode:</Typography>
+                  <Typography>{orderDetails.shippingInfo.state} {orderDetails.shippingInfo.postcode}</Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', mb: 1 }}>
+                  <Typography sx={{ fontWeight: 'medium', width: '120px' }}>Country:</Typography>
+                  <Typography>{orderDetails.shippingInfo.country}</Typography>
+                </Box>
               </Box>
             )}
           </Box>
@@ -181,8 +208,16 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
             Subtotal: ${orderDetails.subtotal.toFixed(2)}
           </Typography>
           <Typography variant="body1" gutterBottom>
-            Shipping: ${(orderDetails.total - orderDetails.subtotal).toFixed(2)}
+            Shipping: ${orderDetails.shippingCost ? orderDetails.shippingCost.toFixed(2) : (orderDetails.total - orderDetails.subtotal).toFixed(2)}
           </Typography>
+          {orderDetails.shippingOption && (
+            <Box sx={{ mb: 2, textAlign: 'right' }}>
+              <span style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '0.875rem' }}>
+                {orderDetails.shippingOption.companyName} - {orderDetails.shippingOption.name}
+                {orderDetails.shippingOption.estimatedDays && ` (${orderDetails.shippingOption.estimatedDays})`}
+              </span>
+            </Box>
+          )}
           <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
             Total: ${orderDetails.total.toFixed(2)}
           </Typography>
