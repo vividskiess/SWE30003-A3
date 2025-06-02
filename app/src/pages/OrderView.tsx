@@ -97,7 +97,7 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
       return (
         <Container maxWidth="md" sx={{ py: 4 }}>
           <Typography variant="h5" gutterBottom>Order Not Found</Typography>
-          <Typography paragraph>{error || 'We couldn\'t find the order you\'re looking for.'}</Typography>
+          <Typography>{error || 'We couldn\'t find the order you\'re looking for.'}</Typography>
           <Button 
             component={Link} 
             to="/" 
@@ -192,7 +192,6 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
                 <ListItemText
                   primary={item.name}
                   secondary={`Quantity: ${item.quantity}`}
-                  primaryTypographyProps={{ fontWeight: 'medium' }}
                 />
                 <Typography variant="body1">
                   ${(item.unitPrice * item.quantity).toFixed(2)}
@@ -222,8 +221,6 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
             Total: ${orderDetails.total.toFixed(2)}
           </Typography>
         </Box>
-
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Button
             component={Link}
             to="/"
@@ -233,16 +230,6 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
           >
             Back to Home
           </Button>
-          <Button
-            component={Link}
-            to="/orders"
-            variant="outlined"
-            color="primary"
-            sx={{ ml: 2 }}
-          >
-            View All Orders
-          </Button>
-        </Box>
       </Paper>
     </Container>
     );

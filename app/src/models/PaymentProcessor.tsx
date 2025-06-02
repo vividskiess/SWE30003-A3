@@ -377,7 +377,10 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
                 disabled={isSubmitting}
                 fullWidth
                 placeholder="1234 5678 9012 3456"
-                inputProps={{ maxLength: 19 }}
+                inputProps={{ 
+                  maxLength: 19,
+                  autoComplete: 'cc-number'
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 1,
@@ -400,7 +403,10 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
                   disabled={isSubmitting}
                   placeholder="MM/YY"
                   fullWidth
-                  inputProps={{ maxLength: 5 }}
+                  inputProps={{ 
+                    maxLength: 5,
+                    autoComplete: 'cc-exp'
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 1,
@@ -423,7 +429,10 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
                   disabled={isSubmitting}
                   placeholder="123"
                   fullWidth
-                  inputProps={{ maxLength: 4 }}
+                  inputProps={{ 
+                    maxLength: 4,
+                    autoComplete: 'cc-csc'
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 1,
