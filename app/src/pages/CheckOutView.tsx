@@ -349,9 +349,9 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
                   <Typography>Subtotal</Typography>
                   <Typography>${subtotal.toFixed(2)}</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                  <Typography>Shipping</Typography>
-                  <Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap' }}>
+                  <Typography sx={{ minWidth: '80px', mr: 1 }}>Shipping</Typography>
+                  <Typography sx={{ textAlign: { xs: 'right', sm: 'right' }, flex: 1 }}>
                     {this.state.selectedShippingOption 
                       ? `${this.state.selectedShippingOption.name} (${this.state.selectedShippingOption.estimatedDays}) - $${this.state.shippingCost.toFixed(2)}`
                       : 'Complete the shipping form to calculate shipping cost'}
