@@ -282,23 +282,22 @@ export class PaymentForm extends React.Component<PaymentFormProps, PaymentFormSt
       const response = await paymentService.processPayment(paymentDetails);
       
       if (response.success) {
+        // First, send the complete form data to the parent
+        if (this.props.onPaymentProcessed) {
+          this.props.onPaymentProcessed(true, this.state.formData);
+        }
+        
+        // Then update the local state with cleared CVV for security
         this.setState(prevState => {
-          // Create the updated form data with cleared CVV
           const updatedFormData = {
             ...prevState.formData,
-            cvv: '' // Clear CVV for security
+            cvv: '' // Clear CVV for security in the UI
           };
-          
-          // Call callbacks with the updated state
-          if (this.props.onPaymentProcessed) {
-            this.props.onPaymentProcessed(true, updatedFormData);
-          }
           
           if (this.props.onValidityChange) {
             this.props.onValidityChange(true);
           }
           
-          // Return the new state
           return {
             isSubmitted: true,
             isSubmitting: false,

@@ -32,6 +32,8 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
   }
 
   private handlePaymentProcessed = (success: boolean, data?: any) => {
+    console.log('PaymentView: Payment processed:', { success, data });
+    
     if (success) {
       this.setState({ 
         isPaymentVerified: true,
@@ -41,18 +43,22 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
       checkoutManager.handlePaymentFormValidityChange(true);
       
       // Pass the payment form data back to the parent
+      // The data is already the form data, don't try to access data.formData
       if (this.props.onPaymentProcessed) {
-        this.props.onPaymentProcessed(success, data?.formData);
+        this.props.onPaymentProcessed(success, data);
       }
     } else {
+      const errorMessage = data?.error || 'Payment processing failed';
+      console.error('PaymentView: Payment failed:', errorMessage);
+      
       this.setState({ 
-        paymentError: data?.error || 'Payment processing failed',
+        paymentError: errorMessage,
         isProcessing: false 
       });
       checkoutManager.handlePaymentFormValidityChange(false);
       
       if (this.props.onPaymentProcessed) {
-        this.props.onPaymentProcessed(false);
+        this.props.onPaymentProcessed(false, { error: errorMessage });
       }
     }
   };

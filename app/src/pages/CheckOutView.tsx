@@ -127,16 +127,67 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
   };
 
   private handlePaymentProcessed = (success: boolean, data?: any) => {
-    this.setState({ 
-      isPaymentVerified: success,
-      paymentError: success ? null : 'Payment verification failed',
-      paymentFormData: success ? {
-        cardNumber: data?.cardNumber || '',
-        expiryDate: data?.expiryDate || '',
-        cvv: data?.cvv || '',
-        cardHolderName: data?.cardHolderName || 'Card Holder'
-      } : null
-    }, this.updateCheckoutValidity);
+    console.log('CheckOutView: Payment processed:', { success, data: data ? {
+      ...data,
+      cardNumber: data.cardNumber ? `${data.cardNumber.substring(0, 4)}...${data.cardNumber.slice(-4)}` : 'N/A',
+      cvv: data.cvv ? '***' : 'N/A'
+    } : 'No data' });
+    
+    if (success) {
+      if (!data) {
+        const errorMsg = 'No payment data received';
+        console.error(errorMsg);
+        this.setState({
+          isPaymentVerified: false,
+          paymentError: errorMsg,
+          paymentFormData: null
+        }, this.updateCheckoutValidity);
+        return;
+      }
+      
+      // Ensure we have all required fields
+      if (!data.cardNumber || !data.expiryDate || !data.cvv) {
+        const errorMsg = 'Payment information is incomplete';
+        console.error(errorMsg, {
+          hasCardNumber: !!data.cardNumber,
+          hasExpiryDate: !!data.expiryDate,
+          hasCvv: !!data.cvv
+        });
+        this.setState({
+          isPaymentVerified: false,
+          paymentError: errorMsg,
+          paymentFormData: null
+        }, this.updateCheckoutValidity);
+        return;
+      }
+      
+      const paymentData = {
+        cardNumber: data.cardNumber.replace(/\s/g, ''), // Remove any spaces from card number
+        expiryDate: data.expiryDate,
+        cvv: data.cvv,
+        cardHolderName: data.cardHolderName || 'Card Holder'
+      };
+      
+      console.log('Setting payment form data:', {
+        ...paymentData,
+        cardNumber: `${paymentData.cardNumber.substring(0, 4)}...${paymentData.cardNumber.slice(-4)}`,
+        cvv: '***'
+      });
+      
+      this.setState({ 
+        isPaymentVerified: true,
+        paymentError: null,
+        paymentFormData: paymentData
+      }, this.updateCheckoutValidity);
+    } else {
+      const errorMessage = data?.error || 'Payment verification failed';
+      console.error('Payment verification failed:', errorMessage);
+      this.setState({ 
+        isPaymentVerified: false,
+        paymentError: errorMessage,
+        paymentFormData: null
+      }, this.updateCheckoutValidity);
+    }
   };
 
   private handleEdit = (): void => {
@@ -189,16 +240,42 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
     
     // Use the actual payment information from the form
     if (!this.state.paymentFormData) {
-      console.error('No payment information available');
-      alert('Payment information is missing. Please verify your payment details.');
+      const errorMsg = 'No payment information available. Please complete the payment form.';
+      console.error(errorMsg);
+      this.setState({
+        paymentError: errorMsg,
+        isPaymentVerified: false
+      }, () => {
+        // Scroll to the payment section
+        const paymentSection = document.getElementById('payment-section');
+        if (paymentSection) {
+          paymentSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+      return;
+    }
+    
+    // Ensure required payment fields are present
+    const { cardNumber, expiryDate, cvv, cardHolderName } = this.state.paymentFormData;
+    if (!cardNumber || !expiryDate || !cvv) {
+      const errorMsg = 'Payment information is incomplete. Please verify your card details.';
+      console.error(errorMsg, { 
+        hasCardNumber: !!cardNumber,
+        hasExpiryDate: !!expiryDate,
+        hasCvv: !!cvv
+      });
+      this.setState({
+        paymentError: errorMsg,
+        isPaymentVerified: false
+      });
       return;
     }
     
     const paymentInfo = {
-      cardNumber: this.state.paymentFormData.cardNumber.replace(/\s/g, ''), // Remove spaces from card number
-      expiryDate: this.state.paymentFormData.expiryDate,
-      cvv: this.state.paymentFormData.cvv,
-      cardHolderName: this.state.paymentFormData.cardHolderName
+      cardNumber: cardNumber.replace(/\s/g, ''), // Remove spaces from card number
+      expiryDate,
+      cvv,
+      cardHolderName: cardHolderName || 'Card Holder'
     };
     
     console.log('Using payment info:', {
