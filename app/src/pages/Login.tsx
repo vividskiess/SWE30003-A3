@@ -19,6 +19,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
 import { User } from '../models/User';
+import { Authentication } from '../server/api';
 
 
 interface LoginViewState {
@@ -42,8 +43,8 @@ class LoginView extends React.Component<{}, LoginViewState> {
     super(props);
     this.state = {
       formData: {
-        email: '',
-        password: ''
+        email: 'agosneye0@oakley.com',
+        password: 'mF1.X7Jt{|?S'
       },
       showPassword: false,
       errors: {
@@ -170,8 +171,9 @@ class LoginView extends React.Component<{}, LoginViewState> {
         // Use the User model to authenticate
         // For demonstration purposes, using simulation
         // const response = await User.simulateLogin(email, password);
-        const response = await User.simulateLogin(email, password);
-        if (response.success) {
+        const response = await Authentication.loginUser(email, password)
+        if (response) {
+        // if (response.success) {
           this.setState({ 
             isAuthenticated: true,
             isSubmitting: false
@@ -180,7 +182,8 @@ class LoginView extends React.Component<{}, LoginViewState> {
           this.setState({
             errors: {
               ...this.state.errors,
-              login: response.message || 'Authentication failed'
+              login: response || 'Authentication failed'
+              // login: response.message || 'Authentication failed'
             },
             isSubmitting: false
           });

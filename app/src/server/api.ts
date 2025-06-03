@@ -64,16 +64,15 @@ class Authentication {
 			.catch(err => err)
 	}
 
-	static async loginUser(email: string, password: string): Promise<void> {
-		let data
+	static async loginUser(email: string, password: string): Promise<boolean> {
+		let data = false
 		await axios.get(`${BACKEND_URL}/user/getEmail/${email}`)
 			.then(res => {
-				data = res.data[0]
-				console.log(data)
-				if (data.password === password) return true
-				return false
+				if (res.data[0].password === password) data = res.data[0]
+				else data = false
 			})
 			.catch(err => err)
+		return data
 	}
 
 	// static updateUser(uid: number, property: string): void {
@@ -120,6 +119,20 @@ class StoreManagement {
 			price,
 			description,
 			available,
+		})
+			.then(res => {
+				console.log(res)
+			})
+			.catch(err => err)
+	}
+
+	static async updateProduct(params: any): Promise<void> {
+		const id: string = params.name
+		const property: string = params.property
+		const value: string = params.value 
+
+		await axios.post(`${BACKEND_URL}/product/update/${id}/${property}`, {
+			id, property, value
 		})
 			.then(res => {
 				console.log(res)
