@@ -169,8 +169,8 @@ class LoginView extends React.Component<{}, LoginViewState> {
       try {
         // Use the User model to authenticate
         // For demonstration purposes, using simulation
+        // const response = await User.simulateLogin(email, password);
         const response = await User.simulateLogin(email, password);
-        
         if (response.success) {
           this.setState({ 
             isAuthenticated: true,

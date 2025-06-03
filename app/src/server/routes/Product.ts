@@ -20,13 +20,12 @@ router.get("/getAll", async(req, res): Promise<void> =>  {
 
 
 // Route to get one product
-router.get("/get/:uid", async(req, res) =>  {
-	const uid: string = req.params.uid
-	console.log(uid)
+router.get("/get/:id", async(req, res) =>  {
+	const id: string = req.params.id
 	let conn
 	try {
 		conn = await pool.getConnection()
-		const rows = await pool.query("SELECT * FROM products WHERE uid = ?", uid)
+		const rows = await pool.query("SELECT * FROM products WHERE id = ?", id)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)

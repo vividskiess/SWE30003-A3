@@ -13,15 +13,20 @@ const Test: React.FC = () => {
     if (sharedCatalogue.getProducts().length === 0) {
       console.warn('Store catalog is empty. Ensure initialization happens in main.tsx');
     }
-    const user: any = Authentication.getUser(1)
-    const allUsers: any = Authentication.getAllUsers()
-    const allProducts: any = StoreManagement.getAllProducts()
+    // const user: any = Authentication.getUser(1)
+    // const allUsers: any = Authentication.getAllUsers()
+    // const allProducts: any = StoreManagement.getAllProducts()
+    const loginUser: any = Authentication.loginUser('agosneye0@oakley.com', 'mF1.X7Jt{|?S')
 		// console.log(user)
     // console.log(allUsers)
-    console.log(allProducts)
+    // console.log(allProducts)
+    console.log(loginUser)
     // Optional: Could add subscription to catalog changes here if needed
   }, []);
 
+  useEffect(() => {
+
+  }, [])
   return (
     <Container maxWidth="lg">
       {/* Render the catalog using the shared instance */}

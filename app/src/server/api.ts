@@ -64,6 +64,18 @@ class Authentication {
 			.catch(err => err)
 	}
 
+	static async loginUser(email: string, password: string): Promise<void> {
+		let data
+		await axios.get(`${BACKEND_URL}/user/getEmail/${email}`)
+			.then(res => {
+				data = res.data[0]
+				console.log(data)
+				if (data.password === password) return true
+				return false
+			})
+			.catch(err => err)
+	}
+
 	// static updateUser(uid: number, property: string): void {
 	// 	axios.get(`${BACKEND_URL}/user/get/${uid}`).then((res) => {
 			

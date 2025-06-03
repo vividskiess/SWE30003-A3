@@ -23,7 +23,6 @@ router.get("/getAll", async(req, res): Promise<void> =>  {
 // Route to get one user
 router.get("/get/:uid", async(req, res) =>  {
 	const uid: string = req.params.uid
-	console.log(uid)
 	let conn
 	try {
 		conn = await pool.getConnection()
@@ -36,6 +35,19 @@ router.get("/get/:uid", async(req, res) =>  {
 	}
 })
 
+router.get("/getEmail/:email", async(req, res) =>  {
+	const email: string = req.params.email
+	let conn
+	try {
+		conn = await pool.getConnection()
+		const rows = await pool.query("SELECT * FROM users WHERE email = ?", email)
+		res.status(200).send(rows)
+	}	catch(err: any) {
+		res.status(400).send(err.message)
+	} finally {
+		if(conn) conn.end()
+	}
+})
 
 // Route for creating a user
 router.post('/create', async(req, res) =>  {

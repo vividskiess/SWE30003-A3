@@ -5,6 +5,7 @@ import Product from "./routes/Product"
 import dotenv from 'dotenv'
 
 dotenv.config({ path: '../../.env' })
+console.log(process.env.DB_USER)
 
 const app = express()
 const PORT: string | number = process.env.PORT || 3000
