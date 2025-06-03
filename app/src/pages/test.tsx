@@ -14,13 +14,13 @@ const Test: React.FC = () => {
       console.warn('Store catalog is empty. Ensure initialization happens in main.tsx');
     }
     // const user: any = Authentication.getUser(1)
-    // const allUsers: any = Authentication.getAllUsers()
+    // const allUsers: any = Authentication.getAllUsers().then((data) => console.log(data))
     // const allProducts: any = StoreManagement.getAllProducts()
-    const loginUser: any = Authentication.loginUser('agosneye0@oakley.com', 'mF1.X7Jt{|?S')
+    // const loginUser: any = Authentication.loginUser('agosneye0@oakley.com', 'mF1.X7Jt{|?S')
 		// console.log(user)
     // console.log(allUsers)
     // console.log(allProducts)
-    console.log(loginUser)
+    // console.log(loginUser)
     // Optional: Could add subscription to catalog changes here if needed
   }, []);
 

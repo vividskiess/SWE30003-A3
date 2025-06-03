@@ -24,22 +24,22 @@ class Authentication {
 		let data
 		await axios.get(`${BACKEND_URL}/user/get/${uid}`)
 			.then(res => {
-				data = res
-				console.log(res.data[0])
-				return data
+				data = res.data[0]
+				// console.log(res.data[0])
 			})
 			.catch(err => err)
+		return data
 	}
 
 	static async getAllUsers(): Promise<any> {
 		let data
 		await axios.get(`${BACKEND_URL}/user/getAll`)
 			.then(res => {
-				data = res
-				console.log(res.data)
-				return data
+				data = res.data
+				// console.log(res.data)
 			})
 			.catch(err => err)
+		return data
 	}
 
 	static async createUser(params: ICreateUser): Promise<void> {
@@ -89,22 +89,24 @@ class StoreManagement {
 		let data
 		await axios.get(`${BACKEND_URL}/product/get/${id}`)
 			.then(res => {
-				data = res
-				console.log(res.data[0])
-				return data
+				data = res.data[0]
+				// console.log(res.data[0])
+
 			})
 			.catch(err => err)
+		return data
 	}
 
 	static async getAllProducts(): Promise<any> {
 		let data
 		await axios.get(`${BACKEND_URL}/product/getAll`)
 			.then(res => {
-				data = res
-				console.log(res.data)
-				return data
+				data = res.data
+				// console.log(res.data)
+
 			})
 			.catch(err => err)
+		return data
 	}
 
 	static async createProduct(params: ICreateProduct): Promise<void> {
