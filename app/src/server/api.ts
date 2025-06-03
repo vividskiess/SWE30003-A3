@@ -42,7 +42,7 @@ class Authentication {
 		return data
 	}
 
-	static async createUser(params: ICreateUser): Promise<void> {
+	static async createUser(params: ICreateUser): Promise<boolean> {
 		const account_type: string = params.account_type
 		const first_name: string = params.first_name
 		const last_name: string = params.last_name
@@ -50,6 +50,16 @@ class Authentication {
 		const email: string = params.email
 		const password: string = params.password
 		
+		let status = false
+		
+		await axios.get(`${BACKEND_URL}/user/getEmail/${email}`)
+			.then(res => {
+				if (res.data[0].email !== email) status = true
+			})
+			.catch(err => err)
+
+		if(!status) return status
+
 		await axios.post(`${BACKEND_URL}/user/create`, {
 			account_type, 
 			first_name, 
@@ -60,8 +70,10 @@ class Authentication {
 		})
 			.then(res => {
 				console.log(res)
+				status = true
 			})
 			.catch(err => err)
+		return status
 	}
 
 	static async loginUser(email: string, password: string): Promise<boolean> {
@@ -74,6 +86,7 @@ class Authentication {
 			.catch(err => err)
 		return data
 	}
+	
 
 	// static updateUser(uid: number, property: string): void {
 	// 	axios.get(`${BACKEND_URL}/user/get/${uid}`).then((res) => {

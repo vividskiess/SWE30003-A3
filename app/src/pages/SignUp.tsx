@@ -24,11 +24,12 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { User, UserData } from '../models/User';
+import { Authentication } from '../server/api';
 
 interface SignUpViewState {
   formData: {
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
     confirmPassword: string;
@@ -38,8 +39,8 @@ interface SignUpViewState {
   showPassword: boolean;
   showConfirmPassword: boolean;
   errors: {
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
     confirmPassword: string;
@@ -57,19 +58,19 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
     super(props);
     this.state = {
       formData: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        gender: '',
-        address: ''
+        first_name: 'foo',
+        last_name: 'bar',
+        email: 'foo@bar.com',
+        password: 'FooBar123!',
+        confirmPassword: 'FooBar123!',
+        gender: 'M',
+        address: '1 foobar St'
       },
       showPassword: false,
       showConfirmPassword: false,
       errors: {
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -83,12 +84,12 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
     };
   }
 
-  private validateName = (name: string, field: 'firstName' | 'lastName'): boolean => {
+  private validateName = (name: string, field: 'first_name' | 'last_name'): boolean => {
     if (!name.trim()) {
       this.setState(prevState => ({
         errors: {
           ...prevState.errors,
-          [field]: `${field === 'firstName' ? 'First' : 'Last'} name is required`
+          [field]: `${field === 'first_name' ? 'First' : 'Last'} name is required`
         }
       }));
       return false;
@@ -267,7 +268,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
     e.preventDefault();
     this.setState({ isSubmitting: true });
     
-    const { firstName, lastName, email, password, confirmPassword, gender, address } = this.state.formData;
+    const { first_name, last_name, email, password, confirmPassword, gender, address } = this.state.formData;
     
     // Reset form error
     this.setState(prevState => ({
@@ -278,8 +279,8 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
     }));
 
     // Validate all fields
-    const isFirstNameValid = this.validateName(firstName, 'firstName');
-    const isLastNameValid = this.validateName(lastName, 'lastName');
+    const isFirstNameValid = this.validateName(first_name, 'first_name');
+    const isLastNameValid = this.validateName(last_name, 'last_name');
     const isEmailValid = this.validateEmail(email);
     const isPasswordValid = this.validatePassword(password);
     const isConfirmPasswordValid = this.validateConfirmPassword(confirmPassword, password);
@@ -290,9 +291,9 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
       
       // Create user data object
       const userData: UserData = {
-        accountType: 'CUSTOMER', // Always register as customer
-        firstName,
-        lastName,
+        account_type: 'CUSTOMER', // Always register as customer
+        first_name,
+        last_name,
         email,
         password,
         gender: gender as 'M' | 'F',
@@ -302,9 +303,9 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
       try {
         // Use the User model to register a new user
         // For demonstration purposes, using simulation
-        const response = await User.simulateRegister(userData);
-        
-        if (response.success) {
+        const response = await Authentication.createUser(userData)
+        // const response = await User.simulateRegister(userData);
+        if (response) {
           this.setState({ 
             registrationSuccess: true,
             isSubmitting: false
@@ -318,7 +319,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
           this.setState({
             errors: {
               ...this.state.errors,
-              form: response.message || 'Registration failed'
+              form: response || 'Registration failed'
             },
             isSubmitting: false
           });
@@ -403,28 +404,28 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
               <TextField
                 autoComplete="given-name"
-                name="firstName"
+                name="first_name"
                 required
                 fullWidth
-                id="firstName"
+                id="first_name"
                 label="First Name"
                 autoFocus
-                value={formData.firstName}
+                value={formData.first_name}
                 onChange={this.handleInputChange}
-                error={!!errors.firstName}
-                helperText={errors.firstName}
+                error={!!errors.first_name}
+                helperText={errors.first_name}
               />
               <TextField
                 required
                 fullWidth
-                id="lastName"
+                id="last_name"
                 label="Last Name"
-                name="lastName"
+                name="last_name"
                 autoComplete="family-name"
-                value={formData.lastName}
+                value={formData.last_name}
                 onChange={this.handleInputChange}
-                error={!!errors.lastName}
-                helperText={errors.lastName}
+                error={!!errors.last_name}
+                helperText={errors.last_name}
               />
             </Box>
             

@@ -57,13 +57,14 @@ router.post('/create', async(req, res) =>  {
 	const address: string = req.body.address
 	const email: string = req.body.email
 	const password: string = req.body.password
+	console.log(req.body)
 	let conn
 	try {
 		conn = await pool.getConnection()
-		const rows = await pool.query(
+		await pool.query(
 			"INSERT INTO users (account_type, first_name, last_name, address, email, password) VALUES (?, ?, ?, ?, ?, ?)",
 		[account_type, first_name, last_name, address, email, password])
-		res.status(200).send(rows)
+		res.status(200)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
 	} finally {

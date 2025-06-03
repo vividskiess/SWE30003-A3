@@ -3,13 +3,13 @@ import axios from 'axios';
 // Export interfaces from User.tsx with corrected type for token
 export interface UserData {
   uid?: number;
-  accountType: 'CUSTOMER' | 'STAFF';
-  firstName: string;
-  lastName: string;
+  account_type: 'CUSTOMER' | 'STAFF';
+  first_name: string;
+  last_name: string;
   gender: 'M' | 'F';
-  address: string | null;
+  address: string;
   email: string;
-  password?: string;
+  password: string;
 }
 
 export interface AuthResponse {
@@ -40,9 +40,9 @@ export class User {
   
   constructor(userData: UserData) {
     this.uid = userData.uid;
-    this.accountType = userData.accountType;
-    this.firstName = userData.firstName;
-    this.lastName = userData.lastName;
+    this.accountType = userData.account_type;
+    this.firstName = userData.first_name;
+    this.lastName = userData.last_name;
     this.gender = userData.gender;
     this.address = userData.address || null;
     this.email = userData.email;
@@ -183,66 +183,66 @@ export class User {
   }
 
   // For demonstration purposes - simulates API call with mock data
-  static async simulateLogin(email: string, password: string): Promise<AuthResponse> {
-    return new Promise(async (resolve) => {
-      setTimeout(async () => {
-        // Demo credentials
-        if (email === 'demo@example.com' && password === 'password123') {
-          const userData: UserData = {
-            uid: 1,
-            accountType: 'CUSTOMER',
-            firstName: 'John',
-            lastName: 'Doe',
-            gender: 'M',
-            address: '123 Main St, Melbourne, VIC',
-            email: 'demo@example.com'
-          };
+  static async simulateLogin(email: string, password: string): Promise<any> {
+    // return new Promise(async (resolve) => {
+    //   setTimeout(async () => {
+    //     // Demo credentials
+    //     if (email === 'demo@example.com' && password === 'password123') {
+    //       const userData: UserData = {
+    //         uid: 1,
+    //         account_type: 'CUSTOMER',
+    //         first_name: 'John',
+    //         last_name: 'Doe',
+    //         gender: 'M',
+    //         address: '123 Main St, Melbourne, VIC',
+    //         email: 'demo@example.com'
+    //       };
           
-          // Create Customer instance with dynamic import
-          const { Customer } = await import('./Customer');
-          User.currentUser = new Customer(userData);
-          User.authToken = 'mock-auth-token-123';
+    //       // Create Customer instance with dynamic import
+    //       const { Customer } = await import('./Customer');
+    //       User.currentUser = new Customer(userData);
+    //       User.authToken = 'mock-auth-token-123';
           
-          // Store in localStorage
-          localStorage.setItem('authToken', User.authToken);
+    //       // Store in localStorage
+    //       localStorage.setItem('authToken', User.authToken);
           
-          resolve({
-            success: true,
-            user: userData,
-            token: User.authToken
-          });
-        } else if (email === 'staff@example.com' && password === 'password123') {
-          const userData: UserData = {
-            uid: 2,
-            accountType: 'STAFF',
-            firstName: 'Jane',
-            lastName: 'Smith',
-            gender: 'F',
-            address: '456 Admin St, Melbourne, VIC',
-            email: 'staff@example.com'
-          };
+    //       resolve({
+    //         success: true,
+    //         user: userData,
+    //         token: User.authToken
+    //       });
+    //     } else if (email === 'staff@example.com' && password === 'password123') {
+    //       const userData: UserData = {
+    //         uid: 2,
+    //         account_type: 'STAFF',
+    //         first_name: 'Jane',
+    //         last_name: 'Smith',
+    //         gender: 'F',
+    //         address: '456 Admin St, Melbourne, VIC',
+    //         email: 'staff@example.com'
+    //       };
           
-          // Create Staff instance with dynamic import
-          const { Staff } = await import('./Staff');
-          User.currentUser = new Staff(userData);
-          User.authToken = 'mock-auth-token-456';
+    //       // Create Staff instance with dynamic import
+    //       const { Staff } = await import('./Staff');
+    //       User.currentUser = new Staff(userData);
+    //       User.authToken = 'mock-auth-token-456';
           
-          // Store in localStorage
-          localStorage.setItem('authToken', User.authToken);
+    //       // Store in localStorage
+    //       localStorage.setItem('authToken', User.authToken);
           
-          resolve({
-            success: true,
-            user: userData,
-            token: User.authToken
-          });
-        } else {
-          resolve({
-            success: false,
-            message: 'Invalid email or password'
-          });
-        }
-      }, 1000); // Simulate network delay
-    });
+    //       resolve({
+    //         success: true,
+    //         user: userData,
+    //         token: User.authToken
+    //       });
+    //     } else {
+    //       resolve({
+    //         success: false,
+    //         message: 'Invalid email or password'
+    //       });
+    //     }
+    //   }, 1000); // Simulate network delay
+    // });
   }
 
   // For demonstration purposes - simulates API call with mock data
