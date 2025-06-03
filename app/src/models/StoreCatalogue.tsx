@@ -109,7 +109,7 @@ export class StoreCatalogue {
               <button 
                 className={`add-to-cart-button ${!product.available ? 'disabled' : ''}`}
                 onClick={() => {
-                  console.log(sharedCustomer.getEmail());
+                  console.log(sharedCustomer.getEmail(), sharedStaff.getEmail());
                   if (product.available && product.qty > 0) {
                     product.qty -= 1;
                     sharedCart.addProduct(product.id);

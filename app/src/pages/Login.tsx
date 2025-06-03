@@ -175,39 +175,58 @@ class LoginView extends React.Component<{}, LoginViewState> {
             isAuthenticated: true,
             isSubmitting: false
           });
+
+          // Create a clean user data object
+          const userData = {
+            first_name: response.first_name || '',
+            last_name: response.last_name || '',
+            email: response.email || '',
+            gender: (response.gender as 'M' | 'F') || 'M',
+            address: response.address || '',
+            password: response.password || '',
+            account_type: (response.account_type as 'CUSTOMER' | 'STAFF') || 'CUSTOMER',
+            uid: Number(response.uid)
+          };
+
           if (response.account_type === 'STAFF') {
-            sharedStaff.updateProfile({
-              first_name: response.first_name,
-              last_name: response.last_name,
-              email: response.email,
-              gender: response.gender as 'M' | 'F',
-              address: response.address,
-              password: response.password,
-              account_type: response.account_type as 'STAFF' | 'CUSTOMER',
-              uid: Number(response.uid),
-            });
+            console.log('Processing staff login...');
+            console.log('Updating staff profile with:', userData);
+            
+            // Update the staff profile with all the data
+            const updateSuccess = await sharedStaff.updateProfile(userData);
+            
+            if (updateSuccess) {
+              console.log('Staff profile update successful');
+              console.log('Staff email after update:', sharedStaff.getEmail());
+              console.log('Staff UID after update:', sharedStaff.getUid());
+              console.log('Full staff state after update:', {
+                fullName: sharedStaff.getFullName(),
+                email: sharedStaff.getEmail(),
+                accountType: sharedStaff.getAccountType(),
+                uid: sharedStaff.getUid()
+              });
+              // Redirect to staff dashboard or perform other staff-specific actions
+              // this.props.history.push('/staff-dashboard');
+            } else {
+              console.error('Failed to update staff profile');
+              // Handle staff update failure
+              this.setState({
+                errors: {
+                  ...this.state.errors,
+                  login: 'Failed to initialize staff session'
+                },
+                isSubmitting: false
+              });
+            }
           } else {
             console.log('Processing customer login...');
-            
-            // Create a clean user data object
-            const userData = {
-              first_name: response.first_name || '',
-              last_name: response.last_name || '',
-              email: response.email || '',
-              gender: (response.gender as 'M' | 'F') || 'M',
-              address: response.address || '',
-              password: response.password || '',
-              account_type: (response.account_type as 'CUSTOMER' | 'STAFF') || 'CUSTOMER',
-              uid: Number(response.uid)
-            };
-            
             console.log('Updating customer profile with:', userData);
             
             // Update the customer profile with all the data
             const updateSuccess = await sharedCustomer.updateProfile(userData);
             
             if (updateSuccess) {
-              console.log('Profile update successful');
+              console.log('Customer profile update successful');
               console.log('Customer email after update:', sharedCustomer.getEmail());
               console.log('Customer UID after update:', sharedCustomer.getUid());
               console.log('Full customer state after update:', {
@@ -216,8 +235,18 @@ class LoginView extends React.Component<{}, LoginViewState> {
                 accountType: sharedCustomer.getAccountType(),
                 uid: sharedCustomer.getUid()
               });
+              // Redirect to customer dashboard or perform other customer-specific actions
+              // this.props.history.push('/dashboard');
             } else {
               console.error('Failed to update customer profile');
+              // Handle customer update failure
+              this.setState({
+                errors: {
+                  ...this.state.errors,
+                  login: 'Failed to initialize customer session'
+                },
+                isSubmitting: false
+              });
             }
           }
         } else {
