@@ -1,7 +1,7 @@
 import { Cart } from './Cart';
 import { Product } from './Product';
 import { StoreCatalogue } from './StoreCatalogue';
-import products from '../data/products.json';
+// import products from '../data/products.json';
 import { StoreManagement } from '../server/api';
 
 export * from './Cart';
@@ -16,18 +16,20 @@ export const sharedCart = new Cart();
 
 // Initialize catalog with products
 (function initializeStore() {
-    let productData = StoreManagement.getAllProducts().then((data) => console.log(data))
-    // console.log(productData)
   if (sharedCatalogue.getProducts().length === 0) {
     console.log('Initializing store catalogue with products');
-    products.forEach((product: any) => {
-      sharedCatalogue.addProduct(new Product(
-        product.id,
-        product.name,
-        product.price,
-        product.description,
-        product.available
-      ));
-    });
+    
+    StoreManagement.getAllProducts()
+      .then((products) => { 
+        products.forEach((product: any) => {
+          sharedCatalogue.addProduct(new Product(
+            String(product.id),
+            product.name,
+            parseFloat(product.price),
+            product.description,
+            product.available
+          ));
+        });
+      });
   }
 })();

@@ -10,6 +10,10 @@ export class StoreCatalogue {
     this.products.push(product);
   }
 
+  clear(): void {
+    this.products = [];
+  }
+
   getProducts(): Product[] {
     return [...this.products];
   }
