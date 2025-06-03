@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import User from "./routes/User"
-import StoreCatalogue from './routes/StoreCatalogue'
 import Product from "./routes/Product"
 import dotenv from 'dotenv'
 
@@ -17,7 +16,6 @@ app.use(express.urlencoded({ extended: false }))
 
 
 app.use("/user", User)
-app.use("/storeCatalogue", StoreCatalogue)
 app.use("/product", Product)
 
 

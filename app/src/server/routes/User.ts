@@ -11,7 +11,6 @@ router.get("/getAll", async(req, res): Promise<void> =>  {
 	try {
 		conn = await pool.getConnection()
 		const rows = await pool.query("SELECT * FROM users")
-		console.log(rows)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -21,58 +20,78 @@ router.get("/getAll", async(req, res): Promise<void> =>  {
 })
 
 
-// // Route to get one user
-// router.get("/get/:uid", async(req, res) =>  {
-// 	const uid: string = req.params.uid
-// 	db.query("SELECT * FROM users WHERE uid = ?", 
-// 		uid, 
-// 		(err,result)=> {
-// 			if(err) console.log(err)
-// 			res.send(result)
-// 		})   
-// })
+// Route to get one user
+router.get("/get/:uid", async(req, res) =>  {
+	const uid: string = req.params.uid
+	console.log(uid)
+	let conn
+	try {
+		conn = await pool.getConnection()
+		const rows = await pool.query("SELECT * FROM users WHERE uid = ?", uid)
+		res.status(200).send(rows)
+	}	catch(err: any) {
+		res.status(400).send(err.message)
+	} finally {
+		if(conn) conn.end()
+	}
+})
 
 
-// // Route for creating a user
-// router.post('/create', async(req, res) =>  {
-// 	const account_type: string = req.body.account_type
-// 	const first_name: string = req.body.first_name
-// 	const last_name: string = req.body.last_name
-// 	const address: string = req.body.address
-// 	const email: string = req.body.email
-// 	const password: string = req.body.password
-// 	db.query("INSERT INTO users (account_type, first_name, last_name, address, email, password) VALUES (?, ?, ?, ?, ?, ?)",
-// 		[account_type, first_name, last_name, address, email, password], 
-// 		(err,result) => {
-// 			if(err) console.log(err)
-// 		console.log(result)
-// 	})
-// })
+// Route for creating a user
+router.post('/create', async(req, res) =>  {
+	const account_type: string = req.body.account_type
+	const first_name: string = req.body.first_name
+	const last_name: string = req.body.last_name
+	const address: string = req.body.address
+	const email: string = req.body.email
+	const password: string = req.body.password
+	let conn
+	try {
+		conn = await pool.getConnection()
+		const rows = await pool.query(
+			"INSERT INTO users (account_type, first_name, last_name, address, email, password) VALUES (?, ?, ?, ?, ?, ?)",
+		[account_type, first_name, last_name, address, email, password])
+		res.status(200).send(rows)
+	}	catch(err: any) {
+		res.status(400).send(err.message)
+	} finally {
+		if(conn) conn.end()
+	}
+})
 
 
-// // Route to update user
-// router.post('/update/:uid/:property', async(req, res) =>  {
-// 	const uid: string = req.params.uid
-// 	const property: string = req.params.property
-// 	const value: string = req.body.value
-// 	db.query("UPDATE users SET property = value = WHERE uid = ?",
-// 		[property, value, uid],
-// 		(err,result) => {
-// 			if(err) console.log(err)
-// 			console.log(result)
-// 		})
-// })
+// Route to update user
+router.post('/update/:uid/:property', async(req, res) =>  {
+	const uid: string = req.params.uid
+	const property: string = req.params.property
+	const value: string = req.body.value
+	let conn
+	try {
+		conn = await pool.getConnection()
+		const rows = await pool.query("UPDATE users SET property = value = WHERE uid = ?",[property, value, uid])
+		res.status(200).send(rows)
+	}	catch(err: any) {
+		res.status(400).send(err.message)
+	} finally {
+		if(conn) conn.end()
+	}
+})
 
 
-// // Route to delete a user
-// router.delete('/delete/:uid', async(req, res) =>  {
-// 	const uid: string = req.params.uid
-// 	db.query("DELETE FROM users WHERE uid = ?", 
-// 		uid, 
-// 		(err,result) => {
-// 			if(err) console.log(err)
-// 	}) 
-// })
+// Route to delete a user
+router.delete('/delete/:uid', async(req, res) =>  {
+	const uid: string = req.params.uid
+	let conn
+	try {
+		conn = await pool.getConnection()
+		const rows = await pool.query("DELETE FROM users WHERE uid = ?", uid)
+		res.status(200).send(rows)
+	}	catch(err: any) {
+		res.status(400).send(err.message)
+	} finally {
+		if(conn) conn.end()
+	}
+})
 
 
 export default router

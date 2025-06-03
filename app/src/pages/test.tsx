@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Typography, Container, Box } from '@mui/material';
 import { sharedCatalogue } from '../models';
-import Authentication from '../server/api';
+import { Authentication, StoreManagement } from '../server/api';
 
 /**
  * StoreCatalog component displays all available products from the store catalogue
@@ -13,8 +13,12 @@ const Test: React.FC = () => {
     if (sharedCatalogue.getProducts().length === 0) {
       console.warn('Store catalog is empty. Ensure initialization happens in main.tsx');
     }
-    const data: any = Authentication.test()
-		console.log(data)
+    const user: any = Authentication.getUser(1)
+    const allUsers: any = Authentication.getAllUsers()
+    const allProducts: any = StoreManagement.getAllProducts()
+		// console.log(user)
+    // console.log(allUsers)
+    console.log(allProducts)
     // Optional: Could add subscription to catalog changes here if needed
   }, []);
 

@@ -7,8 +7,10 @@ const pool = mariadb.createPool({
 	host: process.env.DB_HOST, 
 	user: process.env.DB_USER, 
 	database: process.env.DB_DATABASE,
-	connectionLimit: 100
+	connectionLimit: 5,
+	trace: true
 })
+
 
 // console.log("Total connections: ", pool.totalConnections());
 // console.log("Active connections: ", pool.activeConnections());

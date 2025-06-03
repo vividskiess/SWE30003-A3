@@ -1,35 +1,120 @@
 
 import axios, { AxiosResponse } from 'axios';
 
+interface ICreateUser {
+	account_type: string, 
+	first_name: string,
+	last_name: string,
+	address: string,
+	email: string, 
+	password: string
+}
+
+interface ICreateProduct {
+	name: string,
+	price: string,
+	description: string,
+	available: string
+}
+
+	const BACKEND_URL: string = "http://localhost:3000"
 
 class Authentication {
-
-	private static BACKEND_URL: string = "http://localhost:3000"
-
-	static test(): any {
+	static async getUser(uid: number): Promise<void> {
 		let data
-		axios.get(`${Authentication.BACKEND_URL}/user/getAll`)
+		await axios.get(`${BACKEND_URL}/user/get/${uid}`)
 			.then(res => {
 				data = res
-				console.log(res)
+				console.log(res.data[0])
 				return data
 			})
 			.catch(err => err)
-		
-		
 	}
 
-	static register_new_user(): void {
-		axios.get(Authentication.BACKEND_URL).then((res) => {
-			console.log(res)
+	static async getAllUsers(): Promise<any> {
+		let data
+		await axios.get(`${BACKEND_URL}/user/getAll`)
+			.then(res => {
+				data = res
+				console.log(res.data)
+				return data
+			})
+			.catch(err => err)
+	}
+
+	static async createUser(params: ICreateUser): Promise<void> {
+		const account_type: string = params.account_type
+		const first_name: string = params.first_name
+		const last_name: string = params.last_name
+		const address: string = params.address
+		const email: string = params.email
+		const password: string = params.password
+		
+		await axios.post(`${BACKEND_URL}/user/create`, {
+			account_type, 
+			first_name, 
+			last_name, 
+			address, 
+			email, 
+			password
 		})
+			.then(res => {
+				console.log(res)
+			})
+			.catch(err => err)
 	}
 
-	static login_user(uid: number): void {
-		axios.get(`${Authentication.BACKEND_URL}/user/get/${uid}`).then((res) => {
+	// static updateUser(uid: number, property: string): void {
+	// 	axios.get(`${BACKEND_URL}/user/get/${uid}`).then((res) => {
 			
+	// 	})
+	// }
+}
+
+class StoreManagement {
+	
+	static async getProduct(id: number): Promise<void> {
+		let data
+		await axios.get(`${BACKEND_URL}/product/get/${id}`)
+			.then(res => {
+				data = res
+				console.log(res.data[0])
+				return data
+			})
+			.catch(err => err)
+	}
+
+	static async getAllProducts(): Promise<any> {
+		let data
+		await axios.get(`${BACKEND_URL}/product/getAll`)
+			.then(res => {
+				data = res
+				console.log(res.data)
+				return data
+			})
+			.catch(err => err)
+	}
+
+	static async createProduct(params: ICreateProduct): Promise<void> {
+	const name: string = params.name
+	const price: string = params.price
+	const description: string = params.description
+	const available: string = params.available
+		
+		await axios.post(`${BACKEND_URL}/product/create`, {
+			name,
+			price,
+			description,
+			available,
 		})
+			.then(res => {
+				console.log(res)
+			})
+			.catch(err => err)
 	}
 }
 
-export default Authentication
+export {
+	Authentication,
+	StoreManagement
+}
