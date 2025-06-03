@@ -1,3 +1,4 @@
+import React from 'react';
 import { Product } from './Product';
 // import { Cart } from './Cart';
 import { sharedCart } from '.';
@@ -6,12 +7,27 @@ import '../styles/Button.css';
 
 export class StoreCatalogue {
   private products: Product[] = [];
+  private updateCallback: (() => void) | undefined = undefined;
+
+  // Set a callback to be called when products change
+  setUpdateCallback(callback: (() => void) | undefined): void {
+    this.updateCallback = callback;
+  }
+
+  private notifyUpdate(): void {
+    if (this.updateCallback) {
+      this.updateCallback();
+    }
+  }
+
   addProduct(product: Product): void {
     this.products.push(product);
+    this.notifyUpdate();
   }
 
   clear(): void {
     this.products = [];
+    this.notifyUpdate();
   }
 
   getProducts(): Product[] {
@@ -38,21 +54,36 @@ export class StoreCatalogue {
   }
 
   renderCatalog(): React.ReactElement {
+    // Use React state to force re-renders
+    const [_, setRenderCount] = React.useState(0);
+
+    // Set up the update callback when the component mounts
+    React.useEffect(() => {
+      this.setUpdateCallback(() => {
+        setRenderCount(prev => prev + 1);
+      });
+      
+      // Clean up the callback when the component unmounts
+      return () => {
+        this.setUpdateCallback(undefined);
+      };
+    }, []);
+
     return (
       <div className="store-catalog" style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            gutterBottom 
-            sx={{ 
-              fontWeight: 'bold',
-              borderBottom: '2px solid #eee',
-              pb: 2,
-              mb: 4
-            }}
-          >
-            Store Catalog
-          </Typography>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 'bold',
+            borderBottom: '2px solid #eee',
+            pb: 2,
+            mb: 4
+          }}
+        >
+          Store Catalog
+        </Typography>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1.5rem' }}>
           {this.products.map(product => (
             <div key={product.id} style={{
@@ -77,18 +108,19 @@ export class StoreCatalogue {
               <button 
                 className={`add-to-cart-button ${!product.available ? 'disabled' : ''}`}
                 onClick={() => {
-                  if (product.available) {
+                  if (product.available && product.qty > 0) {
+                    product.qty -= 1;
                     sharedCart.addProduct(product.id);
                     console.log('Cart updated:', sharedCart.getItems().map(([id, qty]) => {
                       const prod = this.products.find(p => p.id === id);
                       return `${prod?.name} (${qty}x)`;
                     }));
-                    console.log('Total price:', sharedCart.getTotalPrice(this));
+                    this.notifyUpdate();
                   }
                 }}
-                disabled={!product.available}
+                disabled={!product.available || product.qty === 0}
               >
-                {product.available ? 'Add to Cart' : 'Out of Stock'}
+                {product.available && product.qty > 0 ? 'Add to Cart' : 'Out of Stock'}
               </button>
             </div>
           ))}

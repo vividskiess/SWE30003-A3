@@ -114,8 +114,8 @@ export class Cart {
   // Render cart as a React component
   renderCart(catalogue: StoreCatalogue): React.ReactElement {
     // Add debug information to help identify issues
-    console.log('Cart items:', this.items);
-    console.log('Catalogue products:', catalogue.getProducts());
+    // console.log('Cart items:', this.items);
+    // console.log('Catalogue products:', catalogue.getProducts());
     
     const CartContents = () => {
       // State to trigger re-renders on cart changes
@@ -197,7 +197,7 @@ export class Cart {
                     {product.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    ${product.price.toFixed(2)} × {quantity} = ${(product.price * quantity).toFixed(2)}
+                    ${product.price.toFixed(2)} x {quantity} = ${(product.price * quantity).toFixed(2)}
                   </Typography>
                 </Box>
                 

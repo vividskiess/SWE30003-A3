@@ -27,7 +27,8 @@ export const sharedCart = new Cart();
             product.name,
             parseFloat(product.price),
             product.description,
-            product.available
+            product.available,
+            product.qty
           ));
         });
       });
