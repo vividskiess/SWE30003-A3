@@ -20,6 +20,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
 import { User } from '../models/User';
 import { Authentication } from '../server/api';
+import { sharedCustomer, sharedStaff } from '../models';
 
 
 interface LoginViewState {
@@ -168,22 +169,62 @@ class LoginView extends React.Component<{}, LoginViewState> {
     
     if (isEmailValid && isPasswordValid) {
       try {
-        // Use the User model to authenticate
-        // For demonstration purposes, using simulation
-        // const response = await User.simulateLogin(email, password);
         const response = await Authentication.loginUser(email, password)
         if (response) {
-        // if (response.success) {
           this.setState({ 
             isAuthenticated: true,
             isSubmitting: false
           });
+          if (response.account_type === 'STAFF') {
+            sharedStaff.updateProfile({
+              first_name: response.first_name,
+              last_name: response.last_name,
+              email: response.email,
+              gender: response.gender as 'M' | 'F',
+              address: response.address,
+              password: response.password,
+              account_type: response.account_type as 'STAFF' | 'CUSTOMER',
+              uid: Number(response.uid),
+            });
+          } else {
+            console.log('Processing customer login...');
+            
+            // Create a clean user data object
+            const userData = {
+              first_name: response.first_name || '',
+              last_name: response.last_name || '',
+              email: response.email || '',
+              gender: (response.gender as 'M' | 'F') || 'M',
+              address: response.address || '',
+              password: response.password || '',
+              account_type: (response.account_type as 'CUSTOMER' | 'STAFF') || 'CUSTOMER',
+              uid: Number(response.uid)
+            };
+            
+            console.log('Updating customer profile with:', userData);
+            
+            // Update the customer profile with all the data
+            const updateSuccess = await sharedCustomer.updateProfile(userData);
+            
+            if (updateSuccess) {
+              console.log('Profile update successful');
+              console.log('Customer email after update:', sharedCustomer.getEmail());
+              console.log('Customer UID after update:', sharedCustomer.getUid());
+              console.log('Full customer state after update:', {
+                fullName: sharedCustomer.getFullName(),
+                email: sharedCustomer.getEmail(),
+                accountType: sharedCustomer.getAccountType(),
+                uid: sharedCustomer.getUid()
+              });
+            } else {
+              console.error('Failed to update customer profile');
+            }
+          }
         } else {
           this.setState({
             errors: {
               ...this.state.errors,
               login: response || 'Authentication failed'
-              // login: response.message || 'Authentication failed'
             },
             isSubmitting: false
           });

@@ -3,13 +3,13 @@ import axios from 'axios';
 // Export interfaces from User.tsx with corrected type for token
 export interface UserData {
   uid?: number;
-  account_type: 'CUSTOMER' | 'STAFF';
-  first_name: string;
-  last_name: string;
-  gender: 'M' | 'F';
-  address: string;
-  email: string;
-  password: string;
+  account_type?: 'CUSTOMER' | 'STAFF'; // Made optional, will default to CUSTOMER
+  first_name?: string;
+  last_name?: string;
+  gender?: 'M' | 'F';
+  address?: string;
+  email?: string;
+  password?: string;
 }
 
 export interface AuthResponse {
@@ -38,14 +38,27 @@ export class User {
   protected address: string | null;
   protected email: string;
   
-  constructor(userData: UserData) {
-    this.uid = userData.uid;
-    this.accountType = userData.account_type;
-    this.firstName = userData.first_name;
-    this.lastName = userData.last_name;
-    this.gender = userData.gender;
+  constructor(userData: Partial<UserData> = {}) {
+    console.log('Initializing User with data:', userData);
+    
+    // Initialize all properties with default values
+    this.uid = userData.uid || undefined;
+    this.accountType = (userData.account_type as 'CUSTOMER' | 'STAFF') || 'CUSTOMER';
+    this.firstName = userData.first_name || '';
+    this.lastName = userData.last_name || '';
+    this.gender = (userData.gender as 'M' | 'F') || 'M';
     this.address = userData.address || null;
-    this.email = userData.email;
+    this.email = userData.email || '';
+    
+    console.log('User initialized with:', {
+      uid: this.uid,
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      accountType: this.accountType
+    });
+    // Note: Password is not stored directly on the instance after construction for security.
+    // It's used for login/register and then discarded from the instance.
   }
 
   // Static methods for authentication
@@ -134,11 +147,15 @@ export class User {
 
   // Instance methods
   getFullName(): string {
-    return `${this.firstName} ${this.lastName}`;
+    return `${this.firstName} ${this.lastName}`.trim();
   }
 
   getEmail(): string {
-    return this.email;
+    return this.email || '';
+  }
+  
+  getUid(): number | undefined {
+    return this.uid;
   }
 
   getAccountType(): 'CUSTOMER' | 'STAFF' {
@@ -155,27 +172,80 @@ export class User {
 
   // Method to update user profile
   async updateProfile(updates: Partial<UserData>): Promise<boolean> {
-    if (!this.uid || !User.authToken) {
+    console.log('Starting updateProfile with updates:', updates);
+    
+    // If we have a UID in updates, use that to update the instance UID
+    if (updates.uid) {
+      console.log('Updating UID from', this.uid, 'to', updates.uid);
+      this.uid = updates.uid;
+    }
+    
+    if (!this.uid) {
+      console.error('Cannot update profile: No UID');
       return false;
     }
+    
+    console.log('Current user state before update:', {
+      uid: this.uid,
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      accountType: this.accountType
+    });
 
     try {
-      const response = await axios.put(
-        `${User.API_URL}/user/update/${this.uid}`,
-        updates,
-        {
-          headers: {
-            Authorization: `Bearer ${User.authToken}`
-          }
-        }
-      );
-
-      if (response.data.success) {
-        // Update local user data
-        Object.assign(this, updates);
-        return true;
+      // Log the incoming updates
+      console.log('Updating profile with:', updates);
+      
+      // Create a new object with both camelCase and snake_case properties
+      const updateData: Record<string, any> = { ...updates };
+      
+      // Map snake_case to camelCase
+      if ('first_name' in updateData) {
+        updateData.firstName = updateData.first_name;
       }
-      return false;
+      if ('last_name' in updateData) {
+        updateData.lastName = updateData.last_name;
+      }
+      if ('account_type' in updateData) {
+        updateData.accountType = updateData.account_type;
+      }
+
+      // Only make API call if we have a token
+      if (User.authToken) {
+        const response = await axios.put(
+          `${User.API_URL}/user/update/${this.uid}`,
+          updateData,
+          {
+            headers: {
+              Authorization: `Bearer ${User.authToken}`
+            }
+          }
+        );
+
+        if (!response.data.success) {
+          console.error('API update failed:', response.data);
+          return false;
+        }
+      }
+
+      // Update local properties
+      if ('firstName' in updateData) this.firstName = updateData.firstName || '';
+      if ('lastName' in updateData) this.lastName = updateData.lastName || '';
+      if ('email' in updateData) this.email = updateData.email || '';
+      if ('gender' in updateData) this.gender = (updateData.gender as 'M' | 'F') || 'M';
+      if ('address' in updateData) this.address = updateData.address || null;
+      if ('accountType' in updateData) this.accountType = (updateData.accountType as 'CUSTOMER' | 'STAFF') || 'CUSTOMER';
+      if ('uid' in updateData) this.uid = updateData.uid;
+
+      console.log('Profile updated successfully. Current state:', {
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email,
+        accountType: this.accountType
+      });
+
+      return true;
     } catch (error) {
       console.error('Update profile error:', error);
       return false;

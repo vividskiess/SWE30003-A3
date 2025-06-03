@@ -1,6 +1,7 @@
 import React from 'react';
 import { Product } from './Product';
 // import { Cart } from './Cart';
+import { sharedCustomer, sharedStaff } from '.';
 import { sharedCart } from '.';
 import { Typography } from '@mui/material';
 import '../styles/Button.css';
@@ -108,6 +109,7 @@ export class StoreCatalogue {
               <button 
                 className={`add-to-cart-button ${!product.available ? 'disabled' : ''}`}
                 onClick={() => {
+                  console.log(sharedCustomer.getEmail());
                   if (product.available && product.qty > 0) {
                     product.qty -= 1;
                     sharedCart.addProduct(product.id);

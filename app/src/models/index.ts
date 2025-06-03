@@ -1,8 +1,9 @@
 import { Cart } from './Cart';
 import { Product } from './Product';
 import { StoreCatalogue } from './StoreCatalogue';
-// import products from '../data/products.json';
 import { StoreManagement } from '../server/api';
+import { Customer } from './Customer';
+import { Staff } from './Staff';
 
 export * from './Cart';
 export * from './Product';
@@ -10,9 +11,8 @@ export * from './StoreCatalogue';
 
 export const sharedCatalogue = new StoreCatalogue();
 export const sharedCart = new Cart();
-
-
-
+export const sharedCustomer = new Customer();
+export const sharedStaff = new Staff();
 
 // Initialize catalog with products
 (function initializeStore() {

@@ -17,7 +17,19 @@ interface ICreateProduct {
 	available: string
 }
 
-	const BACKEND_URL: string = "http://localhost:3000"
+interface User {
+	uid: string;
+	account_type: string;
+	first_name: string;
+	last_name: string;
+	gender: string;
+	address: string;
+	email: string;
+	password: string;
+}
+
+
+const BACKEND_URL: string = "http://localhost:3000"
 
 class Authentication {
 	static async getUser(uid: number): Promise<void> {
@@ -76,7 +88,7 @@ class Authentication {
 		return status
 	}
 
-	static async loginUser(email: string, password: string): Promise<boolean> {
+	static async loginUser(email: string, password: string): Promise<User | false> {
 		let data = false
 		await axios.get(`${BACKEND_URL}/user/getEmail/${email}`)
 			.then(res => {

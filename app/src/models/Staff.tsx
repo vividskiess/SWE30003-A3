@@ -12,7 +12,7 @@ export class Staff extends User {
   private department: string;
   private role: string;
   
-  constructor(userData: StaffData) {
+  constructor(userData: Partial<StaffData> = {}) {
     super(userData);
     this.department = userData.department || 'General';
     this.role = userData.role || 'Staff';
@@ -57,31 +57,31 @@ export class Staff extends User {
   }
   
   // For demonstration purposes - simulates API call with mock data
-  simulateGetAllUsers(): Promise<UserData[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            uid: 1,
-            accountType: 'CUSTOMER',
-            firstName: 'John',
-            lastName: 'Doe',
-            gender: 'M',
-            address: '123 Main St, Melbourne, VIC',
-            email: 'john.doe@example.com'
-          },
-          {
-            uid: 2,
-            accountType: 'STAFF',
-            firstName: 'Jane',
-            lastName: 'Smith',
-            gender: 'F',
-            address: '456 Admin St, Melbourne, VIC',
-            email: 'jane.smith@example.com'
-          },
-          // More mock users...
-        ]);
-      }, 1000);
-    });
-  }
+  // simulateGetAllUsers(): Promise<UserData[]> {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       resolve([
+  //         {
+  //           uid: 1,
+  //           accountType: 'CUSTOMER',
+  //           firstName: 'John',
+  //           lastName: 'Doe',
+  //           gender: 'M',
+  //           address: '123 Main St, Melbourne, VIC',
+  //           email: 'john.doe@example.com'
+  //         },
+  //         {
+  //           uid: 2,
+  //           accountType: 'STAFF',
+  //           firstName: 'Jane',
+  //           lastName: 'Smith',
+  //           gender: 'F',
+  //           address: '456 Admin St, Melbourne, VIC',
+  //           email: 'jane.smith@example.com'
+  //         },
+  //         // More mock users...
+  //       ]);
+  //     }, 1000);
+  //   });
+  // }
 }

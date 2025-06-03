@@ -11,8 +11,8 @@ export class Customer extends User {
   private savedAddresses: string[] = [];
   private orderHistory: string[] = [];
   
-  constructor(userData: CustomerData) {
-    super(userData);
+  constructor(userData: Partial<CustomerData> = {}) {
+    super(userData); // Pass even an empty object to User constructor for its defaults
     this.savedAddresses = userData.savedAddresses || [];
     this.orderHistory = userData.orderHistory || [];
   }
