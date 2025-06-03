@@ -134,7 +134,7 @@ export class Order {
 }
 
 // Create a shared instance
-export const sharedOrder = new Order();
+// export const sharedOrder = new Order();
 
 // // When the form is submitted
 // const handleSubmit = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Typography, Paper, Box, Button, Divider, List, ListItem, ListItemText, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { sharedOrder } from '../models/Order';
+import { sharedOrder } from '../models/index';
 
 interface OrderViewProps {}
 

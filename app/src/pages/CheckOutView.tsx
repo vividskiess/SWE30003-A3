@@ -2,8 +2,7 @@ import React from 'react';
 import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { CartItemWithProduct } from '../models/CheckoutManagerTest';
-import { sharedCart } from '../models';
-import { sharedOrder } from '../models/Order';
+import { sharedCart, sharedOrder } from '../models';
 import { checkoutManager } from '../models/CheckoutManagerTest';
 import ShippingView from './ShippingView';
 
@@ -16,6 +15,13 @@ type ShippingViewRef = {
   } | null;
 };
 import PaymentView from './PaymentView';
+
+interface PaymentFormData {
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  cardHolderName: string;
+}
 
 interface CheckOutViewState {
   isCheckoutValid: boolean;
@@ -36,6 +42,7 @@ interface CheckOutViewState {
   isPaymentVerified: boolean;
   paymentError: string | null;
   isProcessing: boolean;
+  paymentFormData: PaymentFormData | null;
 }
 
 type CheckOutViewProps = {
@@ -52,7 +59,8 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
       shippingCost: 0,
       isPaymentVerified: false,
       paymentError: null,
-      isProcessing: false
+      isProcessing: false,
+      paymentFormData: null
     };
   }
 
@@ -118,6 +126,19 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
     this.updateCheckoutValidity();
   };
 
+  private handlePaymentProcessed = (success: boolean, data?: any) => {
+    this.setState({ 
+      isPaymentVerified: success,
+      paymentError: success ? null : 'Payment verification failed',
+      paymentFormData: success ? {
+        cardNumber: data?.cardNumber || '',
+        expiryDate: data?.expiryDate || '',
+        cvv: data?.cvv || '',
+        cardHolderName: data?.cardHolderName || 'Card Holder'
+      } : null
+    }, this.updateCheckoutValidity);
+  };
+
   private handleEdit = (): void => {
     this.setState({
       isPaymentVerified: false,
@@ -166,13 +187,26 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
       country: 'Australia' // Default to Australia
     });
     
-    // For payment info, we'll use mock data since we don't have a direct reference to payment form data
-    // In a real app, you would get this from a payment form reference
+    // Use the actual payment information from the form
+    if (!this.state.paymentFormData) {
+      console.error('No payment information available');
+      alert('Payment information is missing. Please verify your payment details.');
+      return;
+    }
+    
     const paymentInfo = {
-      cardNumber: '4242 4242 4242 4242', // Mock data
-      expiryDate: '12/25',
-      cvv: '123'
+      cardNumber: this.state.paymentFormData.cardNumber.replace(/\s/g, ''), // Remove spaces from card number
+      expiryDate: this.state.paymentFormData.expiryDate,
+      cvv: this.state.paymentFormData.cvv,
+      cardHolderName: this.state.paymentFormData.cardHolderName
     };
+    
+    console.log('Using payment info:', {
+      ...paymentInfo,
+      cardNumber: `${paymentInfo.cardNumber.substring(0, 4)}...${paymentInfo.cardNumber.slice(-4)}`,
+      cvv: '***'
+    });
+    
     sharedOrder.setPaymentInfo(paymentInfo);
     
     // Update the order's total to include shipping cost
@@ -301,20 +335,9 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
             />
             <PaymentView 
               amount={this.calculateTotal()}
-              onPaymentProcessed={(success) => {
-                this.setState({ 
-                  isPaymentVerified: success,
-                  paymentError: success ? null : this.state.paymentError
-                }, () => {
-                  // Update the overall checkout validity after state is updated
-                  this.updateCheckoutValidity();
-                  // Notify parent component about the payment status
-                  if (this.props.onPaymentProcessed) {
-                    this.props.onPaymentProcessed(success);
-                  }
-                });
-              }}
+              onPaymentProcessed={this.handlePaymentProcessed}
               onEdit={this.handleEdit}
+              readOnly={this.state.isPaymentVerified}
             />
           </Box>
 

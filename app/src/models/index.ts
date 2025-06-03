@@ -4,6 +4,7 @@ import { StoreCatalogue } from './StoreCatalogue';
 import { StoreManagement } from '../server/api';
 import { Customer } from './Customer';
 import { Staff } from './Staff';
+import { Order } from './Order';
 
 export * from './Cart';
 export * from './Product';
@@ -13,6 +14,7 @@ export const sharedCatalogue = new StoreCatalogue();
 export const sharedCart = new Cart();
 export const sharedCustomer = new Customer();
 export const sharedStaff = new Staff();
+export const sharedOrder = new Order();
 
 // Initialize catalog with products
 (function initializeStore() {

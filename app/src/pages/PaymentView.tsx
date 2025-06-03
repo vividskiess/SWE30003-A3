@@ -5,7 +5,7 @@ import { checkoutManager } from '../models/CheckoutManagerTest';
 
 interface PaymentViewProps {
   amount: number;
-  onPaymentProcessed?: (success: boolean) => void;
+  onPaymentProcessed?: (success: boolean, data?: any) => void;
   onEdit?: () => void;
   readOnly?: boolean;
 }
@@ -39,16 +39,21 @@ export class PaymentView extends React.Component<PaymentViewProps, PaymentViewSt
         paymentError: null
       });
       checkoutManager.handlePaymentFormValidityChange(true);
+      
+      // Pass the payment form data back to the parent
+      if (this.props.onPaymentProcessed) {
+        this.props.onPaymentProcessed(success, data?.formData);
+      }
     } else {
       this.setState({ 
         paymentError: data?.error || 'Payment processing failed',
         isProcessing: false 
       });
       checkoutManager.handlePaymentFormValidityChange(false);
-    }
-
-    if (this.props.onPaymentProcessed) {
-      this.props.onPaymentProcessed(success);
+      
+      if (this.props.onPaymentProcessed) {
+        this.props.onPaymentProcessed(false);
+      }
     }
   };
 

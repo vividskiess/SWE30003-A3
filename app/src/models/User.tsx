@@ -253,7 +253,7 @@ export class User {
   }
 
   // For demonstration purposes - simulates API call with mock data
-  static async simulateLogin(email: string, password: string): Promise<any> {
+  // static async simulateLogin(email: string, password: string): Promise<any> {
     // return new Promise(async (resolve) => {
     //   setTimeout(async () => {
     //     // Demo credentials
@@ -313,7 +313,7 @@ export class User {
     //     }
     //   }, 1000); // Simulate network delay
     // });
-  }
+  // }
 
   // For demonstration purposes - simulates API call with mock data
   static simulateRegister(userData: UserData): Promise<AuthResponse> {

@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
         
         {/* Navigation links */}
         <Box sx={{ display: 'flex', flexGrow: 1 }}>
-          <Button color="inherit" component={Link} to="/checkoutView" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Checkout</Button>
+          <Button color="inherit" component={Link} to="/checkout" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Checkout</Button>
           <Button color="inherit" component={Link} to="/login" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Login</Button>
           <Button color="inherit" component={Link} to="/cart" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Cart</Button>
           <Button color="inherit" component={Link} to="/signup" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Sign Up</Button>
