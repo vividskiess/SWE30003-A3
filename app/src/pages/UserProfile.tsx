@@ -18,7 +18,8 @@ import {
   Stack
 } from '@mui/material';
 
-import { sharedCustomer } from "../models/index.ts"
+import { sharedCustomer, sharedStaff } from "../models";
+import { User } from "../models/User";
 
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import PersonIcon from '@mui/icons-material/Person';
@@ -73,9 +74,11 @@ interface UserProfileState {
 
 class UserProfile extends React.Component<{}, UserProfileState > {
   private unsubscribe: (() => void) | null = null;
+  private updateInterval: NodeJS.Timeout | null = null;
 
   constructor(props: {}) {
     super(props);
+    
     this.state = {
       tabValue: 0,
       editMode: false,
@@ -109,36 +112,44 @@ class UserProfile extends React.Component<{}, UserProfileState > {
 
       }
     };
-    // Log initial catalog state
-    console.log('Initial user state:', sharedCustomer.getFullName());
+  }
+
+  componentDidMount() {
+    // Try to get user data from shared instances
+    const updateUserData = () => {
+      try {
+        const user = User['currentUser'] as any;
+        const customerData = sharedCustomer.getCustomerDetails?.() || {};
+        const staffData = sharedStaff.getCustomerDetails?.() || {};
+        const userData = user?.getCustomerDetails?.() || customerData || staffData;
+        
+        if (userData?.email) { // Only update if we have valid user data
+          this.setState({ 
+            userData,
+            editData: userData
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    };
+    
+    // Initial update
+    updateUserData();
+    
+    // Check for updates periodically
+    this.updateInterval = setInterval(updateUserData, 5000);
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
-  // Mock user data 
-  // const [userData, setUserData] = useState({
-  //   first_name: 'John',
-  //   last_name: 'Doe',
-  //   email: 'john.doe@example.com',
-  //   phone: '0412 345 678',
-  //   address: {
-  //     street: '123 Main St',
-  //     city: 'Melbourne',
-  //     state: 'VIC',
-  //     postcode: '3000',
-  //     country: 'Australia'
-  //   }
-  // });
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
+  }
 
-componentDidMount(): void {
-  console.log(sharedCustomer.getCustomerDetails())
-  this.setState({ userData: sharedCustomer.getCustomerDetails() });
-
-}
-
-  // componentDidMount() {
-  //   // Subscribe to catalogue changes
-  //   sharedCatalogue.setUpdateCallback(() => {
-  //     this.setState({ products: sharedCatalogue.getProducts() });
-  //   });
-  // }
   // Mock order history
   private orderHistory = [
     { id: 'ORD-001', date: '2025-05-01', status: 'Delivered', total: 125.99 },

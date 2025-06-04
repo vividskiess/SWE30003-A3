@@ -27,6 +27,19 @@ export class Staff extends User {
     return this.role;
   }
   
+  // Match Customer class interface
+  getCustomerDetails(): UserData {
+    return {
+      uid: this.uid,
+      account_type: this.accountType,
+      first_name: this.firstName,
+      last_name: this.lastName,
+      gender: this.gender,
+      address: this.address,
+      email: this.email,
+    };
+  }
+  
   // Administrative methods
   async getAllUsers(): Promise<UserData[]> {
     const token = localStorage.getItem('authToken');

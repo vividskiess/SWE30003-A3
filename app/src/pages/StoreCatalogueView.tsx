@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { Typography, Box, Button, TextField, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { sharedCatalogue, sharedCustomer, sharedStaff, sharedCart } from '../models';
+import { StoreManagement } from '../server/api';
 import '../styles/Button.css';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -35,6 +36,7 @@ interface StoreCatalogState {
 
 class StoreCatalog extends React.Component<{}, StoreCatalogState> {
   private unsubscribe: (() => void) | null = null;
+  private inputTimeout: NodeJS.Timeout | null = null;
 
   constructor(props: {}) {
     super(props);
@@ -218,38 +220,68 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
 
   private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    this.setState(prevState => ({
-      currentProduct: {
-        ...prevState.currentProduct,
-        [name]: type === 'checkbox' ? checked : value
-      },
-      // Clear error when user starts typing in a field
-      errors: {
-        ...prevState.errors,
-        [name]: ''
-      }
-    }));
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Clear any pending updates
+    if (this.inputTimeout) {
+      clearTimeout(this.inputTimeout);
+    }
+
+    // Debounce the state update
+    this.inputTimeout = setTimeout(() => {
+      this.setState(prevState => {
+        // Skip update if value hasn't changed
+        if (prevState.currentProduct[name as keyof typeof prevState.currentProduct] === newValue) {
+          return null;
+        }
+
+        return {
+          currentProduct: {
+            ...prevState.currentProduct,
+            [name]: newValue
+          },
+          errors: {
+            ...prevState.errors,
+            [name]: ''
+          }
+        };
+      });
+    }, 50); // 50ms debounce time
   };
 
-  private handleAddProduct = () => {
+  private handleAddProduct = async () => {
     if (!this.validateProduct()) return;
     
     try {
-      const { name, price, description, qty, available } = this.state.currentProduct;
-      const newProduct = {
-        id: `product-${Date.now()}`,
-        name: name.trim(),
-        price: parseFloat(price),
-        description: description.trim(),
-        qty: parseInt(qty, 10),
-        available
-      };
+      const { name, price, description, available } = this.state.currentProduct;
       
-      sharedCatalogue.addProduct(newProduct);
-      this.logCatalogState('Product Added', newProduct);
+      // Call the API to create the product
+      await StoreManagement.createProduct({
+        name: name.trim(),
+        price: price,
+        description: description.trim(),
+        available: available.toString()
+      });
+      
+      // Refresh the products list from the server
+      const updatedProducts = await StoreManagement.getAllProducts();
+      sharedCatalogue.clear(); // Clear existing products
+      updatedProducts.forEach((product: any) => {
+        sharedCatalogue.addProduct({
+          id: String(product.id),
+          name: product.name,
+          price: parseFloat(product.price),
+          description: product.description,
+          available: product.available,
+          qty: product.qty || 0
+        });
+      });
+      
+      this.logCatalogState('Product Added', { name, price, description, available });
       this.handleCloseDialogs();
     } catch (error) {
       console.error('Error adding product:', error);
+      alert('Failed to add product. Please try again.');
     }
   };
 
