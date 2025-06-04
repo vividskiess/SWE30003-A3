@@ -13,7 +13,7 @@ import {
   Divider,
   CircularProgress
 } from '@mui/material';
-import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -24,7 +24,7 @@ import { sharedCustomer, sharedStaff } from '../models';
 
 
 interface LoginViewProps {
-  navigate: (path: string) => void;
+  navigate: (to: string, options?: { replace?: boolean }) => void;
 }
 
 interface LoginViewState {
@@ -238,21 +238,22 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
               });
               // Handle redirect after successful login using React Router
               const pendingCheckout = sessionStorage.getItem('pendingCheckout');
-              const navigate = (this.props as any).navigate || ((path: string) => {
-                // Fallback in case navigate is not available
-                window.location.href = path;
-              });
+              const navigate = this.props.navigate;
               
               if (redirectTo === 'checkout' || pendingCheckout === 'true') {
                 sessionStorage.removeItem('pendingCheckout');
-                navigate('/checkout', { replace: true });
+                // Add a small delay to ensure auth state is updated
+                setTimeout(() => {
+                  navigate('/checkout');
+                }, 100);
               } else if (redirectTo) {
-                // Ensure we don't have a leading slash to avoid relative paths
+                // Ensure we have a clean path without leading slash
                 const cleanPath = redirectTo.startsWith('/') ? redirectTo.slice(1) : redirectTo;
-                navigate(`/${cleanPath}`, { replace: true });
+                navigate(`/${cleanPath}`);
+                console.log(`Redirecting to ${cleanPath}`);
               } else {
                 // Default redirect after login
-                navigate('/', { replace: true });
+                navigate('/');
               }
             } else {
               console.error('Failed to update customer profile');
@@ -416,7 +417,14 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
 // Create a wrapper component to provide navigation
 const LoginWithNavigate = () => {
   const navigate = useNavigate();
-  return <LoginView navigate={navigate} />;
+  const navigateWrapper = (to: string, options?: { replace?: boolean }) => {
+    if (options?.replace) {
+      navigate(to, { replace: true });
+    } else {
+      navigate(to);
+    }
+  };
+  return <LoginView navigate={navigateWrapper} />;
 };
 
 export default LoginWithNavigate;
