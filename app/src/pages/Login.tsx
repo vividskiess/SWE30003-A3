@@ -13,7 +13,7 @@ import {
   Divider,
   CircularProgress
 } from '@mui/material';
-import { Link as RouterLink, Navigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -22,6 +22,10 @@ import { User } from '../models/User';
 import { Authentication } from '../server/api';
 import { sharedCustomer, sharedStaff } from '../models';
 
+
+interface LoginViewProps {
+  navigate: (path: string) => void;
+}
 
 interface LoginViewState {
   formData: {
@@ -39,8 +43,8 @@ interface LoginViewState {
   redirectTo: string | null;
 }
 
-class LoginView extends React.Component<{}, LoginViewState> {
-  constructor(props: {}) {
+class LoginView extends React.Component<LoginViewProps, LoginViewState> {
+  constructor(props: LoginViewProps) {
     super(props);
     this.state = {
       formData: {
@@ -156,14 +160,11 @@ class LoginView extends React.Component<{}, LoginViewState> {
     e.preventDefault();
     this.setState({ isSubmitting: true });
     
+    // Get redirect parameter from URL first
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get('redirect') || '';
+    
     const { email, password } = this.state.formData;
-    this.setState(prevState => ({
-      errors: {
-        ...prevState.errors,
-        login: ''
-      }
-    }));
-
     const isEmailValid = this.validateEmail(email);
     const isPasswordValid = this.validatePassword(password);
     
@@ -235,8 +236,24 @@ class LoginView extends React.Component<{}, LoginViewState> {
                 accountType: sharedCustomer.getAccountType(),
                 uid: sharedCustomer.getUid()
               });
-              // Redirect to customer dashboard or perform other customer-specific actions
-              // this.props.history.push('/dashboard');
+              // Handle redirect after successful login using React Router
+              const pendingCheckout = sessionStorage.getItem('pendingCheckout');
+              const navigate = (this.props as any).navigate || ((path: string) => {
+                // Fallback in case navigate is not available
+                window.location.href = path;
+              });
+              
+              if (redirectTo === 'checkout' || pendingCheckout === 'true') {
+                sessionStorage.removeItem('pendingCheckout');
+                navigate('/checkout', { replace: true });
+              } else if (redirectTo) {
+                // Ensure we don't have a leading slash to avoid relative paths
+                const cleanPath = redirectTo.startsWith('/') ? redirectTo.slice(1) : redirectTo;
+                navigate(`/${cleanPath}`, { replace: true });
+              } else {
+                // Default redirect after login
+                navigate('/', { replace: true });
+              }
             } else {
               console.error('Failed to update customer profile');
               // Handle customer update failure
@@ -396,4 +413,10 @@ class LoginView extends React.Component<{}, LoginViewState> {
   }
 }
 
-export default LoginView;
+// Create a wrapper component to provide navigation
+const LoginWithNavigate = () => {
+  const navigate = useNavigate();
+  return <LoginView navigate={navigate} />;
+};
+
+export default LoginWithNavigate;
