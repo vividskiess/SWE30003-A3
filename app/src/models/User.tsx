@@ -121,29 +121,29 @@ export class User {
     }
   }
 
-  static async register(userData: UserData): Promise<AuthResponse> {
-    try {
-      const response = await axios.post(`${User.API_URL}/user/register`, userData);
+  // static async register(userData: UserData): Promise<AuthResponse> {
+  //   try {
+  //     const response = await axios.post(`${User.API_URL}/user/register`, userData);
       
-      if (response.data.success) {
-        return {
-          success: true,
-          message: 'Registration successful'
-        };
-      } else {
-        return {
-          success: false,
-          message: response.data.message || 'Registration failed'
-        };
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      return {
-        success: false,
-        message: 'Network or server error'
-      };
-    }
-  }
+  //     if (response.data.success) {
+  //       return {
+  //         success: true,
+  //         message: 'Registration successful'
+  //       };
+  //     } else {
+  //       return {
+  //         success: false,
+  //         message: response.data.message || 'Registration failed'
+  //       };
+  //     }
+  //   } catch (error) {
+  //     console.error('Registration error:', error);
+  //     return {
+  //       success: false,
+  //       message: 'Network or server error'
+  //     };
+  //   }
+  // }
 
   static logout(): void {
     User.currentUser = null;
@@ -330,22 +330,22 @@ export class User {
   // }
 
   // For demonstration purposes - simulates API call with mock data
-  static simulateRegister(userData: UserData): Promise<AuthResponse> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Check if email is already used (in a real app, this would be a DB check)
-        if (userData.email === 'demo@example.com' || userData.email === 'staff@example.com') {
-          resolve({
-            success: false,
-            message: 'Email already in use'
-          });
-        } else {
-          resolve({
-            success: true,
-            message: 'Registration successful'
-          });
-        }
-      }, 1500); // Simulate network delay
-    });
-  }
+  // static simulateRegister(userData: UserData): Promise<AuthResponse> {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       // Check if email is already used (in a real app, this would be a DB check)
+  //       if (userData.email === 'demo@example.com' || userData.email === 'staff@example.com') {
+  //         resolve({
+  //           success: false,
+  //           message: 'Email already in use'
+  //         });
+  //       } else {
+  //         resolve({
+  //           success: true,
+  //           message: 'Registration successful'
+  //         });
+  //       }
+  //     }, 1500); // Simulate network delay
+  //   });
+  // }
 }

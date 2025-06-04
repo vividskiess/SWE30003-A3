@@ -1,6 +1,7 @@
 
 import axios, { AxiosResponse } from 'axios';
 import { IAddress } from '../models/User';
+import { Product } from '../models';
 
 interface ICreateUser {
 	account_type: string, 
@@ -26,6 +27,7 @@ interface ICreateOrder {
 	shipping_option: string,
 	items: string
 }
+
 
 interface User {
 	uid: string;
@@ -161,19 +163,29 @@ class StoreManagement {
 			.catch(err => err)
 	}
 
-	static async updateProduct(params: any): Promise<void> {
-		const id: string = params.name
-		const property: string = params.property
-		const value: string = params.value 
-
-		await axios.post(`${BACKEND_URL}/product/update/${id}/${property}`, {
-			id, property, value
-		})
+	static async updateProduct(product: Product): Promise<void> {
+		// const { id, name, price, description, available, qty } = params
+		console.log(product)
+		let status
+		await axios.put(`${BACKEND_URL}/product/update`, { product })
 			.then(res => {
-				console.log(res)
+				status = res
 			})
 			.catch(err => err)
+		
+		return status
 	}
+
+	static async deleteProduct(id: string): Promise<void> {
+		let status
+		await axios.delete(`${BACKEND_URL}/product/delete/${id}`)
+			.then(res => {
+				status = res
+			})
+			.catch(err => err)
+		return status
+	}
+
 }
 
 class Order {

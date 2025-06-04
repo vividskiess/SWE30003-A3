@@ -23,7 +23,7 @@ import { Link as RouterLink, Navigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { User, UserData } from '../models/User';
+import { IAddress, User, UserData } from '../models/User';
 import { Authentication } from '../server/api';
 
 interface SignUpViewState {
@@ -34,7 +34,7 @@ interface SignUpViewState {
     password: string;
     confirmPassword: string;
     gender: 'M' | 'F' | '';
-    address: string;
+    address: IAddress;
   };
   showPassword: boolean;
   showConfirmPassword: boolean;
@@ -45,7 +45,7 @@ interface SignUpViewState {
     password: string;
     confirmPassword: string;
     gender: string;
-    address: string;
+    address: IAddress;
     form: string;
   };
   isSubmitting: boolean;
@@ -64,7 +64,13 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         password: 'FooBar123!',
         confirmPassword: 'FooBar123!',
         gender: 'M',
-        address: '1 foobar St'
+        address: {
+          street: '',
+          city: '',
+          state: '',
+          postcode: '',
+          country: ''
+        },
       },
       showPassword: false,
       showConfirmPassword: false,
@@ -75,7 +81,13 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         password: '',
         confirmPassword: '',
         gender: '',
-        address: '',
+        address: {
+          street: '',
+          city: '',
+          state: '',
+          postcode: '',
+          country: ''
+        },
         form: ''
       },
       isSubmitting: false,
@@ -297,7 +309,13 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         email,
         password,
         gender: gender as 'M' | 'F',
-        address
+        address: {
+          street: '',
+          city: '',
+          state: '',
+          postcode: '',
+          country: ''
+        },
       };
       
       try {

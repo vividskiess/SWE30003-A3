@@ -1,3 +1,4 @@
+import { StoreManagement } from '../server/api';
 import { Product } from './Product';
 
 export class StoreCatalogue {
@@ -39,9 +40,11 @@ export class StoreCatalogue {
   // Frontend: catalogue.modifyProduct("product-id", { price: 19.99, description: "New description" });
   modifyProduct(productId: string, updates: Partial<Product>): boolean {
     const product = this.getProductById(productId);
+  
     if (product) {
       Object.assign(product, updates);
       this.notifyUpdate();
+      StoreManagement.updateProduct(product)
       return true;
     }
     return false;
@@ -53,7 +56,10 @@ export class StoreCatalogue {
     const initialLength = this.products.length;
     this.products = this.products.filter(p => p.id !== productId);
     const removed = this.products.length !== initialLength;
+
+
     if (removed) {
+      StoreManagement.deleteProduct(productId).then((res) => console.log(res))
       this.notifyUpdate();
     }
     return removed;
@@ -64,6 +70,7 @@ export class StoreCatalogue {
     const product = this.getProductById(productId);
     if (product) {
       product.qty = quantity;
+      StoreManagement.updateProduct(product)
       this.notifyUpdate();
       return true;
     }
