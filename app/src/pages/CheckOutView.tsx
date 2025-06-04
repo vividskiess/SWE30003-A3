@@ -330,6 +330,7 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
     const orderSummaryObj = sharedOrder.getOrderSummary();
     console.log('Final Order Summary:', orderSummaryObj);
     console.log('Order Total (should include shipping):', orderSummaryObj.total.toFixed(2));
+    sharedCart.clear();
   };
 
   private handleShippingOptionSelect = (option: any) => {
