@@ -6,7 +6,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { sharedCart, sharedCatalogue } from '../models';
+import { sharedCart, sharedCatalogue, sharedCustomer } from '../models';
 
 interface ShoppingCartState {
   cartItemCount: number;
@@ -61,6 +61,14 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
 
   private handleClearCart = () => {
     sharedCart.clear();
+  };
+
+  private handleProceedToCheckout = (e: React.MouseEvent) => {
+    if (!sharedCustomer.getEmail()) {
+      sessionStorage.setItem('pendingCheckout', 'true');
+      e.preventDefault();
+      window.location.href = '/login';
+    }
   };
 
   render() {
@@ -200,9 +208,10 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
                 color="primary"
                 component={Link} 
                 to="/checkout"
+                onClick={this.handleProceedToCheckout}
                 sx={{ fontSize: '14px', fontWeight: 'bold' }}
               >
-                Proceed to Checkout
+                {sharedCustomer.getEmail() ? 'Proceed to Checkout' : 'Login to Checkout'}
               </Button>
             </Box>
           </Paper>

@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import Layout from './components/Layout';
-import StoreCatalog from './pages/StoreCatalog';
+import StoreCatalog from './pages/StoreCatalogueView';
 import UserProfile from './pages/UserProfile';
 import SignUp from './pages/SignUp';
 import ShoppingCart from './pages/ShoppingCart';
