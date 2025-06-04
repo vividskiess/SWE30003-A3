@@ -98,15 +98,24 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
         <Container maxWidth="md" sx={{ py: 4 }}>
           <Typography variant="h5" gutterBottom>Order Not Found</Typography>
           <Typography>{error || 'We couldn\'t find the order you\'re looking for.'}</Typography>
-          <Button 
-            component={Link} 
-            to="/" 
-            variant="contained" 
-            color="primary"
-            sx={{ mt: 2 }}
-          >
-            Back to Home
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Button 
+              component={Link} 
+              to="/" 
+              variant="outlined" 
+              color="primary"
+            >
+              Back to Home
+            </Button>
+            <Button 
+              component={Link}
+              to="/profile?tab=1" 
+              variant="contained" 
+              color="primary"
+            >
+              View All Orders
+            </Button>
+          </Box>
         </Container>
       );
     }
@@ -118,6 +127,16 @@ class OrderView extends React.Component<OrderViewProps, OrderViewState> {
           <Typography variant="h4" component="h1" gutterBottom color="primary">
             Order Confirmation
           </Typography>
+          <Button 
+            component={Link}
+            to="/profile?tab=1" 
+            variant="outlined" 
+            color="primary"
+            size="small"
+            sx={{ mt: 2 }}
+          >
+            View All Orders
+          </Button>
           <Typography variant="body1" color="text.secondary">
             Thank you for your order!
           </Typography>

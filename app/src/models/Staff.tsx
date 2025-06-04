@@ -55,33 +55,4 @@ export class Staff extends User {
     console.log('Staff updating product:', productId, updates);
     return true;
   }
-  
-  // For demonstration purposes - simulates API call with mock data
-  // simulateGetAllUsers(): Promise<UserData[]> {
-  //   return new Promise((resolve) => {
-  //     setTimeout(() => {
-  //       resolve([
-  //         {
-  //           uid: 1,
-  //           accountType: 'CUSTOMER',
-  //           firstName: 'John',
-  //           lastName: 'Doe',
-  //           gender: 'M',
-  //           address: '123 Main St, Melbourne, VIC',
-  //           email: 'john.doe@example.com'
-  //         },
-  //         {
-  //           uid: 2,
-  //           accountType: 'STAFF',
-  //           firstName: 'Jane',
-  //           lastName: 'Smith',
-  //           gender: 'F',
-  //           address: '456 Admin St, Melbourne, VIC',
-  //           email: 'jane.smith@example.com'
-  //         },
-  //         // More mock users...
-  //       ]);
-  //     }, 1000);
-  //   });
-  // }
 }
