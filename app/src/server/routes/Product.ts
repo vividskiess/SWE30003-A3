@@ -1,15 +1,20 @@
 import express from 'express'
-import pool from '../config'
+import { config } from '../config'
+import { PoolConnection } from 'mariadb'
 
 const router = express.Router()
 
 
 // Route to get all products
 router.get("/getAll", async(req, res): Promise<void> =>  {
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("SELECT * FROM products")
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("SELECT * FROM products")
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -22,10 +27,14 @@ router.get("/getAll", async(req, res): Promise<void> =>  {
 // Route to get one product
 router.get("/get/:id", async(req, res) =>  {
 	const id: string = req.params.id
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("SELECT * FROM products WHERE id = ?", id)
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("SELECT * FROM products WHERE id = ?", id)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -43,10 +52,14 @@ router.post('/create', async(req, res) =>  {
 	const available: string = req.body.available
 	const qty: string = req.body.qty
 
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query(
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query(
 			"INSERT INTO products (name, price, description, available, qty) VALUES (?, ?, ?, ?, ?)",
 		[name, price, description, available, qty])
 		res.status(200).send(rows)
@@ -64,10 +77,14 @@ router.put('/update', async(req, res) =>  {
 	const product = req.body.product
 	const { name, price, description, available, qty, id } = product
 
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		await pool.query(`
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		await conn.query(`
 			UPDATE products 
 				SET 
 					name = ?,
@@ -76,8 +93,7 @@ router.put('/update', async(req, res) =>  {
 					available = ?,
 					qty = ?
 			WHERE id = ?`, [name, price, description, available, qty, id])
-		res.status(200)
-		console.log(res.status)
+		res.status(200).send({ message: "Product updated successfully." })
 	}	catch(err: any) {
 		res.status(400).send(err.message)
 	} finally {
@@ -89,10 +105,14 @@ router.put('/update', async(req, res) =>  {
 // Route to delete a product
 router.delete('/delete/:id', async(req, res) =>  {
 	const id: string = req.params.id
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("DELETE FROM products WHERE id = ?", id)
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("DELETE FROM products WHERE id = ?", id)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)

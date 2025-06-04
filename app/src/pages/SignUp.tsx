@@ -24,7 +24,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { IAddress, User, UserData } from '../models/User';
-import { Authentication } from '../server/api';
+import { Authentication } from '../server/API';
 
 interface SignUpViewState {
   formData: {

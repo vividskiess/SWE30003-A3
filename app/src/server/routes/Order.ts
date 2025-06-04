@@ -1,15 +1,20 @@
 import express from 'express'
-import pool from '../config'
+import { config } from '../config'
+import { PoolConnection } from 'mariadb'
 
 const router = express.Router()
 
 
 // Route to get all orders
 router.get("/getAll", async(req, res): Promise<void> =>  {
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("SELECT * FROM orders")
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("SELECT * FROM orders")
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -21,10 +26,14 @@ router.get("/getAll", async(req, res): Promise<void> =>  {
 // Route to get all orders matching customer ID
 router.get("/getAll/:uid", async(req, res): Promise<void> =>  {
 	const uid: string = req.params.uid
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("SELECT * FROM orders WHERE customer_id = ?", uid)
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("SELECT * FROM orders WHERE customer_id = ?", uid)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -36,10 +45,14 @@ router.get("/getAll/:uid", async(req, res): Promise<void> =>  {
 // Route to get one order
 router.get("/get/:id", async(req, res) =>  {
 	const id: string = req.params.id
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("SELECT * FROM orders WHERE id = ?", id)
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("SELECT * FROM orders WHERE id = ?", id)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -58,10 +71,14 @@ router.post('/create', async(req, res) =>  {
 	const shipping_option: string = req.body.shipping_option
 	const items: string = req.body.items
 
-	let conn
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query(
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query(
 			"INSERT INTO orders (status, order_date, shipping_address, shipping_cost, shipping_option, items) VALUES (?, ?, ?, ?, ?, ?)",
 		[status, order_date, shipping_address, shipping_cost, shipping_option, items])
 		res.status(200).send(rows)
@@ -78,10 +95,15 @@ router.post('/update/:id/:property', async(req, res) =>  {
 	const id: string = req.params.id
 	const property: string = req.params.property
 	const value: string = req.body.value
-	let conn
+
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("UPDATE orders SET property = value = WHERE id = ?",[property, value, id])
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("UPDATE orders SET property = value = WHERE id = ?",[property, value, id])
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -94,10 +116,15 @@ router.post('/update/:id/:property', async(req, res) =>  {
 // Route to delete order
 router.delete('/delete/:id', async(req, res) =>  {
 	const id: string = req.params.id
-	let conn
+
+	let conn: PoolConnection | undefined
 	try {
-		conn = await pool.getConnection()
-		const rows = await pool.query("DELETE FROM orders WHERE id = ?", id)
+		if (!config.pool) {
+			res.status(500).send("Database pool is not initialised.")
+			return
+		}
+		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("DELETE FROM orders WHERE id = ?", id)
 		res.status(200).send(rows)
 	}	catch(err: any) {
 		res.status(400).send(err.message)

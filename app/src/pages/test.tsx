@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Typography, Container, Box } from '@mui/material';
 import { sharedCatalogue } from '../models';
-import { Authentication, Order, StoreManagement } from '../server/api';
+import { Authentication, Order, StoreManagement } from '../server/API';
 
 /**
  * StoreCatalog component displays all available products from the store catalogue
