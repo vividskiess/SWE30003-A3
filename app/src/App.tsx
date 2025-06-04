@@ -5,7 +5,7 @@ import Layout from './components/Layout';
 import StoreCatalog from './pages/StoreCatalogueView';
 import UserProfile from './pages/UserProfile';
 import SignUp from './pages/SignUp';
-import ShoppingCart from './pages/ShoppingCart';
+import ShoppingCart from './pages/CartView';
 import Login from './pages/Login';
 // import CheckOut from './pages/CheckOut';
 import CheckOutView from './pages/CheckOutView';
