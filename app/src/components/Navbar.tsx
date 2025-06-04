@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { IconButtonWithBadge } from './IconButtonWithBadge';
 import { sharedCart } from '../models';
+import { sharedCustomer, sharedStaff } from '../models';
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -26,20 +27,11 @@ const Navbar: React.FC = () => {
   return (
     <AppBar position="fixed">
       <Toolbar>
-        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexGrow: 1 }}>
           <Typography variant="h6" component="div" sx={{ mr: 2, flexGrow: 1 }}>
             AWE Electronics
           </Typography>
         </Link>
-        
-        {/* Navigation links */}
-        <Box sx={{ display: 'flex', flexGrow: 1 }}>
-          <Button color="inherit" component={Link} to="/checkout" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Checkout</Button>
-          <Button color="inherit" component={Link} to="/login" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Login</Button>
-          <Button color="inherit" component={Link} to="/cart" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Cart</Button>
-          <Button color="inherit" component={Link} to="/signup" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Sign Up</Button>
-          <Button color="inherit" component={Link} to="/profile" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Profile</Button>
-        </Box>
         
         {/* Cart and Profile icons */}
         <Box sx={{ display: 'flex', gap: '8px' }}>
@@ -52,14 +44,23 @@ const Navbar: React.FC = () => {
               badgeColor="secondary"
             />
           </Link>
-          <Link to="/profile">
-            <IconButtonWithBadge
-              sx={{ color: 'white' }}
-              aria-label="user profile"
-              icon={<AccountCircleIcon sx={{ fontSize: 32 }} />}
-            />
-          </Link>
+          {sharedCustomer.getEmail() || sharedStaff.getEmail() ? (
+            <Link to="/profile">
+              <IconButtonWithBadge
+                sx={{ color: 'white' }}
+                aria-label="user profile"
+                icon={<AccountCircleIcon sx={{ fontSize: 32 }} />}
+              />
+            </Link>
+          ) : (
+            <>
+              <Button color="inherit" component={Link} to="/login" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Login</Button>
+          <Button color="inherit" component={Link} to="/signup" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Sign Up</Button>
+            </>
+          )}
         </Box>
+
+        
       </Toolbar>
     </AppBar>
   );

@@ -76,8 +76,7 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
   private handleProceedToCheckout = (e: React.MouseEvent) => {
     if (!sharedCustomer.getEmail()) {
       sessionStorage.setItem('pendingCheckout', 'true');
-      e.preventDefault();
-      window.location.href = '/login';
+      // Don't prevent default here, let the Link component handle the navigation
     }
   };
 
@@ -213,6 +212,7 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
               >
                 Clear Cart
               </Button>
+              {sharedCustomer.getEmail() ? (
               <Button 
                 variant="contained" 
                 color="primary"
@@ -221,8 +221,20 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
                 onClick={this.handleProceedToCheckout}
                 sx={{ fontSize: '14px', fontWeight: 'bold' }}
               >
-                {sharedCustomer.getEmail() ? 'Proceed to Checkout' : 'Login to Checkout'}
+                Proceed to Checkout
               </Button>
+              ) : (
+                <Button 
+                variant="contained" 
+                color="primary"
+                component={Link} 
+                to="/login"
+                onClick={this.handleProceedToCheckout}
+                sx={{ fontSize: '14px', fontWeight: 'bold' }}
+              >
+                Login to Checkout
+              </Button>
+              )}
             </Box>
           </Paper>
         </Box>
