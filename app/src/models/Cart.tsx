@@ -50,7 +50,7 @@ export class Cart {
   }
 
   // Modify product quantity
-  modifyQuantity(productId: string | number, quantity: number): boolean {
+  modifyQuantity(productId: string | number, quantity: number, catalogue?: StoreCatalogue): boolean {
     // Convert ID to string for consistent comparison
     const idString = String(productId);
     
@@ -60,12 +60,19 @@ export class Cart {
       if (quantity <= 0) {
         // If quantity is zero or negative, remove the item
         return this.removeProduct(idString);
-      } else {
-        item[1] = quantity;
-        this.notifyListeners();
-        console.log('Product quantity modified:', idString, 'New quantity:', quantity);
-        return true;
+      } else if (catalogue) {
+        // Check if we're increasing the quantity and if there's enough stock
+        const product = catalogue.getProducts().find(p => String(p.id) === idString);
+        if (product && quantity > item[1] && product.qty !== undefined && quantity > product.qty) {
+          console.warn(`Cannot add more than ${product.qty} items of ${product.name} to cart`);
+          return false;
+        }
       }
+      
+      item[1] = quantity;
+      this.notifyListeners();
+      console.log('Product quantity modified:', idString, 'New quantity:', quantity);
+      return true;
     }
     
     return false;

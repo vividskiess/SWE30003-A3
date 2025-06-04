@@ -52,7 +52,17 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
   }
 
   private handleQuantityChange = (productId: string, newQuantity: number) => {
-    sharedCart.modifyQuantity(productId, newQuantity);
+    const product = sharedCatalogue.getProducts().find(p => String(p.id) === productId);
+    if (!product) return;
+    
+    // Check if we're trying to increase quantity beyond available stock
+    if (newQuantity > product.qty) {
+      alert(`You've already added all available ${product.name} to your cart.`);
+      return;
+    }
+    
+    // If we get here, it's safe to modify the quantity
+    sharedCart.modifyQuantity(productId, newQuantity, sharedCatalogue);
   };
 
   private handleRemoveItem = (productId: string) => {

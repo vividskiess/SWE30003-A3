@@ -110,22 +110,41 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
 
   private handleAddToCart = (product: StoreCatalogState['products'][0]) => {
     console.log(sharedCustomer.getEmail(), sharedStaff.getEmail());
-    if (product.available && product.qty > 0) {
-      // Update local quantity
-      const updatedProducts = this.state.products.map(p => 
-        p.id === product.id ? { ...p, qty: p.qty - 1 } : p
-      );
-      
-      // Update cart
-      sharedCart.addProduct(product.id);
-      console.log('Cart updated:', sharedCart.getItems().map(([id, qty]) => {
-        const prod = updatedProducts.find(p => p.id === id);
-        return `${prod?.name} (${qty}x)`;
-      }));
-      
-      // Update state
-      this.setState({ products: updatedProducts });
+    
+    if (!product.available) {
+      alert('This product is not available for purchase.');
+      return;
     }
+    
+    if (product.qty <= 0) {
+      alert('Sorry, this product is out of stock.');
+      return;
+    }
+    
+    // Get current quantity in cart
+    const currentCartItems = sharedCart.getItems();
+    const cartItem = currentCartItems.find(([id]) => id === product.id);
+    const currentInCart = cartItem ? cartItem[1] : 0;
+    
+    // Check if adding would exceed available quantity
+    if (currentInCart >= product.qty) {
+      return;
+    }
+    
+    // Update local quantity
+    const updatedProducts = this.state.products.map(p => 
+      p.id === product.id ? { ...p, qty: p.qty - 1 } : p
+    );
+    
+    // Update cart
+    sharedCart.addProduct(product.id);
+    console.log('Cart updated:', sharedCart.getItems().map(([id, qty]) => {
+      const prod = updatedProducts.find(p => p.id === id);
+      return `${prod?.name} (${qty}x)`;
+    }));
+    
+    // Update state
+    this.setState({ products: updatedProducts });
   };
 
   private handleDeleteProduct = (productId: string) => {
@@ -508,10 +527,17 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
                 <button
                   className={`add-to-cart-button ${!product.available ? 'disabled' : ''}`}
                   onClick={() => this.handleAddToCart(product)}
-                  disabled={!product.available || product.qty === 0}
+                  disabled={!product.available || product.qty === 0 || 
+                    (sharedCart.getItems().find(([id]) => id === product.id)?.[1] || 0) >= product.qty}
                   style={{ marginTop: 'auto' }}
                 >
-                  {product.available && product.qty > 0 ? 'Add to Cart' : 'Out of Stock'}
+                  {(() => {
+                    const cartQty = sharedCart.getItems().find(([id]) => id === product.id)?.[1] || 0;
+                    if (!product.available) return 'Not Available';
+                    if (product.qty === 0) return 'Out of Stock';
+                    if (cartQty >= product.qty) return 'Max in Cart';
+                    return 'Add to Cart';
+                  })()}
                 </button>
               )}
             </Box>
