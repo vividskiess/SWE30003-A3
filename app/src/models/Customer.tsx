@@ -21,6 +21,18 @@ export class Customer extends User {
   getSavedAddresses(): string[] {
     return [...this.savedAddresses];
   }
+
+  getCustomerDetails(): UserData {
+    return {
+      uid: this.uid,
+      account_type: this.accountType,
+      first_name: this.firstName,
+      last_name: this.lastName,
+      gender: this.gender,
+      address: this.address,
+      email: this.email,
+    }
+  }
   
   getOrderHistory(): string[] {
     return [...this.orderHistory];

@@ -127,11 +127,11 @@ class UserProfile extends React.Component<{}, UserProfileState > {
   //   }
   // });
 
-  // useEffect(() => {
-  //   if(sharedCustomer) {
+componentDidMount(): void {
+  console.log(sharedCustomer.getCustomerDetails())
+  this.setState({ userData: sharedCustomer.getCustomerDetails() });
 
-  //   }
-  // }, [sharedCustomer])
+}
 
   // componentDidMount() {
   //   // Subscribe to catalogue changes
@@ -206,7 +206,7 @@ class UserProfile extends React.Component<{}, UserProfileState > {
   private handleCloseSnackbar = (): void => {
     this.setState({ successMessage: '' })
   };
-  
+
   render() {
     return (
       <Container maxWidth="md" sx={{ my: 4 }}>
@@ -222,7 +222,7 @@ class UserProfile extends React.Component<{}, UserProfileState > {
                 mr: 2
               }}
             >
-              {(this.state.userData.first_name?.charAt(0) || '')} {(this.state.userData.last_name?.charAt(0) || '')}
+              {(this.state.userData.first_name?.charAt(0) || '')}{(this.state.userData.last_name?.charAt(0) || '')}
             </Avatar>
             <Box>
               <Typography variant="h4" component="h1">
