@@ -1,5 +1,6 @@
 
 import axios, { AxiosResponse } from 'axios';
+import { IAddress } from '../models/User';
 
 interface ICreateUser {
 	account_type: string, 
@@ -17,13 +18,22 @@ interface ICreateProduct {
 	available: string
 }
 
+interface ICreateOrder {
+	status: string,
+	order_date: string,
+	shipping_address: string,
+	shipping_cost: string,
+	shipping_option: string,
+	items: string
+}
+
 interface User {
 	uid: string;
 	account_type: string;
 	first_name: string;
 	last_name: string;
 	gender: string;
-	address: string;
+	address: IAddress;
 	email: string;
 	password: string;
 }
@@ -166,7 +176,80 @@ class StoreManagement {
 	}
 }
 
+class Order {
+		
+	static async getOrder(id: number): Promise<void> {
+		let data
+		await axios.get(`${BACKEND_URL}/order/get/${id}`)
+			.then(res => {
+				data = res.data[0]
+				// console.log(res.data[0])
+
+			})
+			.catch(err => err)
+		return data
+	}
+
+	static async getAllOrders(): Promise<any> {
+		let data
+		await axios.get(`${BACKEND_URL}/order/getAll`)
+			.then(res => {
+				data = res.data
+				// console.log(res.data)
+
+			})
+			.catch(err => err)
+		return data
+	}
+
+		static async getAllCustomerOrders(id: string): Promise<any> {
+		let data
+		await axios.get(`${BACKEND_URL}/order/getAll/${id}`)
+			.then(res => {
+				data = res.data
+				// console.log(res.data)
+			})
+			.catch(err => err)
+		return data
+	}
+
+	static async createOrder(params: ICreateOrder): Promise<void> {
+	const status: string = params.status
+	const order_date: string = params.order_date
+	const shipping_address: string = params.shipping_address
+	const shipping_cost: string = params.shipping_cost
+	const shipping_option: string = params.shipping_option
+	const items: string = params.items
+		await axios.post(`${BACKEND_URL}/order/create`, {
+			status,
+			order_date,
+			shipping_address,
+			shipping_cost,
+			shipping_option,
+			items,
+		})
+			.then(res => {
+				console.log(res)
+			})
+			.catch(err => err)
+	}
+
+	static async updateOrder(params: any): Promise<void> {
+		const id: string = params.name
+		const property: string = params.property
+		const value: string = params.value 
+
+		await axios.post(`${BACKEND_URL}/order/update/${id}/${property}`, {
+			id, property, value
+		})
+			.then(res => {
+				console.log(res)
+			})
+			.catch(err => err)
+	}
+}
 export {
 	Authentication,
-	StoreManagement
+	StoreManagement,
+	Order
 }

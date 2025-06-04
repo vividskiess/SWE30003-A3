@@ -18,7 +18,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
-import { User } from '../models/User';
+import { User, UserData } from '../models/User';
 import { Authentication } from '../server/api';
 import { sharedCustomer, sharedStaff } from '../models';
 
@@ -177,12 +177,18 @@ class LoginView extends React.Component<{}, LoginViewState> {
           });
 
           // Create a clean user data object
-          const userData = {
+          const userData: UserData = {
             first_name: response.first_name || '',
             last_name: response.last_name || '',
             email: response.email || '',
             gender: (response.gender as 'M' | 'F') || 'M',
-            address: response.address || '',
+            address: response.address || {
+              street: '',
+              city: '',
+              state: '',
+              postcode: '',
+              country: ''
+            },
             password: response.password || '',
             account_type: (response.account_type as 'CUSTOMER' | 'STAFF') || 'CUSTOMER',
             uid: Number(response.uid)

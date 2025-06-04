@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Typography, Container, Box } from '@mui/material';
 import { sharedCatalogue } from '../models';
-import { Authentication, StoreManagement } from '../server/api';
+import { Authentication, Order, StoreManagement } from '../server/api';
 
 /**
  * StoreCatalog component displays all available products from the store catalogue
@@ -17,6 +17,8 @@ const Test: React.FC = () => {
     // const allUsers: any = Authentication.getAllUsers().then((data) => console.log(data))
     // const allProducts: any = StoreManagement.getAllProducts()
     // const loginUser: any = Authentication.loginUser('agosneye0@oakley.com', 'mF1.X7Jt{|?S')
+    const orderTest: any = Order.getAllCustomerOrders(String(1))
+    console.log(orderTest)
 		// console.log(user)
     // console.log(allUsers)
     // console.log(allProducts)
@@ -32,7 +34,7 @@ const Test: React.FC = () => {
       {/* Render the catalog using the shared instance */}
       {sharedCatalogue.getProducts().length > 0 ? (
         <Box>
-          {sharedCatalogue.renderCatalog()}
+          {/* {sharedCatalogue.renderCatalog()} */}
         </Box>
       ) : (
         <Typography variant="h6" align="center" color="text.secondary" sx={{ my: 8 }}>

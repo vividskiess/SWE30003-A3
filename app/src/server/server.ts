@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import User from "./routes/User"
 import Product from "./routes/Product"
+import Order from "./routes/Order"
+
 import dotenv from 'dotenv'
 
 dotenv.config({ path: '../../.env' })
@@ -18,6 +20,7 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use("/user", User)
 app.use("/product", Product)
+app.use("/order", Order)
 
 
 app.get("/test", function (req, res) {
