@@ -1,6 +1,6 @@
 
 import axios, { AxiosResponse } from 'axios';
-import { IAddress } from '../models/User';
+import { IAddress, UserData } from '../models/User';
 import { Product } from '../models';
 
 interface ICreateUser {
@@ -40,6 +40,17 @@ interface User {
 	password: string;
 }
 
+interface IAuthenticationManager {
+
+}
+
+interface IStoreManager {
+	
+}
+
+interface IOrderManager {
+	
+}
 
 const BACKEND_URL: string = "http://localhost:3000"
 
@@ -66,23 +77,14 @@ class Authentication {
 		return data
 	}
 
-	static async createUser(params: ICreateUser): Promise<boolean> {
-		const account_type: string = params.account_type
-		const first_name: string = params.first_name
-		const last_name: string = params.last_name
-		const address: string = params.address
-		const email: string = params.email
-		const password: string = params.password
-		
+	static async createUser(params: UserData): Promise<boolean> {
+		const account_type: string | undefined = params.account_type
+		const first_name: string | undefined = params.first_name
+		const last_name: string | undefined = params.last_name
+		const address: string | undefined = 'test 123'
+		const email: string | undefined = params.email
+		const password: string | undefined = params.password
 		let status = false
-		
-		await axios.get(`${BACKEND_URL}/user/getEmail/${email}`)
-			.then(res => {
-				if (res.data[0].email !== email) status = true
-			})
-			.catch(err => err)
-
-		if(!status) return status
 
 		await axios.post(`${BACKEND_URL}/user/create`, {
 			account_type, 
@@ -189,7 +191,6 @@ class StoreManagement {
 }
 
 class Order {
-		
 	static async getOrder(id: number): Promise<void> {
 		let data
 		await axios.get(`${BACKEND_URL}/order/get/${id}`)

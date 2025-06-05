@@ -6,7 +6,7 @@ import StoreCatalog from './pages/StoreCatalogueView';
 import UserProfile from './pages/UserProfile';
 import SignUp from './pages/SignUp';
 import ShoppingCart from './pages/CartView';
-import Login from './pages/Login';
+import Login from './pages/LoginView';
 // import CheckOut from './pages/CheckOut';
 import CheckOutView from './pages/CheckOutView';
 // import Authentication from './server/api'; // Temporarily disabled to prevent server interference

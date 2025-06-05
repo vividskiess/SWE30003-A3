@@ -47,7 +47,7 @@ router.get("/get/:uid", async(req, res) =>  {
 
 router.get("/getEmail/:email", async(req, res) =>  {
 	const email: string = req.params.email
-
+	console.log(email)
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {
@@ -73,6 +73,7 @@ router.post('/create', async(req, res) =>  {
 	const email: string = req.body.email
 	const password: string = req.body.password
 
+
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {
@@ -80,6 +81,13 @@ router.post('/create', async(req, res) =>  {
 			return
 		}
 		conn = await config.pool.getConnection()
+		const rows = await config.pool.query("SELECT * FROM users WHERE email = ?", email)
+
+		if (rows.length > 0) {
+			res.status(400).send(`Account with email: ${email} already exists.`)
+			if(conn) conn.end()
+			return
+		}
 		await config.pool.query(
 			"INSERT INTO users (account_type, first_name, last_name, address, email, password) VALUES (?, ?, ?, ?, ?, ?)",
 		[account_type, first_name, last_name, address, email, password])

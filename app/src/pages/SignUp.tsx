@@ -24,7 +24,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { IAddress, User, UserData } from '../models/User';
-import { Authentication } from '../server/API';
+import { Authentication } from '../server/api';
 
 interface SignUpViewState {
   formData: {
@@ -322,6 +322,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         // Use the User model to register a new user
         // For demonstration purposes, using simulation
         const response = await Authentication.createUser(userData)
+        console.log(response)
         // const response = await User.simulateRegister(userData);
         if (response) {
           this.setState({ 

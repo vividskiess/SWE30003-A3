@@ -1,7 +1,9 @@
+import { Product } from "./Product";
 import { StoreCatalogue } from "./StoreCatalogue";
 
 export class Cart {
   private items: [string, number][] = []; // Array of [productId, quantity] tuples
+  // private products: [Product] = []
   private listeners: (() => void)[] = []; // For notifying UI components when cart changes
 
   // Subscribe to cart changes
