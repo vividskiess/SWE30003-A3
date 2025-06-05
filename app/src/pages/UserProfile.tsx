@@ -29,6 +29,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 // Remove unused import
 import { UserData } from '../models/User.tsx';
+import Chip from '@mui/material/Chip';
 
 
 interface TabPanelProps {
@@ -118,10 +119,31 @@ class UserProfile extends React.Component<{}, UserProfileState > {
     // Try to get user data from shared instances
     const updateUserData = () => {
       try {
-        const user = User['currentUser'] as any;
-        const customerData = sharedCustomer.getCustomerDetails?.() || {};
-        const staffData = sharedStaff.getCustomerDetails?.() || {};
-        const userData = user?.getCustomerDetails?.() || customerData || staffData;
+        // First check the current user
+        const currentUser = User['currentUser'] as any;
+        let userData: UserData | null = null;
+        
+        if (currentUser?.getCustomerDetails) {
+          const currentUserData = currentUser.getCustomerDetails();
+          if (currentUserData?.email) {
+            userData = currentUserData;
+          }
+        }
+        
+        // If no current user data, try to get from shared instances
+        if (!userData) {
+          // Check if staff data is available
+          const staffData = sharedStaff.getCustomerDetails?.();
+          if (staffData?.email) {
+            userData = staffData;
+          } else {
+            // Fall back to customer data
+            const customerData = sharedCustomer.getCustomerDetails?.();
+            if (customerData?.email) {
+              userData = customerData;
+            }
+          }
+        }
         
         if (userData?.email) { // Only update if we have valid user data
           this.setState({ 
@@ -289,34 +311,49 @@ class UserProfile extends React.Component<{}, UserProfileState > {
 
           {/* Personal Info Tab */}
           <TabPanel value={this.state.tabValue} index={0}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={this.state.editMode ? <SaveIcon /> : <EditIcon />}
-                onClick={this.state.editMode ? this.handleSaveProfile : this.handleEditToggle}
-                sx={{ mt: 2, mr: 2 }}
-              >
-                {this.state.editMode ? 'Save Changes' : 'Edit Profile'}
-              </Button>
-              <Button
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, width: '100%' }}>
+              <Chip 
+                label={this.state.userData.account_type === 'STAFF' ? 'Staff Member' : 'Customer'}
+                color={this.state.userData.account_type === 'STAFF' ? 'secondary' : 'primary'}
                 variant="outlined"
-                color="error"
-                onClick={this.handleSignOut}
-                sx={{ mt: 2 }}
-              >
-                Sign Out
-              </Button>
-              {this.state.editMode && (
-                <Button 
-                  startIcon={<SaveIcon />}
-                  onClick={this.handleSaveProfile}
-                  color="success"
-                  sx={{ ml: 2 }}
+                sx={{ 
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  fontSize: '0.75rem',
+                  height: '24px',
+                  alignSelf: 'center'
+                }}
+              />
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={this.state.editMode ? <SaveIcon /> : <EditIcon />}
+                  onClick={this.state.editMode ? this.handleSaveProfile : this.handleEditToggle}
+                  sx={{ mt: 2 }}
                 >
-                  Save Changes
+                  {this.state.editMode ? 'Save Changes' : 'Edit Profile'}
                 </Button>
-              )}
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={this.handleSignOut}
+                  sx={{ mt: 2 }}
+                >
+                  Sign Out
+                </Button>
+                {this.state.editMode && (
+                  <Button 
+                    startIcon={<SaveIcon />}
+                    onClick={this.handleSaveProfile}
+                    color="success"
+                    sx={{ mt: 2 }}
+                  >
+                    Save Changes
+                  </Button>
+                )}
+              </Box>
             </Box>
             
             <Stack spacing={3}>
