@@ -123,30 +123,45 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
       return;
     }
     
-    // Get current quantity in cart
-    const currentCartItems = sharedCart.getItems();
-    const cartItem = currentCartItems.find(([id]) => id === product.id);
-    const currentInCart = cartItem ? cartItem[1] : 0;
-    
-    // Check if adding would exceed available quantity
-    if (currentInCart >= product.qty) {
-      return;
+    try {
+      // Get current quantity in cart
+      const currentCartItems = sharedCart.getItems();
+      const cartItem = currentCartItems.find(([id]) => id === product.id);
+      const currentInCart = cartItem ? cartItem[1] : 0;
+      
+      // Check if adding would exceed available quantity
+      if (currentInCart >= product.qty) {
+        alert(`You've already added all available ${product.name} to your cart.`);
+        return;
+      }
+      
+      // Update cart first
+      sharedCart.addProduct(product.id);
+      
+      // Get the updated product from the catalog to ensure we have the latest data
+      const catalogProduct = sharedCatalogue.getProducts().find(p => p.id === product.id);
+      if (!catalogProduct) {
+        console.error('Product not found in catalog:', product.id);
+        return;
+      }
+      
+      // Update local state with the latest product data
+      const updatedProducts = this.state.products.map(p => 
+        p.id === product.id ? { ...catalogProduct } : p
+      );
+      
+      console.log('Cart updated:', sharedCart.getItems().map(([id, qty]) => {
+        const prod = updatedProducts.find(p => p.id === id);
+        return `${prod?.name} (${qty}x)`;
+      }));
+      
+      // Update state with the latest product data
+      this.setState({ products: updatedProducts });
+      
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+      alert('Failed to add product to cart. Please try again.');
     }
-    
-    // Update local quantity
-    const updatedProducts = this.state.products.map(p => 
-      p.id === product.id ? { ...p, qty: p.qty - 1 } : p
-    );
-    
-    // Update cart
-    sharedCart.addProduct(product.id);
-    console.log('Cart updated:', sharedCart.getItems().map(([id, qty]) => {
-      const prod = updatedProducts.find(p => p.id === id);
-      return `${prod?.name} (${qty}x)`;
-    }));
-    
-    // Update state
-    this.setState({ products: updatedProducts });
   };
 
   private handleDeleteProduct = (productId: string) => {

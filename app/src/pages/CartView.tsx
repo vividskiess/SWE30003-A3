@@ -52,17 +52,36 @@ class ShoppingCart extends React.Component<{}, ShoppingCartState> {
   }
 
   private handleQuantityChange = (productId: string, newQuantity: number) => {
-    const product = sharedCatalogue.getProducts().find(p => String(p.id) === productId);
-    if (!product) return;
-    
-    // Check if we're trying to increase quantity beyond available stock
-    if (newQuantity > product.qty) {
-      alert(`You've already added all available ${product.name} to your cart.`);
-      return;
+    try {
+      // Get the latest product data from the catalog
+      const product = sharedCatalogue.getProducts().find(p => String(p.id) === productId);
+      if (!product) {
+        console.error('Product not found in catalog:', productId);
+        return;
+      }
+      
+      // Get current cart items to calculate total in cart
+      const currentCartItems = sharedCart.getItems();
+      const totalInCart = currentCartItems
+        .filter(([id]) => id === productId)
+        .reduce((sum, [, qty]) => sum + qty, 0);
+      
+      // Calculate the new total that would be in cart after this change
+      const newTotalInCart = totalInCart + (newQuantity - (currentCartItems.find(([id]) => id === productId)?.[1] || 0));
+      
+      // Check if the new total would exceed available stock
+      if (newTotalInCart > product.qty) {
+        alert(`Cannot add more than ${product.qty} of ${product.name} to your cart (${product.qty} available).`);
+        return;
+      }
+      
+      // If we get here, it's safe to modify the quantity
+      sharedCart.modifyQuantity(productId, newQuantity, sharedCatalogue);
+      
+    } catch (error) {
+      console.error('Error updating cart quantity:', error);
+      alert('Failed to update cart. Please try again.');
     }
-    
-    // If we get here, it's safe to modify the quantity
-    sharedCart.modifyQuantity(productId, newQuantity, sharedCatalogue);
   };
 
   private handleRemoveItem = (productId: string) => {
