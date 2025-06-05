@@ -19,7 +19,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
 import { User, UserData } from '../models/User';
-import { Authentication } from '../server/API';
+import { Authentication } from '../server/api';
 import { sharedCustomer, sharedStaff } from '../models';
 
 

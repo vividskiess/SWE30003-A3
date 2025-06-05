@@ -1,7 +1,7 @@
-import React, { createRef } from 'react';
+import React from 'react';
 import { Typography, Box, Button, TextField, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { sharedCatalogue, sharedCustomer, sharedStaff, sharedCart } from '../models';
-import { StoreManagement } from '../server/API';
+import { StoreManagement } from '../server/api';
 import '../styles/Button.css';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
