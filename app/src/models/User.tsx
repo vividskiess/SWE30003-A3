@@ -7,17 +7,9 @@ export interface UserData {
   first_name?: string;
   last_name?: string;
   gender?: 'M' | 'F';
-  address?: IAddress,
+  address?: string; // Changed from IAddress to string
   email?: string;
   password?: string;
-}
-
-export interface IAddress {
-    street: string,
-    city: string,
-    state: string,
-    postcode: string,
-    country: string,
 }
 
 export interface AuthResponse {
@@ -43,7 +35,7 @@ export class User {
   protected firstName: string;
   protected lastName: string;
   protected gender: 'M' | 'F';
-  protected address: IAddress;
+  protected address: string; // Changed from IAddress to string
   protected email: string;
   
   constructor(userData: Partial<UserData> = {}) {
@@ -55,13 +47,7 @@ export class User {
     this.firstName = userData.first_name || '';
     this.lastName = userData.last_name || '';
     this.gender = (userData.gender as 'M' | 'F') || 'M';
-    this.address = userData.address || {
-      street: '',
-      city: '',
-      state: '',
-      postcode: '',
-      country: ''
-    };
+    this.address = userData.address || ''; // Default to empty string
     this.email = userData.email || '';
     
     console.log('User initialized with:', {

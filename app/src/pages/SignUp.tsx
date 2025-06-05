@@ -23,7 +23,7 @@ import { Link as RouterLink, Navigate } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { IAddress, User, UserData } from '../models/User';
+import { UserData } from '../models/User'; // Removed unused imports
 import { Authentication } from '../server/api';
 
 interface SignUpViewState {
@@ -34,7 +34,7 @@ interface SignUpViewState {
     password: string;
     confirmPassword: string;
     gender: 'M' | 'F' | '';
-    address: IAddress;
+    address: string;
   };
   showPassword: boolean;
   showConfirmPassword: boolean;
@@ -45,7 +45,7 @@ interface SignUpViewState {
     password: string;
     confirmPassword: string;
     gender: string;
-    address: IAddress;
+    address: string;
     form: string;
   };
   isSubmitting: boolean;
@@ -64,13 +64,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         password: 'FooBar123!',
         confirmPassword: 'FooBar123!',
         gender: 'M',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          postcode: '',
-          country: ''
-        },
+        address: '123 Main St, City, Country',
       },
       showPassword: false,
       showConfirmPassword: false,
@@ -81,13 +75,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         password: '',
         confirmPassword: '',
         gender: '',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          postcode: '',
-          country: ''
-        },
+        address: '',
         form: ''
       },
       isSubmitting: false,
@@ -309,13 +297,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         email,
         password,
         gender: gender as 'M' | 'F',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          postcode: '',
-          country: ''
-        },
+        address: address // Use the address string directly from form data
       };
       
       try {

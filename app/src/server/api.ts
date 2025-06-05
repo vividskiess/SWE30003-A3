@@ -1,6 +1,6 @@
 
 import axios, { AxiosResponse } from 'axios';
-import { IAddress, UserData } from '../models/User';
+import { UserData } from '../models/User'; // Removed IAddress import
 import { Product } from '../models';
 
 interface ICreateUser {
@@ -35,7 +35,7 @@ interface User {
 	first_name: string;
 	last_name: string;
 	gender: string;
-	address: IAddress;
+	address: string; // Changed from IAddress to string
 	email: string;
 	password: string;
 }
@@ -78,12 +78,7 @@ class Authentication {
 	}
 
 	static async createUser(params: UserData): Promise<boolean> {
-		const account_type: string | undefined = params.account_type
-		const first_name: string | undefined = params.first_name
-		const last_name: string | undefined = params.last_name
-		const address: string | undefined = 'test 123'
-		const email: string | undefined = params.email
-		const password: string | undefined = params.password
+		const { account_type, first_name, last_name, address, email, password } = params;
 		let status = false
 
 		await axios.post(`${BACKEND_URL}/user/create`, {

@@ -1,7 +1,7 @@
 import { Cart } from './Cart';
 import { Product } from './Product';
 import { StoreCatalogue } from './StoreCatalogue';
-import { StoreManagement } from '../server/api';
+import { Authentication, StoreManagement } from '../server/api';
 import { Customer } from './Customer';
 import { Staff } from './Staff';
 import { Order } from './Order';
@@ -20,6 +20,48 @@ const createDefaultInstances = () => {
   const order = new Order();
   
   return { catalogue, cart, customer, staff, order };
+};
+
+// Store for all users
+export let allUsers: any[] = [];
+
+// Function to save users to localStorage
+const saveUsersToLocalStorage = (users: any[]) => {
+  try {
+    localStorage.setItem('app_users', JSON.stringify(users));
+  } catch (error) {
+    console.error('Error saving users to localStorage:', error);
+  }
+};
+
+// Function to load users from localStorage
+const loadUsersFromLocalStorage = (): any[] => {
+  try {
+    const data = localStorage.getItem('app_users');
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error loading users from localStorage:', error);
+    return [];
+  }
+};
+
+// Function to update and save users
+export const updateUsers = async (): Promise<void> => {
+  try {
+    const users = await Authentication.getAllUsers();
+    allUsers = users;
+    saveUsersToLocalStorage(users);
+  } catch (error) {
+    console.error('Error updating users:', error);
+    // Fallback to localStorage if API fails
+    allUsers = loadUsersFromLocalStorage();
+  }
+};
+
+// Function to add a new user to the array and save to localStorage
+export const addUser = (user: any): void => {
+  allUsers = [...allUsers, user];
+  saveUsersToLocalStorage(allUsers);
 };
 
 // Create fresh instances
@@ -154,6 +196,9 @@ const loadData = async () => {
 // Initial data load
 loadData();
 
+// Load users on startup
+updateUsers().catch(console.error);
+
 // Save data to localStorage
 const saveToLocalStorage = (key: string, data: any) => {
   try {
@@ -230,6 +275,7 @@ setupUserPersistence();
 
 // Initialize catalog with products if empty
 (async function initializeStore() {
+  // console.log(await Authentication.getAllUsers())
   if (sharedCatalogue.getProducts().length === 0) {
     console.log('Initializing store catalogue with products');
     
