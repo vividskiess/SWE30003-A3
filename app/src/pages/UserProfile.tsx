@@ -18,7 +18,7 @@ import {
   Stack
 } from '@mui/material';
 
-import { sharedCustomer, sharedStaff } from "../models";
+import { sharedCustomer, sharedStaff, sharedOrder, sharedCart } from "../models";
 import { User } from "../models/User";
 
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
@@ -27,7 +27,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import SecurityIcon from '@mui/icons-material/Security';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+// Remove unused import
 import { UserData } from '../models/User.tsx';
 
 
@@ -177,6 +177,33 @@ class UserProfile extends React.Component<{}, UserProfileState > {
     this.setState({ successMessage: "Profile updated succesfully!" })
   };
 
+  private handleSignOut = () => {
+    try {
+      // Clear cart by removing all items
+      const cartItems = sharedCart.getItems();
+      cartItems.forEach(([productId]) => {
+        sharedCart.removeProduct(productId);
+      });
+      
+      // Clear order data by creating a new order instance
+      Object.assign(sharedOrder, new (sharedOrder.constructor as any)());
+      
+      // Clear auth token and user data from localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      
+      // Clear current user using the static logout method
+      User.logout();
+      
+      // Redirect to login page
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Still redirect to login even if there was an error
+      window.location.href = '/login';
+    }
+  };
+
   private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     
@@ -263,12 +290,22 @@ class UserProfile extends React.Component<{}, UserProfileState > {
           {/* Personal Info Tab */}
           <TabPanel value={this.state.tabValue} index={0}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-              <Button 
-                startIcon={this.state.editMode ? <CancelIcon /> : <EditIcon />}
-                onClick={this.handleEditToggle}
-                color={this.state.editMode ? "error" : "primary"}
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={this.state.editMode ? <SaveIcon /> : <EditIcon />}
+                onClick={this.state.editMode ? this.handleSaveProfile : this.handleEditToggle}
+                sx={{ mt: 2, mr: 2 }}
               >
-                {this.state.editMode ? 'Cancel' : 'Edit Profile'}
+                {this.state.editMode ? 'Save Changes' : 'Edit Profile'}
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={this.handleSignOut}
+                sx={{ mt: 2 }}
+              >
+                Sign Out
               </Button>
               {this.state.editMode && (
                 <Button 
