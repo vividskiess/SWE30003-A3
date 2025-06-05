@@ -183,13 +183,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
             last_name: response.last_name || '',
             email: response.email || '',
             gender: (response.gender as 'M' | 'F') || 'M',
-            address: response.address || {
-              street: '',
-              city: '',
-              state: '',
-              postcode: '',
-              country: ''
-            },
+            address: response.address || '',
             password: response.password || '',
             account_type: (response.account_type as 'CUSTOMER' | 'STAFF') || 'CUSTOMER',
             uid: Number(response.uid)

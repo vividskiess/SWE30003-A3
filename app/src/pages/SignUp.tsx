@@ -34,6 +34,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { UserData } from '../models/User'; // Removed unused imports
 import { Authentication } from '../server/api';
+import { sharedCustomer } from '../models';
 
 interface SignUpViewState {
   formData: {
@@ -326,6 +327,9 @@ class SignUpView extends React.Component<SignUpViewProps, SignUpViewState> {
             isSubmitting: false,
             registrationSuccess: true
           });
+          const users = await Authentication.getAllUsers()
+          const lastUser = users[users.length - 1];
+          await sharedCustomer.updateProfile(lastUser);
 
           // Show success message and redirect to profile
           setTimeout(() => {
@@ -406,7 +410,7 @@ class SignUpView extends React.Component<SignUpViewProps, SignUpViewState> {
 
           {registrationSuccess && (
             <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
-              Account created successfully! Redirecting to login...
+              Account created successfully! Redirecting to profile page...
             </Alert>
           )}
 
