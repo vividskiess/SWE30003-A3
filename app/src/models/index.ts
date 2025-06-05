@@ -72,7 +72,7 @@ if (typeof window !== 'undefined') {
     }
   };
   
-  console.log('💡 You can clear app storage by running: clearAppStorage() or clearAppStorage({ hardReset: true })');
+  console.log('You can clear app storage by running: clearAppStorage() or clearAppStorage({ hardReset: true })');
 }
 
 // Load data from localStorage and merge with fresh instances

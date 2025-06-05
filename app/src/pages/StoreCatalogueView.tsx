@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Box, Button, TextField, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { sharedCatalogue, sharedCustomer, sharedStaff, sharedCart } from '../models';
-import { StoreManagement } from '../server/api';
+// import { StoreManagement } from '../server/api';
 import '../styles/Button.css';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -544,7 +544,7 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
                 ${product.price.toFixed(2)}
                 {!product.available && (
                   <Typography component="span" sx={{ ml: 0.5, color: 'text.secondary', fontSize: '0.8rem' }}>
-                    (Out of Stock)
+                    (Not Available)
                   </Typography>
                 )}
               </Typography>
