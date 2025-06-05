@@ -64,7 +64,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
         password: 'FooBar123!',
         confirmPassword: 'FooBar123!',
         gender: 'M',
-        address: '123 Main St, City, Country',
+        address: '123 Main St',
       },
       showPassword: false,
       showConfirmPassword: false,
@@ -302,25 +302,27 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
       
       try {
         // Use the User model to register a new user
-        // For demonstration purposes, using simulation
-        const response = await Authentication.createUser(userData)
-        console.log(response)
-        // const response = await User.simulateRegister(userData);
+        console.log('Attempting to create user with data:', userData);
+        const response = await Authentication.createUser(userData);
+        console.log('Registration response:', response);
+        
         if (response) {
+          // Redirect to login page after successful registration
+          console.log('Redirecting to login page...');
           this.setState({ 
-            registrationSuccess: true,
-            isSubmitting: false
+            isSubmitting: false,
+            registrationSuccess: true
           });
           
-          // Redirect to login after a delay
+          // Show success message and redirect to login
           setTimeout(() => {
-            this.setState({ isRegistered: true });
-          }, 3000);
+            window.location.href = '/login?registered=true';
+          }, 1500);
         } else {
           this.setState({
             errors: {
               ...this.state.errors,
-              form: response || 'Registration failed'
+              form: 'Registration failed. The email may already be in use.'
             },
             isSubmitting: false
           });

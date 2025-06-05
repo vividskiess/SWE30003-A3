@@ -75,6 +75,7 @@ router.post('/create', async(req, res) =>  {
 
 
 	let conn: PoolConnection | undefined
+	
 	try {
 		if (!config.pool) {
 			res.status(500).send("Database pool is not initialised.")

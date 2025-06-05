@@ -1,5 +1,5 @@
 
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { UserData } from '../models/User'; // Removed IAddress import
 import { Product } from '../models';
 
@@ -79,22 +79,44 @@ class Authentication {
 
 	static async createUser(params: UserData): Promise<boolean> {
 		const { account_type, first_name, last_name, address, email, password } = params;
-		let status = false
+		let initialCount: number = 0
+		try {
+			// Get initial user count
+			const initialUsers = await this.getAllUsers();
+			initialCount = initialUsers ? initialUsers.length : 0;
+			console.log(`Initial user count: ${initialCount}`);
 
-		await axios.post(`${BACKEND_URL}/user/create`, {
-			account_type, 
-			first_name, 
-			last_name, 
-			address, 
-			email, 
-			password
-		})
-			.then(res => {
-				console.log(res)
-				status = true
-			})
-			.catch(err => err)
-		return status
+			// Start the POST request but don't await it yet
+			const createUserPromise = axios.post(`${BACKEND_URL}/user/create`, {
+				account_type, 
+				first_name, 
+				last_name, 
+				address, 
+				email, 
+				password
+			});
+
+			// Wait for either the request to complete or 1 second, whichever comes first
+			await Promise.race([
+				createUserPromise,
+				new Promise(resolve => setTimeout(resolve, 1000))
+			]);
+
+			// Get updated user count regardless of whether the request completed
+			const updatedUsers = await this.getAllUsers();
+			const updatedCount = updatedUsers ? updatedUsers.length : 0;
+			console.log(`Updated user count: ${updatedCount}`);
+
+			// Return true if the count increased, false otherwise
+			return updatedCount > initialCount;
+
+		} catch (error) {
+			console.error('Error in createUser:', error);
+			// Even if there was an error, check if the user was created
+			const updatedUsers = await this.getAllUsers();
+			const updatedCount = updatedUsers ? updatedUsers.length : 0;
+			return updatedCount > initialCount;
+		}
 	}
 
 	static async loginUser(email: string, password: string): Promise<User | false> {
