@@ -72,11 +72,6 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
     }
   }
 
-
-  private isStaffUser(): boolean {
-    return !!sharedStaff.getEmail();
-  }
-
   private validateProduct = (): boolean => {
     const { name, price, qty, description } = this.state.currentProduct;
     const errors: { [key: string]: string } = {};
@@ -331,7 +326,7 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
 
   render() {
     const { products } = this.state;
-    const isStaff = this.isStaffUser();
+    const isStaff = sharedStaff.getAccountType() === 'STAFF';
 
     const renderProductDialog = (isEdit: boolean) => {
       const { isAddDialogOpen, isEditDialogOpen, currentProduct, errors } = this.state;

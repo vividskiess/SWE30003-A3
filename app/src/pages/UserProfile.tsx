@@ -87,26 +87,14 @@ class UserProfile extends React.Component<{}, UserProfileState > {
         first_name: '',
         last_name: '',
         email: '',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          postcode: '',
-          country: ''
-        },
+        address: '',
       },
       successMessage: '',
       userData: {
         first_name: '',
         last_name: '',
         email: '',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          postcode: '',
-          country: ''
-        },
+        address: '',
       },
 
       errors: {
@@ -229,38 +217,12 @@ class UserProfile extends React.Component<{}, UserProfileState > {
   private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-
-      this.setState(prevState => ({
-        editData: {
-          ...prevState.editData,
-          [parent]: {
-            ...(prevState.editData[parent as keyof typeof prevState.editData] as any),
-            [child]: value
-          }
-        }
-      }))
-      
-      // setEditData(prev => ({
-      //   ...prev,
-      //   [parent]: {
-      //     ...prev[parent as keyof typeof prev] as any,
-      //     [child]: value
-      //   }
-      // }));
-    } else {
-      this.setState(prevState => ({
-        editData: {
-          ...prevState.editData,
-          [name]: value
-        }
-      }))
-      // setEditData(prev => ({
-      //   ...prev,
-      //   [name]: value
-      // }));
-    }
+    this.setState(prevState => ({
+      editData: {
+        ...prevState.editData,
+        [name]: value
+      }
+    }))
   };
 
   private handleCloseSnackbar = (): void => {
@@ -477,55 +439,16 @@ class UserProfile extends React.Component<{}, UserProfileState > {
               <Stack spacing={3}>
                 <TextField
                   fullWidth
-                  label="Street Address"
-                  name="address.street"
-                  value={this.state.editMode ? this.state.editData.address?.street : this.state.userData.address?.street}
+                  label="Address"
+                  name="address"
+                  value={this.state.editMode ? this.state.editData.address : this.state.userData.address}
                   onChange={this.handleInputChange}
                   disabled={!this.state.editMode}
                   margin="normal"
+                  multiline
+                  rows={3}
+                  placeholder="Enter your full address"
                 />
-                
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="City"
-                    name="address.city"
-                    value={this.state.editMode ? this.state.editData.address?.city : this.state.userData.address?.city}
-                    onChange={this.handleInputChange}
-                    disabled={!this.state.editMode}
-                    margin="normal"
-                  />
-                  <TextField
-                    fullWidth
-                    label="State/Province"
-                    name="address.state"
-                    value={this.state.editMode ? this.state.editData.address?.state : this.state.userData.address?.state}
-                    onChange={this.handleInputChange}
-                    disabled={!this.state.editMode}
-                    margin="normal"
-                  />
-                </Box>
-                
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Postal Code"
-                    name="address.postcode"
-                    value={this.state.editMode ? this.state.editData.address?.postcode : this.state.userData.address?.postcode}
-                    onChange={this.handleInputChange}
-                    disabled={!this.state.editMode}
-                    margin="normal"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Country"
-                    name="address.country"
-                    value={this.state.editMode ? this.state.editData.address?.country : this.state.userData.address?.country}
-                    onChange={this.handleInputChange}
-                    disabled={!this.state.editMode}
-                    margin="normal"
-                  />
-                </Box>
               </Stack>
             </Paper>
           </TabPanel>

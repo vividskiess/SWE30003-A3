@@ -19,7 +19,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import Test from './pages/test';
 import OrderView from './pages/OrderView';
-import StaffStoreCatalogueView from './pages/StaffStoreCatalogueView';
+// import StaffStoreCatalogueView from './pages/StaffStoreCatalogueView';
 
 function App() {
   return (
@@ -36,7 +36,7 @@ function App() {
             <Route path="/checkout" element={<CheckOutView />} />
             <Route path="/order/:id" element={<OrderView />} />
             <Route path="/test" element={<Test />} />
-            <Route path="/admin/products" element={<StaffStoreCatalogueView />} />
+            {/* <Route path="/admin/products" element={<StaffStoreCatalogueView />} /> */}
           </Routes>
         </Layout>
       </BrowserRouter>
