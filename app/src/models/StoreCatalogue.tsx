@@ -11,6 +11,8 @@ export class StoreCatalogue {
   }
 
   private notifyUpdate(): void {
+    // Save to localStorage through the shared instance
+    this.saveToLocalStorage();
     if (this.updateCallback) {
       this.updateCallback();
     }
@@ -18,6 +20,7 @@ export class StoreCatalogue {
 
   addProduct(product: Product): void {
     this.products.push(product);
+    this.saveToLocalStorage();
     this.notifyUpdate();
   }
 
@@ -43,8 +46,10 @@ export class StoreCatalogue {
   
     if (product) {
       Object.assign(product, updates);
+      StoreManagement.updateProduct(product).then(() => {
+        this.saveToLocalStorage();
+      });
       this.notifyUpdate();
-      StoreManagement.updateProduct(product)
       return true;
     }
     return false;
@@ -57,10 +62,11 @@ export class StoreCatalogue {
     this.products = this.products.filter(p => p.id !== productId);
     const removed = this.products.length !== initialLength;
 
-
     if (removed) {
-      StoreManagement.deleteProduct(productId).then((res) => console.log(res))
-      this.notifyUpdate();
+      StoreManagement.deleteProduct(productId).then(() => {
+        this.saveToLocalStorage();
+        this.notifyUpdate();
+      });
     }
     return removed;
   }
@@ -70,10 +76,21 @@ export class StoreCatalogue {
     const product = this.getProductById(productId);
     if (product) {
       product.qty = quantity;
-      StoreManagement.updateProduct(product)
+      StoreManagement.updateProduct(product).then(() => {
+        this.saveToLocalStorage();
+      });
       this.notifyUpdate();
       return true;
     }
     return false;
+  }
+
+  private saveToLocalStorage(): void {
+    try {
+      // Use the same key as in index.ts
+      localStorage.setItem('catalogue_products', JSON.stringify(this.products));
+    } catch (error) {
+      console.error('Error saving products to localStorage:', error);
+    }
   }
 }

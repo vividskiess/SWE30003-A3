@@ -255,6 +255,7 @@ setupUserPersistence();
 const setupAutoSave = () => {
   // Get the Cart prototype
   const cartProto = Object.getPrototypeOf(sharedCart);
+  const catalogueProto = Object.getPrototypeOf(sharedCatalogue);
   
   // Save cart when product is added
   const originalAddProduct = cartProto.addProduct;
@@ -262,6 +263,39 @@ const setupAutoSave = () => {
     originalAddProduct.call(this, productId, quantity);
     saveToLocalStorage('cart', sharedCart);
   };
+  
+  // Save catalogue when product is added
+  const originalCatalogueAddProduct = catalogueProto.addProduct;
+  if (originalCatalogueAddProduct) {
+    catalogueProto.addProduct = function(product: any): void {
+      originalCatalogueAddProduct.call(this, product);
+      saveToLocalStorage('catalogue_products', { products: sharedCatalogue.getProducts() });
+    };
+  }
+  
+  // Save catalogue when product is modified
+  const originalModifyProduct = catalogueProto.modifyProduct;
+  if (originalModifyProduct) {
+    catalogueProto.modifyProduct = function(productId: string, updates: any): boolean {
+      const result = originalModifyProduct.call(this, productId, updates);
+      if (result) {
+        saveToLocalStorage('catalogue_products', { products: sharedCatalogue.getProducts() });
+      }
+      return result;
+    };
+  }
+  
+  // Save catalogue when product is removed
+  const originalCatalogueRemoveProduct = catalogueProto.removeProduct;
+  if (originalCatalogueRemoveProduct) {
+    catalogueProto.removeProduct = function(productId: string): boolean {
+      const result = originalCatalogueRemoveProduct.call(this, productId);
+      if (result) {
+        saveToLocalStorage('catalogue_products', { products: sharedCatalogue.getProducts() });
+      }
+      return result;
+    };
+  }
 
   // Save cart when product is removed
   const originalRemoveProduct = cartProto.removeProduct;
@@ -319,6 +353,17 @@ const setupAutoSave = () => {
       return result;
     };
   }
+  
+  // Set up a timer to periodically save catalogue state
+  // This is a fallback in case any modifications are missed
+  setInterval(() => {
+    try {
+      const products = sharedCatalogue.getProducts();
+      localStorage.setItem('catalogue_products', JSON.stringify(products));
+    } catch (error) {
+      console.error('Error in catalogue auto-save:', error);
+    }
+  }, 30000); // Save every 30 seconds as a fallback
 };
 
 setupAutoSave();
