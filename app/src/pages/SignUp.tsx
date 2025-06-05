@@ -19,7 +19,16 @@ import {
   SelectChangeEvent,
   CircularProgress
 } from '@mui/material';
-import { Link as RouterLink, Navigate } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useNavigate as useNavigateOriginal } from 'react-router-dom';
+
+// Custom withRouter HOC for React Router v6
+const withRouter = (Component: React.ComponentType<any>) => {
+  const Wrapper = (props: any) => {
+    const navigate = useNavigateOriginal();
+    return <Component {...props} navigate={navigate} />;
+  };
+  return Wrapper;
+};
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -53,8 +62,12 @@ interface SignUpViewState {
   registrationSuccess: boolean;
 }
 
-class SignUpView extends React.Component<{}, SignUpViewState> {
-  constructor(props: {}) {
+interface SignUpViewProps {
+  navigate: (path: string) => void;
+}
+
+class SignUpView extends React.Component<SignUpViewProps, SignUpViewState> {
+  constructor(props: SignUpViewProps) {
     super(props);
     this.state = {
       formData: {
@@ -313,10 +326,10 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
             isSubmitting: false,
             registrationSuccess: true
           });
-          
-          // Show success message and redirect to login
+
+          // Show success message and redirect to profile
           setTimeout(() => {
-            window.location.href = '/login?registered=true';
+            this.props.navigate('/profile');
           }, 1500);
         } else {
           this.setState({
@@ -554,7 +567,7 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
               <Typography variant="body2">
                 Already have an account?{' '}
                 <Link component={RouterLink} to="/login" variant="body2">
-                  Sign In
+                  Login
                 </Link>
               </Typography>
             </Box>
@@ -565,4 +578,5 @@ class SignUpView extends React.Component<{}, SignUpViewState> {
   }
 }
 
-export default SignUpView;
+// Wrap the component with our custom withRouter HOC
+export default withRouter(SignUpView);
