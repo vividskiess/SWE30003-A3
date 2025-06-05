@@ -1,7 +1,7 @@
 import { Cart } from './Cart';
 import { Product } from './Product';
 import { StoreCatalogue } from './StoreCatalogue';
-import { StoreManagement } from '../server/API';
+import { StoreManagement } from '../server/api';
 import { Customer } from './Customer';
 import { Staff } from './Staff';
 import { Order } from './Order';
@@ -30,6 +30,50 @@ export const {
   staff: sharedStaff, 
   order: sharedOrder 
 } = createDefaultInstances();
+
+// Make a function available in the browser console to clear storage
+if (typeof window !== 'undefined') {
+  (window as any).clearAppStorage = (options: { hardReset?: boolean } = {}) => {
+    try {
+      console.log('🔄 Clearing app storage...');
+      
+      // Clear localStorage
+      localStorage.removeItem('cart');
+      localStorage.removeItem('customer');
+      localStorage.removeItem('staff');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('catalogue_products');
+      
+      // Clear shared instances
+      Object.assign(sharedCart, new Cart());
+      if (options.hardReset) {
+        // Only reset customer/staff if hard reset is requested
+        Object.assign(sharedCustomer, new Customer());
+        Object.assign(sharedStaff, new Staff());
+        console.log('✅ Storage cleared - hard reset complete');
+        
+        // Clear the current user in the User class
+        User['currentUser'] = null;
+        User['authToken'] = undefined;
+      } else {
+        console.log('✅ Storage cleared - soft reset (customer/staff preserved)');
+      }
+      
+      // Reload the page to ensure clean state
+      if (options.hardReset) {
+        window.location.reload();
+      }
+      
+      return 'Storage cleared successfully';
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('❌ Error clearing storage:', error);
+      return 'Error clearing storage: ' + errorMessage;
+    }
+  };
+  
+  console.log('💡 You can clear app storage by running: clearAppStorage() or clearAppStorage({ hardReset: true })');
+}
 
 // Load data from localStorage and merge with fresh instances
 const loadData = async () => {
