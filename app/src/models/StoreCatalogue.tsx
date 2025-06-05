@@ -18,7 +18,37 @@ export class StoreCatalogue {
     }
   }
 
-  addProduct(product: Product): void {
+  // Generate a new unique ID by finding the first available number
+  private generateNewId(): string {
+    let id = 1;
+    const existingIds = this.products.map(p => parseInt(p.id)).filter(id => !isNaN(id));
+    
+    // Sort numerically and find the first gap or next number
+    existingIds.sort((a, b) => a - b);
+    
+    for (const existingId of existingIds) {
+      if (id < existingId) {
+        break; // Found a gap, use this ID
+      }
+      id = existingId + 1; // Move to next potential ID
+    }
+    
+    return id.toString();
+  }
+
+  // Add a new product to the catalogue
+  // If productData.id is not provided, a new ID will be generated automatically
+  addProduct(productData: Omit<Product, 'id'> & { id?: string }): void {
+    // Create a new Product instance with the generated ID
+    const product = new Product(
+      productData.id || this.generateNewId(),
+      productData.name,
+      productData.price,
+      productData.description,
+      productData.available,
+      productData.qty
+    );
+    
     this.products.push(product);
     this.saveToLocalStorage();
     this.notifyUpdate();
@@ -87,10 +117,41 @@ export class StoreCatalogue {
 
   private saveToLocalStorage(): void {
     try {
-      // Use the same key as in index.ts
-      localStorage.setItem('catalogue_products', JSON.stringify(this.products));
+      // Convert products to plain objects before saving
+      const productsData = this.products.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        available: product.available,
+        qty: product.qty
+      }));
+      localStorage.setItem('catalogue_products', JSON.stringify(productsData));
     } catch (error) {
       console.error('Error saving products to localStorage:', error);
+    }
+  }
+
+  // Load products from localStorage and convert them back to Product instances
+  loadFromLocalStorage(): void {
+    try {
+      const data = localStorage.getItem('catalogue_products');
+      if (data) {
+        const productsData = JSON.parse(data);
+        this.products = productsData.map((productData: any) => 
+          new Product(
+            productData.id,
+            productData.name,
+            productData.price,
+            productData.description,
+            productData.available,
+            productData.qty
+          )
+        );
+        this.notifyUpdate();
+      }
+    } catch (error) {
+      console.error('Error loading products from localStorage:', error);
     }
   }
 }

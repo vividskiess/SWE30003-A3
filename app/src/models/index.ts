@@ -35,7 +35,7 @@ export const {
 if (typeof window !== 'undefined') {
   (window as any).clearAppStorage = (options: { hardReset?: boolean } = {}) => {
     try {
-      console.log('🔄 Clearing app storage...');
+      console.log('Clearing app storage...');
       
       // Clear localStorage
       localStorage.removeItem('cart');
@@ -50,13 +50,13 @@ if (typeof window !== 'undefined') {
         // Only reset customer/staff if hard reset is requested
         Object.assign(sharedCustomer, new Customer());
         Object.assign(sharedStaff, new Staff());
-        console.log('✅ Storage cleared - hard reset complete');
+        console.log('Storage cleared - hard reset complete');
         
         // Clear the current user in the User class
         User['currentUser'] = null;
         User['authToken'] = undefined;
       } else {
-        console.log('✅ Storage cleared - soft reset (customer/staff preserved)');
+        console.log('Storage cleared - soft reset (customer/staff preserved)');
       }
       
       // Reload the page to ensure clean state
@@ -67,7 +67,7 @@ if (typeof window !== 'undefined') {
       return 'Storage cleared successfully';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ Error clearing storage:', error);
+      console.error('Error clearing storage:', error);
       return 'Error clearing storage: ' + errorMessage;
     }
   };
@@ -143,11 +143,8 @@ const loadData = async () => {
       }
     }
 
-    // Load catalogue products separately
-    const catalogueData = localStorage.getItem('catalogue_products');
-    if (catalogueData) {
-      sharedCatalogue['products'] = JSON.parse(catalogueData);
-    }
+    // Load catalogue products using the class method
+    sharedCatalogue.loadFromLocalStorage();
 
   } catch (e) {
     console.error('Error loading data from localStorage:', e);
@@ -247,7 +244,7 @@ setupUserPersistence();
             product.name,
             parseFloat(product.price),
             product.description || '',
-            true,
+            product.available ? true : false,
             product.qty || 0
           ));
         });

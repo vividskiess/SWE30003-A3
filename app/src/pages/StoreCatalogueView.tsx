@@ -268,31 +268,39 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
     if (!this.validateProduct()) return;
     
     try {
-      const { name, price, description, available } = this.state.currentProduct;
+      const { name, price, description, available, qty } = this.state.currentProduct;
       
       // Call the API to create the product
-      await StoreManagement.createProduct({
-        name: name.trim(),
-        price: price,
-        description: description.trim(),
-        available: available.toString()
+      // await StoreManagement.createProduct({
+      //   name: name.trim(),
+      //   price: price,
+      //   description: description.trim(),
+      //   available: available.toString()
+      // });
+      
+      // // Refresh the products list from the server
+      // const updatedProducts = await StoreManagement.getAllProducts();
+      // sharedCatalogue.clear(); // Clear existing products
+      // updatedProducts.forEach((product: any) => {
+      //   sharedCatalogue.addProduct({
+      //     id: String(product.id),
+      //     name: product.name,
+      //     price: parseFloat(product.price),
+      //     description: product.description,
+      //     available: product.available,
+      //     qty: product.qty || 0
+      //   });
+      // });
+
+      sharedCatalogue.addProduct({
+        name: name,
+        price: parseFloat(price),
+        description: description,
+        available: available,
+        qty: parseInt(qty)
       });
       
-      // Refresh the products list from the server
-      const updatedProducts = await StoreManagement.getAllProducts();
-      sharedCatalogue.clear(); // Clear existing products
-      updatedProducts.forEach((product: any) => {
-        sharedCatalogue.addProduct({
-          id: String(product.id),
-          name: product.name,
-          price: parseFloat(product.price),
-          description: product.description,
-          available: product.available,
-          qty: product.qty || 0
-        });
-      });
-      
-      this.logCatalogState('Product Added', { name, price, description, available });
+      this.logCatalogState('Product Added', { name, description, available, price, qty });
       this.handleCloseDialogs();
     } catch (error) {
       console.error('Error adding product:', error);
