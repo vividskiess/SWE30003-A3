@@ -1,31 +1,6 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: ictstu-db1.cc.swin.edu.au
--- Generation Time: May 24, 2025 at 10:09 AM
--- Server version: 5.5.68-MariaDB
--- PHP Version: 7.3.33
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `s103031155_db`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
 
 CREATE TABLE `users` (
   `uid` int(11) NOT NULL,
@@ -37,10 +12,6 @@ CREATE TABLE `users` (
   `email` text NOT NULL,
   `password` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `users`
---
 
 INSERT INTO `users` (`uid`, `account_type`, `first_name`, `last_name`, `gender`, `address`, `email`, `password`) VALUES
 (1, 'CUSTOMER', 'Anett', 'Gosneye', 'M', '0 Anniversary Pass', 'agosneye0@oakley.com', 'mF1.X7Jt{|?S'),
@@ -92,29 +63,11 @@ INSERT INTO `users` (`uid`, `account_type`, `first_name`, `last_name`, `gender`,
 (47, 'CUSTOMER', 'Bev', 'Scoffins', 'M', '74 Saint Paul Street', 'bscoffins1a@wired.com', 'aC8%Tu4NA_'),
 (48, 'CUSTOMER', 'Belia', 'Allridge', 'F', '313 La Follette Center', 'ballridge1b@github.com', 'dP2+Q4/td2V_'),
 (49, 'CUSTOMER', 'Talbert', 'Wilding', 'M', '83 6th Parkway', 'twilding1c@exblog.jp', 'jS6$n/?o`@.XxLY'),
-(50, 'CUSTOMER', 'Marianna', 'Grimestone', 'F', '98564 Garrison Court', 'mgrimestone1d@plala.or.jp', 'gB1=/\\*,rQjF\'W');
+(50, 'CUSTOMER', 'Marianna', 'Grimestone', 'F', '98564 Garrison Court', 'mgrimestone1d@plala.or.jp', 'gB1=/\\*,rQjF\W');
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `users`
---
 ALTER TABLE `users`
   ADD PRIMARY KEY (`uid`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `users`
---
 ALTER TABLE `users`
   MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

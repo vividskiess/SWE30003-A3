@@ -1,73 +1,3 @@
-
-CREATE DATABASE awe_electronics
-
-
-CREATE TABLE products (
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    price DECIMAL(10, 2),
-    description TEXT,
-    available BOOLEAN,
-    qty INT,
-);
-
-
-INSERT INTO products (id, name, price, description, available) VALUES
-(1, 'Arduino UNO R4 Minima', 19.99, 'A versatile microcontroller board with built-in USB connectivity.', TRUE),
-(2, 'PIR Motion Sensor', 12.99, 'Detects human presence through infrared radiation changes.', TRUE),
-(3, 'DHT22 Temperature Sensor', 9.99, 'Digital humidity and temperature sensor with high accuracy.', TRUE),
-(4, 'Analog Ambient Light Sensor', 7.99, 'Measures light intensity with analog output.', FALSE),
-(5, 'Raspberry Pi 5 16GB', 212.50, 'High-performance single-board computer with 16GB RAM.', TRUE),
-(6, 'ESP32 Development Board', 15.99, 'Wi-Fi and Bluetooth enabled microcontroller with dual-core processor.', TRUE),
-(7, 'OLED Display 0.96\"', 8.50, 'Small monochrome OLED display with I2C interface.', TRUE),
-(8, 'Breadboard 400 Points', 5.99, 'Reusable solderless breadboard for prototyping circuits.', TRUE),
-(9, 'Jumper Wires Pack', 6.99, 'Set of 120 male-to-male, male-to-female, and female-to-female jumper wires.', TRUE),
-(10, '5V Relay Module', 4.99, 'Single channel relay module for controlling high voltage devices.', FALSE),
-(11, 'Micro Servo Motor', 4.99, 'Small servo motor perfect for robotics projects with 180-degree rotation.', TRUE),
-(12, 'HC-SR04 Ultrasonic Sensor', 3.99, 'Ultrasonic distance measurement sensor with 2cm-400cm range.', TRUE),
-(13, 'Joystick Module', 6.50, 'Analog joystick with push button for game controllers and robotics.', TRUE),
-(14, 'RGB LED Strip', 14.99, '1 meter addressable RGB LED strip with 60 LEDs per meter.', FALSE),
-(15, 'IR Remote Control Kit', 5.50, 'Infrared remote control with receiver module for wireless projects.', TRUE),
-(16, 'Rotary Encoder', 3.50, 'Digital rotary encoder with push button for precise input control.', TRUE),
-(17, '4-Digit 7-Segment Display', 7.25, 'Common cathode 4-digit display with colon for time projects.', TRUE),
-(18, 'Tilt Switch Sensor', 2.99, 'Simple tilt-activated switch for orientation detection.', TRUE),
-(19, 'Capacitive Touch Sensor', 4.25, 'Touch-sensitive module that works through non-conductive materials.', TRUE),
-(20, 'DC Motor with Wheel', 8.99, 'TT gear motor with rubber wheel for robotics projects.', TRUE);
-
-
-ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-COMMIT;
-
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: ictstu-db1.cc.swin.edu.au
--- Generation Time: May 24, 2025 at 10:09 AM
--- Server version: 5.5.68-MariaDB
--- PHP Version: 7.3.33
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `s103031155_db`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
 CREATE TABLE `users` (
   `uid` int(11) NOT NULL,
   `account_type` enum('CUSTOMER','STAFF') NOT NULL,
@@ -78,10 +8,6 @@ CREATE TABLE `users` (
   `email` text NOT NULL,
   `password` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `users`
---
 
 INSERT INTO `users` (`uid`, `account_type`, `first_name`, `last_name`, `gender`, `address`, `email`, `password`) VALUES
 (1, 'CUSTOMER', 'Anett', 'Gosneye', 'M', '0 Anniversary Pass', 'agosneye0@oakley.com', 'mF1.X7Jt{|?S'),
@@ -135,48 +61,41 @@ INSERT INTO `users` (`uid`, `account_type`, `first_name`, `last_name`, `gender`,
 (49, 'CUSTOMER', 'Talbert', 'Wilding', 'M', '83 6th Parkway', 'twilding1c@exblog.jp', 'jS6$n/?o`@.XxLY'),
 (50, 'CUSTOMER', 'Marianna', 'Grimestone', 'F', '98564 Garrison Court', 'mgrimestone1d@plala.or.jp', 'gB1=/\\*,rQjF\W');
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `users`
---
 ALTER TABLE `users`
   ADD PRIMARY KEY (`uid`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `users`
---
 ALTER TABLE `users`
   MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-CREATE TABLE
-  `orders` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `customer_id` int(11) NOT NULL,
-    `status` enum(
-      'PENDING',
-      'PROCESSING',
-      'SHIPPED',
-      'DELIVERED',
-      'CANCELLED'
-    ) NOT NULL,
-    `order_date` timestamp NOT NULL,
-    `shipping_address` varchar(255) NOT NULL,
-    `shipping_cost` float NOT NULL,
-    `shipping_option` varchar(255) NOT NULL,
-    `items` varchar(255) NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `uid` (`customer_id`),
-    CONSTRAINT `uid` FOREIGN KEY (`customer_id`) REFERENCES `users` (`uid`) ON DELETE NO ACTION ON UPDATE NO ACTION
-  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci
+CREATE TABLE products (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    price DECIMAL(10, 2),
+    description TEXT,
+    available BOOLEAN
+);
+
+-- Insert data into the table
+INSERT INTO products (id, name, price, description, available) VALUES
+(1, 'Arduino UNO R4 Minima', 19.99, 'A versatile microcontroller board with built-in USB connectivity.', TRUE),
+(2, 'PIR Motion Sensor', 12.99, 'Detects human presence through infrared radiation changes.', TRUE),
+(3, 'DHT22 Temperature Sensor', 9.99, 'Digital humidity and temperature sensor with high accuracy.', TRUE),
+(4, 'Analog Ambient Light Sensor', 7.99, 'Measures light intensity with analog output.', FALSE),
+(5, 'Raspberry Pi 5 16GB', 212.50, 'High-performance single-board computer with 16GB RAM.', TRUE),
+(6, 'ESP32 Development Board', 15.99, 'Wi-Fi and Bluetooth enabled microcontroller with dual-core processor.', TRUE),
+(7, 'OLED Display 0.96\"', 8.50, 'Small monochrome OLED display with I2C interface.', TRUE),
+(8, 'Breadboard 400 Points', 5.99, 'Reusable solderless breadboard for prototyping circuits.', TRUE),
+(9, 'Jumper Wires Pack', 6.99, 'Set of 120 male-to-male, male-to-female, and female-to-female jumper wires.', TRUE),
+(10, '5V Relay Module', 4.99, 'Single channel relay module for controlling high voltage devices.', FALSE),
+(11, 'Micro Servo Motor', 4.99, 'Small servo motor perfect for robotics projects with 180-degree rotation.', TRUE),
+(12, 'HC-SR04 Ultrasonic Sensor', 3.99, 'Ultrasonic distance measurement sensor with 2cm-400cm range.', TRUE),
+(13, 'Joystick Module', 6.50, 'Analog joystick with push button for game controllers and robotics.', TRUE),
+(14, 'RGB LED Strip', 14.99, '1 meter addressable RGB LED strip with 60 LEDs per meter.', FALSE),
+(15, 'IR Remote Control Kit', 5.50, 'Infrared remote control with receiver module for wireless projects.', TRUE),
+(16, 'Rotary Encoder', 3.50, 'Digital rotary encoder with push button for precise input control.', TRUE),
+(17, '4-Digit 7-Segment Display', 7.25, 'Common cathode 4-digit display with colon for time projects.', TRUE),
+(18, 'Tilt Switch Sensor', 2.99, 'Simple tilt-activated switch for orientation detection.', TRUE),
+(19, 'Capacitive Touch Sensor', 4.25, 'Touch-sensitive module that works through non-conductive materials.', TRUE),
+(20, 'DC Motor with Wheel', 8.99, 'TT gear motor with rubber wheel for robotics projects.', TRUE);
