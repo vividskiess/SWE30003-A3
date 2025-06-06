@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { CartItemWithProduct } from '../models/CheckoutManagerTest';
-import { sharedCart, sharedOrder } from '../models';
+import { sharedCart, sharedCatalogue, sharedOrder } from '../models';
 import { checkoutManager } from '../models/CheckoutManagerTest';
 import ShippingView from './ShippingView';
 
@@ -304,12 +304,33 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
     
     // Submit the order
     const success = sharedOrder.submitOrder();
+
     
-    if (!success) {
-      console.error('Failed to submit order');
-      alert('There was an error processing your order. Please try again.');
-      return;
+    if (success) {
+        // Update product quantities in the catalogue
+        cartItems.forEach(item => {
+            const product = sharedCatalogue.getProductById(item.product.id);
+            if (product) {
+                const newQuantity = product.qty - item.quantity;
+                if (newQuantity <= 0) {
+                    // Remove the product if quantity is zero or negative
+                    sharedCatalogue.removeProduct(product.id);
+                } else {
+                    // Otherwise, update the quantity
+                    sharedCatalogue.updateProductQuantity(product.id, newQuantity);
+                }
+            }
+        });
+
+        // Clear the cart after successful order
+        sharedCart.clear();
+        
+        // ... rest of the success handling code ...
+    } else {
+        console.error('Failed to submit order');
+        alert('There was an error processing your order. Please try again.');
     }
+
     
     // Calculate order summary for logging
     const orderSummary = {
@@ -330,7 +351,6 @@ export class CheckOutView extends React.Component<CheckOutViewProps, CheckOutVie
     const orderSummaryObj = sharedOrder.getOrderSummary();
     console.log('Final Order Summary:', orderSummaryObj);
     console.log('Order Total (should include shipping):', orderSummaryObj.total.toFixed(2));
-    sharedCart.clear();
   };
 
   private handleShippingOptionSelect = (option: any) => {
