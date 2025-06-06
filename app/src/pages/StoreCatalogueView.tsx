@@ -73,27 +73,10 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
   }
 
   private validateProduct = (): boolean => {
-    const { name, price, qty, description } = this.state.currentProduct;
-    const errors: { [key: string]: string } = {};
-
-    if (!name.trim()) {
-      errors.name = 'Product name is required';
-    }
-
-    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
-      errors.price = 'Please enter a valid price';
-    }
-
-    if (!qty || isNaN(Number(qty)) || !Number.isInteger(Number(qty)) || Number(qty) <= 0) {
-      errors.qty = 'Please enter a valid quantity (whole number > 0)';
-    }
-    
-    if (!description.trim()) {
-      errors.description = 'Description is required';
-    }
-
+    const { currentProduct } = this.state;
+    const { isValid, errors } = sharedCatalogue.validateProduct(currentProduct);
     this.setState({ errors });
-    return Object.keys(errors).length === 0;
+    return isValid;
   };
 
   private logCatalogState = (action: string, productData: any) => {
@@ -160,15 +143,17 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
   };
 
   private handleDeleteProduct = (productId: string) => {
-    try {
-      const product = this.state.products.find(p => p.id === productId);
-      if (product) {
-        sharedCatalogue.removeProduct(productId);
-        this.logCatalogState('Product Deleted', product);
-      }
-    } catch (error) {
-      console.error('Error deleting product:', error);
+    const product = this.state.products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const { success, error } = sharedCatalogue.removeProduct(productId);
+    if (!success) {
+      console.error('Failed to delete product:', error);
+      alert(error || 'Failed to delete product');
+      return;
     }
+    
+    this.logCatalogState('Product Deleted', product);
   };
 
   private handleOpenAddDialog = () => {
@@ -262,66 +247,53 @@ class StoreCatalog extends React.Component<{}, StoreCatalogState> {
   private handleAddProduct = async () => {
     if (!this.validateProduct()) return;
     
-    try {
-      const { name, price, description, available, qty } = this.state.currentProduct;
-      
-      // Call the API to create the product
-      // await StoreManagement.createProduct({
-      //   name: name.trim(),
-      //   price: price,
-      //   description: description.trim(),
-      //   available: available.toString()
-      // });
-      
-      // // Refresh the products list from the server
-      // const updatedProducts = await StoreManagement.getAllProducts();
-      // sharedCatalogue.clear(); // Clear existing products
-      // updatedProducts.forEach((product: any) => {
-      //   sharedCatalogue.addProduct({
-      //     id: String(product.id),
-      //     name: product.name,
-      //     price: parseFloat(product.price),
-      //     description: product.description,
-      //     available: product.available,
-      //     qty: product.qty || 0
-      //   });
-      // });
-
-      sharedCatalogue.addProduct({
-        name: name,
-        price: parseFloat(price),
-        description: description,
-        available: available,
-        qty: parseInt(qty)
-      });
-      
-      this.logCatalogState('Product Added', { name, description, available, price, qty });
-      this.handleCloseDialogs();
-    } catch (error) {
-      console.error('Error adding product:', error);
-      alert('Failed to add product. Please try again.');
+    const { currentProduct } = this.state;
+    const { name, price, description, available, qty } = currentProduct;
+    
+    const { success, errors } = sharedCatalogue.addProduct({
+      name,
+      price: parseFloat(price),
+      description,
+      available,
+      qty: parseInt(qty)
+    });
+    
+    if (!success) {
+      this.setState({ errors: errors || {} });
+      return;
     }
+    
+    this.logCatalogState('Product Added', { name, description, available, price, qty });
+    this.handleCloseDialogs();
   };
 
   private handleUpdateProduct = () => {
     if (!this.validateProduct()) return;
     
-    try {
-      const { id, name, price, description, qty, available } = this.state.currentProduct;
-      const updatedProduct = {
-        name: name.trim(),
-        price: parseFloat(price),
-        description: description.trim(),
-        qty: parseInt(qty, 10),
-        available
-      };
-      
-      sharedCatalogue.modifyProduct(id, updatedProduct);
-      this.logCatalogState('Product Updated', { id, ...updatedProduct });
-      this.handleCloseDialogs();
-    } catch (error) {
-      console.error('Error updating product:', error);
+    const { id, name, price, description, qty, available } = this.state.currentProduct;
+    
+    const { success, errors } = sharedCatalogue.modifyProduct(id, {
+      name,
+      price,
+      description,
+      qty,
+      available
+    });
+    
+    if (!success) {
+      this.setState({ errors: errors || {} });
+      return;
     }
+    
+    this.logCatalogState('Product Updated', { 
+      id, 
+      name, 
+      price: parseFloat(price), 
+      description, 
+      qty: parseInt(qty, 10), 
+      available 
+    });
+    this.handleCloseDialogs();
   };
 
   render() {
