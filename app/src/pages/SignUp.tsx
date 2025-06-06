@@ -72,13 +72,13 @@ class SignUpView extends React.Component<SignUpViewProps, SignUpViewState> {
     super(props);
     this.state = {
       formData: {
-        first_name: 'foo',
-        last_name: 'bar',
-        email: 'foo@bar.com',
-        password: 'FooBar123!',
-        confirmPassword: 'FooBar123!',
-        gender: 'M',
-        address: '123 Main St',
+        first_name: '',
+        last_name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        gender: '',
+        address: '',
       },
       showPassword: false,
       showConfirmPassword: false,
