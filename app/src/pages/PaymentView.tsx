@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Typography } from '@mui/material';
 import { PaymentForm } from '../models/PaymentProcessor';
-import { checkoutManager } from '../models/CheckoutManagerTest';
+import { checkoutManager } from '../models/CheckoutManager';
 
 interface PaymentViewProps {
   amount: number;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Paper, Typography, Button, Box, CircularProgress, FormControlLabel, Radio, RadioGroup, FormControl, FormLabel } from '@mui/material';
 import { ShippingForm } from '../models/ShippingManager';
 import { shippingService } from '../models/ShippingService';
-import { checkoutManager } from '../models/CheckoutManagerTest';
+import { checkoutManager } from '../models/CheckoutManager';
 
 type ShippingOption = {
   id: string;

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Typography, Box, Paper, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { CartItemWithProduct } from '../models/CheckoutManagerTest';
+import { CartItemWithProduct } from '../models/CheckoutManager';
 import { sharedCart, sharedCatalogue, sharedOrder } from '../models';
-import { checkoutManager } from '../models/CheckoutManagerTest';
+import { checkoutManager } from '../models/CheckoutManager';
 import ShippingView from './ShippingView';
 
 type ShippingViewRef = {
