@@ -3,22 +3,6 @@ import axios from 'axios';
 import { UserData } from '../models/User'; // Removed IAddress import
 import { Product } from '../models';
 
-interface ICreateUser {
-	account_type: string, 
-	first_name: string,
-	last_name: string,
-	address: string,
-	email: string, 
-	password: string
-}
-
-interface ICreateProduct {
-	name: string,
-	price: string,
-	description: string,
-	available: string
-}
-
 interface ICreateOrder {
 	status: string,
 	order_date: string,
