@@ -58,8 +58,8 @@ export class StoreCatalogue {
     }
 
     const qtyNum = typeof qty === 'string' ? parseInt(qty, 10) : qty;
-    if (qty === undefined || qty === '' || isNaN(qtyNum as number) || !Number.isInteger(qtyNum) || (qtyNum as number) < 0) {
-      errors.qty = 'Please enter a valid quantity (whole number ≥ 0)';
+    if (qty === undefined || qty === '' || isNaN(qtyNum as number) || !Number.isInteger(qtyNum) || (qtyNum as number) <= 0) {
+      errors.qty = 'Please enter a valid quantity (whole number > 0)';
     }
 
     if (!description || !description.toString().trim()) {
