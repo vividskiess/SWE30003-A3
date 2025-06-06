@@ -48,8 +48,8 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
     super(props);
     this.state = {
       formData: {
-        email: 'agosneye0@oakley.com',
-        password: 'mF1.X7Jt{|?S'
+        email: 'kglazzardq@samsung.com',
+        password: 'uD8$TR<>?nb'
       },
       showPassword: false,
       errors: {

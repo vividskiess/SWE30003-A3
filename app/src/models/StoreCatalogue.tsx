@@ -126,7 +126,12 @@ export class StoreCatalogue {
         productData.available,
         productData.qty
       );
-      
+      // Update in the backend if available
+      if (StoreManagement && StoreManagement.createProduct) {
+        StoreManagement.createProduct(product).catch(error => {
+          console.error('Failed to update product in backend:', error);
+        });
+      }
       this.products.push(product);
       this.saveToLocalStorage();
       this.notifyUpdate();

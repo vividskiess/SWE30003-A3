@@ -47,11 +47,12 @@ router.get("/get/:id", async(req, res) =>  {
 // Route for creating a product
 router.post('/create', async(req, res) =>  {
 	const name: string = req.body.name
-	const price: string = req.body.price
+	const price: number = req.body.price
 	const description: string = req.body.description
-	const available: string = req.body.available
-	const qty: string = req.body.qty
+	const available: boolean = req.body.available
+	const qty: number = req.body.qty || 0
 
+	console.log(req.body)
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {
@@ -62,7 +63,7 @@ router.post('/create', async(req, res) =>  {
 		const rows = await config.pool.query(
 			"INSERT INTO products (name, price, description, available, qty) VALUES (?, ?, ?, ?, ?)",
 		[name, price, description, available, qty])
-		res.status(200).send(rows)
+		res.status(200)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
 	} finally {
@@ -76,7 +77,6 @@ router.put('/update', async(req, res) =>  {
 	// const id: string = req.params.id
 	const product = req.body.product
 	const { name, price, description, available, qty, id } = product
-
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {
@@ -92,7 +92,7 @@ router.put('/update', async(req, res) =>  {
 					description = ?,
 					available = ?,
 					qty = ?
-			WHERE id = ?`, [name, price, description, available, qty, id])
+			WHERE id = ?`, [name, price, description, available, qty, Number(id)])
 		res.status(200).send({ message: "Product updated successfully." })
 	}	catch(err: any) {
 		res.status(400).send(err.message)
@@ -112,8 +112,8 @@ router.delete('/delete/:id', async(req, res) =>  {
 			return
 		}
 		conn = await config.pool.getConnection()
-		const rows = await config.pool.query("DELETE FROM products WHERE id = ?", id)
-		res.status(200).send(rows)
+		await config.pool.query("DELETE FROM products WHERE id = ?", Number(id))
+		res.status(200)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
 	} finally {

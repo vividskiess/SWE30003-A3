@@ -40,17 +40,6 @@ interface User {
 	password: string;
 }
 
-interface IAuthenticationManager {
-
-}
-
-interface IStoreManager {
-	
-}
-
-interface IOrderManager {
-	
-}
 
 const BACKEND_URL: string = "http://localhost:3000"
 
@@ -164,17 +153,19 @@ class StoreManagement {
 		return data
 	}
 
-	static async createProduct(params: ICreateProduct): Promise<void> {
+	static async createProduct(params: Product): Promise<void> {
 	const name: string = params.name
-	const price: string = params.price
+	const price: number = params.price
 	const description: string = params.description
-	const available: string = params.available
+	const available: boolean = params.available
+	const qty : number = params.qty
 		
 		await axios.post(`${BACKEND_URL}/product/create`, {
 			name,
 			price,
 			description,
 			available,
+			qty
 		})
 			.then(res => {
 				console.log(res)
