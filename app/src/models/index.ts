@@ -1,7 +1,7 @@
 import { Cart } from './Cart';
 import { Product } from './Product';
 import { StoreCatalogue } from './StoreCatalogue';
-import { authentication, storeManagement } from '../server/api';
+import { authentication, storeManagement } from '../api';
 import { Customer } from './Customer';
 import { Staff } from './Staff';
 import { Order } from './Order';

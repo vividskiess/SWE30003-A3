@@ -77,6 +77,7 @@ router.put('/update', async(req, res) =>  {
 	// const id: string = req.params.id
 	const product = req.body.product
 	const { name, price, description, available, qty, id } = product
+	console.log(product)
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {

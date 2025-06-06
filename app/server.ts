@@ -1,11 +1,11 @@
 import express from 'express'
 import cors from 'cors'
-import User from "./routes/User"
-import Product from "./routes/Product"
+import User from "./server/routes/User"
+import Product from "./server/routes/Product"
 
 import dotenv from 'dotenv'
 
-dotenv.config({ path: '../../.env' })
+dotenv.config({ path: './.env' })
 console.log(process.env.DB_USER)
 
 const app = express()
@@ -13,6 +13,7 @@ const PORT: string | number = process.env.PORT || 3000
 
 app.set('port', PORT)
 app.use(cors())
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 

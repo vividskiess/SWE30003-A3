@@ -2,7 +2,7 @@
 import MariaDB from "mariadb"
 import dotenv from 'dotenv'
 
-dotenv.config({ path: '../../.env' })
+dotenv.config({ path: '../.env' })
 
 class Config {
 	public DB: string | undefined;

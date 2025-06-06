@@ -1,4 +1,4 @@
-import { storeManagement } from '../server/api';
+import { storeManagement } from '../api';
 import { Product } from './Product';
 
 type ProductValidationErrors = {

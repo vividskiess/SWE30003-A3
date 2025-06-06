@@ -33,7 +33,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { UserData } from '../models/User'; // Removed unused imports
-import { authentication } from '../server/api';
+import { authentication } from '../api';
 import { sharedCustomer } from '../models';
 
 interface SignUpViewState {

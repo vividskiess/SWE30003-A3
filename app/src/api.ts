@@ -1,7 +1,7 @@
 
 import axios from 'axios';
-import { UserData } from '../models/User'; // Removed IAddress import
-import { Product } from '../models';
+import { UserData } from './models/User';
+import { Product } from './models';
 
 interface IAuthenticationService {
 	getUser(uid: number): Promise<UserData | undefined>
