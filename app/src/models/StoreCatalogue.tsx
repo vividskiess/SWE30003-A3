@@ -22,6 +22,14 @@ export class StoreCatalogue {
   private products: Product[] = [];
   private updateCallback: (() => void) | undefined = undefined;
 
+  constructor() {
+    // Bind methods to ensure 'this' is always correct
+    this.addProduct = this.addProduct.bind(this);
+    this.modifyProduct = this.modifyProduct.bind(this);
+    this.removeProduct = this.removeProduct.bind(this);
+    this.validateProduct = this.validateProduct.bind(this);
+  }
+
   // Set a callback to be called when products change
   setUpdateCallback(callback: (() => void) | undefined): void {
     this.updateCallback = callback;
@@ -36,7 +44,7 @@ export class StoreCatalogue {
   }
 
   // Validate product data
-  validateProduct(productData: Partial<ProductFormData>): { isValid: boolean; errors: ProductValidationErrors } {
+  validateProduct = (productData: Partial<ProductFormData>): { isValid: boolean; errors: ProductValidationErrors } => {
     const errors: ProductValidationErrors = {};
     const { name, price, qty, description } = productData;
 
@@ -95,11 +103,17 @@ export class StoreCatalogue {
 
   // Add a new product to the catalogue
   // If productData.id is not provided, a new ID will be generated automatically
-  addProduct(productData: Omit<Product, 'id'> & { id?: string }): { success: boolean; product?: Product; errors?: ProductValidationErrors } {
+  addProduct = (productData: Omit<Product, 'id'> & { id?: string }): { success: boolean; product?: Product; errors?: ProductValidationErrors } => {
+    // Initialize return object
+    const result: { success: boolean; product?: Product; errors?: ProductValidationErrors } = { 
+      success: false 
+    };
+
     // Validate product data
-    const { isValid, errors } = this.validateProduct(productData);
-    if (!isValid) {
-      return { success: false, errors };
+    const validation = this.validateProduct(productData);
+    if (!validation.isValid) {
+      result.errors = validation.errors;
+      return result;
     }
 
     try {
@@ -117,15 +131,16 @@ export class StoreCatalogue {
       this.saveToLocalStorage();
       this.notifyUpdate();
       
-      return { success: true, product };
+      result.success = true;
+      result.product = product;
+      return result;
+      
     } catch (error) {
       console.error('Error adding product:', error);
-      return { 
-        success: false, 
-        errors: { 
-          _general: 'Failed to add product. Please try again.' 
-        } 
+      result.errors = { 
+        _general: 'Failed to add product. Please try again.' 
       };
+      return result;
     }
   }
 
@@ -145,22 +160,26 @@ export class StoreCatalogue {
   }
 
   // Update product details
-  modifyProduct(
+  modifyProduct = (
     productId: string, 
     updates: Partial<ProductFormData>
-  ): { success: boolean; product?: Product; errors?: ProductValidationErrors } {
+  ): { success: boolean; product?: Product; errors?: ProductValidationErrors } => {
+    // Initialize return object
+    const result: { success: boolean; product?: Product; errors?: ProductValidationErrors } = { 
+      success: false 
+    };
+
     // Validate product data
-    const { isValid, errors } = this.validateProduct(updates);
-    if (!isValid) {
-      return { success: false, errors };
+    const validation = this.validateProduct(updates);
+    if (!validation.isValid) {
+      result.errors = validation.errors;
+      return result;
     }
 
     const product = this.getProductById(productId);
     if (!product) {
-      return { 
-        success: false, 
-        errors: { _general: 'Product not found' } 
-      };
+      result.errors = { _general: 'Product not found' };
+      return result;
     }
 
     try {
@@ -178,48 +197,51 @@ export class StoreCatalogue {
       this.saveToLocalStorage();
       this.notifyUpdate();
       
-      return { success: true, product };
+      result.success = true;
+      result.product = product;
+      return result;
+      
     } catch (error) {
       console.error('Error updating product:', error);
-      return { 
-        success: false, 
-        errors: { 
-          _general: 'Failed to update product. Please try again.' 
-        } 
+      result.errors = { 
+        _general: 'Failed to update product. Please try again.' 
       };
+      return result;
     }
   }
 
   // Remove a product
-  removeProduct(productId: string): { success: boolean; error?: string } {
+  removeProduct = (productId: string): { success: boolean; error?: string } => {
+    // Initialize return object
+    const result: { success: boolean; error?: string } = { success: false };
+    
     try {
       const initialLength = this.products.length;
       this.products = this.products.filter(p => p.id !== productId);
       const removed = this.products.length !== initialLength;
 
-      if (removed) {
-        // Remove from backend if available
-        if (StoreManagement && StoreManagement.deleteProduct) {
-          StoreManagement.deleteProduct(productId).catch(error => {
-            console.error('Failed to delete product from backend:', error);
-          });
-        }
-        
-        this.saveToLocalStorage();
-        this.notifyUpdate();
-        return { success: true };
+      if (!removed) {
+        result.error = 'Product not found';
+        return result;
+      }
+
+      // Remove from backend if available
+      if (StoreManagement && StoreManagement.deleteProduct) {
+        StoreManagement.deleteProduct(productId).catch(error => {
+          console.error('Failed to delete product from backend:', error);
+        });
       }
       
-      return { 
-        success: false, 
-        error: 'Product not found' 
-      };
+      this.saveToLocalStorage();
+      this.notifyUpdate();
+      
+      result.success = true;
+      return result;
+      
     } catch (error) {
       console.error('Error removing product:', error);
-      return { 
-        success: false, 
-        error: 'Failed to remove product. Please try again.' 
-      };
+      result.error = 'Failed to remove product. Please try again.';
+      return result;
     }
   }
 

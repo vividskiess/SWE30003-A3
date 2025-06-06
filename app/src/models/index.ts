@@ -65,13 +65,20 @@ export const addUser = (user: any): void => {
 };
 
 // Create fresh instances
-export const { 
-  catalogue: sharedCatalogue, 
-  cart: sharedCart, 
-  customer: sharedCustomer, 
-  staff: sharedStaff, 
-  order: sharedOrder 
+const { 
+  catalogue: freshCatalogue, 
+  cart: freshCart, 
+  customer: freshCustomer, 
+  staff: freshStaff, 
+  order: freshOrder 
 } = createDefaultInstances();
+
+// Export shared instances
+export const sharedCatalogue = freshCatalogue;
+export const sharedCart = freshCart;
+export const sharedCustomer = freshCustomer;
+export const sharedStaff = freshStaff;
+export const sharedOrder = freshOrder;
 
 // Make a function available in the browser console to clear storage
 if (typeof window !== 'undefined') {
