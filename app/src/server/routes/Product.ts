@@ -6,7 +6,7 @@ const router = express.Router()
 
 
 // Route to get all products
-router.get("/getAll", async(req, res): Promise<void> =>  {
+router.get("/getAll", async(_req, res): Promise<void> =>  {
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {
@@ -60,7 +60,7 @@ router.post('/create', async(req, res) =>  {
 			return
 		}
 		conn = await config.pool.getConnection()
-		const rows = await config.pool.query(
+		await config.pool.query(
 			"INSERT INTO products (name, price, description, available, qty) VALUES (?, ?, ?, ?, ?)",
 		[name, price, description, available, qty])
 		res.status(200)

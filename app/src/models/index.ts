@@ -289,6 +289,7 @@ setupUserPersistence();
     try {
       // First try to load from the backend
       const products = await storeManagement.getAllProducts();
+      console.log(products?.length)
       if (products && products.length > 0) {
         // Clear existing products and add new ones
         products.forEach((product: any) => {

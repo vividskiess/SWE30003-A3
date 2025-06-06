@@ -3,24 +3,24 @@ import axios from 'axios';
 import { UserData } from '../models/User'; // Removed IAddress import
 import { Product } from '../models';
 
-
-abstract class IAuthenticationService {
-	abstract getUser(uid: number): Promise<UserData | undefined>
-	abstract getAllUsers(): Promise<[UserData] | undefined>
-	abstract createUser(params: UserData): Promise<boolean>
-	abstract loginUser(email: string, password: string): Promise<UserData | false>
+interface IAuthenticationService {
+	getUser(uid: number): Promise<UserData | undefined>
+	getAllUsers(): Promise<[UserData] | undefined>
+	createUser(params: UserData): Promise<boolean>
+	loginUser(email: string, password: string): Promise<UserData | false>
 }
-abstract class IStoreManagementService {
-	abstract getProduct(id: number): Promise<Product | undefined>
-	abstract getAllProducts(): Promise<[Product] | undefined>
-	abstract createProduct(params: Product): Promise<boolean>
-	abstract updateProduct(params: Product): Promise<boolean>
-	abstract deleteProduct(id: number): Promise<boolean>
+
+interface IStoreManagementService {
+	getProduct(id: number): Promise<Product | undefined>
+	getAllProducts(): Promise<[Product] | undefined>
+	createProduct(params: Product): Promise<boolean>
+	updateProduct(params: Product): Promise<boolean>
+	deleteProduct(id: number): Promise<boolean>
 }
 
 const BACKEND_URL: string = "http://localhost:3000"
 
-class Authentication extends IAuthenticationService {
+class Authentication implements IAuthenticationService {
 
 	async getUser(uid: number): Promise<UserData | undefined> {
 		let data: UserData | undefined
@@ -105,7 +105,7 @@ class Authentication extends IAuthenticationService {
 	// }
 }
 
-class StoreManagement extends IStoreManagementService {
+class StoreManagement implements IStoreManagementService {
 	
 	async getProduct(id: number): Promise<Product | undefined> {
 		let data

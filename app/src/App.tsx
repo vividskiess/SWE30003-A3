@@ -7,10 +7,7 @@ import UserProfile from './pages/UserProfile';
 import SignUp from './pages/SignUp';
 import ShoppingCart from './pages/CartView';
 import Login from './pages/LoginView';
-// import CheckOut from './pages/CheckOut';
 import CheckOutView from './pages/CheckOutView';
-// import Authentication from './server/api'; // Temporarily disabled to prevent server interference
-// import Dashboard from './Templates/Dashboard';
 
 // Import the font you want to use (e.g., Google Fonts)
 import '@fontsource/roboto/300.css';
@@ -18,7 +15,6 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import OrderView from './pages/OrderView';
-// import StaffStoreCatalogueView from './pages/StaffStoreCatalogueView';
 
 function App() {
   return (
@@ -34,7 +30,6 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/checkout" element={<CheckOutView />} />
             <Route path="/order/:id" element={<OrderView />} />
-            {/* <Route path="/admin/products" element={<StaffStoreCatalogueView />} /> */}
           </Routes>
         </Layout>
       </BrowserRouter>

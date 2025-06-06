@@ -7,7 +7,7 @@ const router = express.Router()
 
 
 // Route to get all users
-router.get("/getAll", async(req, res): Promise<void> =>  {
+router.get("/getAll", async(_req, res): Promise<void> =>  {
 	let conn: PoolConnection | undefined
 	try {
 		if (!config.pool) {

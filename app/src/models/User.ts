@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Customer } from './Customer'
 
 // Export interfaces from User.tsx with corrected type for token
 export interface UserData {
@@ -20,8 +21,8 @@ export interface AuthResponse {
 }
 
 // Forward declarations to avoid circular imports
-declare class Customer extends User {}
-declare class Staff extends User {}
+// declare class Customer extends User {}
+// declare class Staff extends User {}
 
 export class User {
   // Make this protected so subclasses can access it
@@ -74,7 +75,7 @@ export class User {
         // We'll need to dynamically import to avoid circular dependencies
         if (userData.accountType === 'CUSTOMER') {
           // Dynamic import for Customer
-          const { Customer } = await import('./Customer');
+          // const { Customer } = await import('./Customer');
           User.currentUser = new Customer(userData);
         } else if (userData.accountType === 'STAFF') {
           // Dynamic import for Staff
