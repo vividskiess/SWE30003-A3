@@ -93,7 +93,7 @@ router.put('/update', async(req, res) =>  {
 					available = ?,
 					qty = ?
 			WHERE id = ?`, [name, price, description, available, qty, Number(id)])
-		res.status(200).send({ message: "Product updated successfully." })
+		res.status(200)
 	}	catch(err: any) {
 		res.status(400).send(err.message)
 	} finally {

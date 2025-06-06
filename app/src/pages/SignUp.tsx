@@ -33,7 +33,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { UserData } from '../models/User'; // Removed unused imports
-import { Authentication } from '../server/api';
+import { authentication } from '../server/api';
 import { sharedCustomer } from '../models';
 
 interface SignUpViewState {
@@ -317,7 +317,7 @@ class SignUpView extends React.Component<SignUpViewProps, SignUpViewState> {
       try {
         // Use the User model to register a new user
         console.log('Attempting to create user with data:', userData);
-        const response = await Authentication.createUser(userData);
+        const response = await authentication.createUser(userData);
         console.log('Registration response:', response);
         
         if (response) {
@@ -327,9 +327,11 @@ class SignUpView extends React.Component<SignUpViewProps, SignUpViewState> {
             isSubmitting: false,
             registrationSuccess: true
           });
-          const users = await Authentication.getAllUsers()
-          const lastUser = users[users.length - 1];
-          await sharedCustomer.updateProfile(lastUser);
+          const users = await authentication.getAllUsers();
+          if (users && users.length > 0) {
+            const lastUser = users[users.length - 1];
+            await sharedCustomer.updateProfile(lastUser);
+          }
 
           // Show success message and redirect to profile
           setTimeout(() => {

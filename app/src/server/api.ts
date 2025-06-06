@@ -3,33 +3,27 @@ import axios from 'axios';
 import { UserData } from '../models/User'; // Removed IAddress import
 import { Product } from '../models';
 
-interface ICreateOrder {
-	status: string,
-	order_date: string,
-	shipping_address: string,
-	shipping_cost: string,
-	shipping_option: string,
-	items: string
+
+abstract class IAuthenticationService {
+	abstract getUser(uid: number): Promise<UserData | undefined>
+	abstract getAllUsers(): Promise<[UserData] | undefined>
+	abstract createUser(params: UserData): Promise<boolean>
+	abstract loginUser(email: string, password: string): Promise<UserData | false>
 }
-
-
-interface User {
-	uid: string;
-	account_type: string;
-	first_name: string;
-	last_name: string;
-	gender: string;
-	address: string; // Changed from IAddress to string
-	email: string;
-	password: string;
+abstract class IStoreManagementService {
+	abstract getProduct(id: number): Promise<Product | undefined>
+	abstract getAllProducts(): Promise<[Product] | undefined>
+	abstract createProduct(params: Product): Promise<boolean>
+	abstract updateProduct(params: Product): Promise<boolean>
+	abstract deleteProduct(id: number): Promise<boolean>
 }
-
 
 const BACKEND_URL: string = "http://localhost:3000"
 
-class Authentication {
-	static async getUser(uid: number): Promise<void> {
-		let data
+class Authentication extends IAuthenticationService {
+
+	async getUser(uid: number): Promise<UserData | undefined> {
+		let data: UserData | undefined
 		await axios.get(`${BACKEND_URL}/user/get/${uid}`)
 			.then(res => {
 				data = res.data[0]
@@ -39,8 +33,8 @@ class Authentication {
 		return data
 	}
 
-	static async getAllUsers(): Promise<any> {
-		let data
+	async getAllUsers(): Promise<[UserData] | undefined> {
+		let data: [UserData] | undefined
 		await axios.get(`${BACKEND_URL}/user/getAll`)
 			.then(res => {
 				data = res.data
@@ -50,7 +44,7 @@ class Authentication {
 		return data
 	}
 
-	static async createUser(params: UserData): Promise<boolean> {
+	async createUser(params: UserData): Promise<boolean> {
 		const { account_type, first_name, last_name, address, email, password } = params;
 		let initialCount: number = 0
 		try {
@@ -92,7 +86,7 @@ class Authentication {
 		}
 	}
 
-	static async loginUser(email: string, password: string): Promise<User | false> {
+	async loginUser(email: string, password: string): Promise<UserData | false> {
 		let data = false
 		await axios.get(`${BACKEND_URL}/user/getEmail/${email}`)
 			.then(res => {
@@ -111,9 +105,9 @@ class Authentication {
 	// }
 }
 
-class StoreManagement {
+class StoreManagement extends IStoreManagementService {
 	
-	static async getProduct(id: number): Promise<void> {
+	async getProduct(id: number): Promise<Product | undefined> {
 		let data
 		await axios.get(`${BACKEND_URL}/product/get/${id}`)
 			.then(res => {
@@ -125,8 +119,8 @@ class StoreManagement {
 		return data
 	}
 
-	static async getAllProducts(): Promise<any> {
-		let data
+	async getAllProducts(): Promise<[Product] | undefined> {
+		let data: [Product] | undefined
 		await axios.get(`${BACKEND_URL}/product/getAll`)
 			.then(res => {
 				data = res.data
@@ -137,124 +131,52 @@ class StoreManagement {
 		return data
 	}
 
-	static async createProduct(params: Product): Promise<void> {
-	const name: string = params.name
-	const price: number = params.price
-	const description: string = params.description
-	const available: boolean = params.available
-	const qty : number = params.qty
-		
-		await axios.post(`${BACKEND_URL}/product/create`, {
-			name,
-			price,
-			description,
-			available,
-			qty
-		})
-			.then(res => {
-				console.log(res)
+	async createProduct(params: Product): Promise<boolean> {
+		const name: string = params.name
+		const price: number = params.price
+		const description: string = params.description
+		const available: boolean = params.available
+		const qty : number = params.qty
+	
+		let status: boolean = false
+			await axios.post(`${BACKEND_URL}/product/create`, {
+				name,
+				price,
+				description,
+				available,
+				qty
 			})
-			.catch(err => err)
+				.then(res => {
+					status = true && res.status === 200
+				})
+				.catch(err => err)
+			
+		return status
 	}
 
-	static async updateProduct(product: Product): Promise<void> {
+	async updateProduct(product: Product): Promise<boolean> {
 		// const { id, name, price, description, available, qty } = params
 		console.log(product)
-		let status
+		let status: boolean = false
 		await axios.put(`${BACKEND_URL}/product/update`, { product })
 			.then(res => {
-				status = res
+				status = true && res.status === 200
 			})
 			.catch(err => err)
 		
 		return status
 	}
 
-	static async deleteProduct(id: string): Promise<void> {
-		let status
+	async deleteProduct(id: number): Promise<boolean> {
+		let status: boolean = false
 		await axios.delete(`${BACKEND_URL}/product/delete/${id}`)
 			.then(res => {
-				status = res
+				status = true && res.status === 200
 			})
 			.catch(err => err)
 		return status
 	}
-
 }
 
-class Order {
-	static async getOrder(id: number): Promise<void> {
-		let data
-		await axios.get(`${BACKEND_URL}/order/get/${id}`)
-			.then(res => {
-				data = res.data[0]
-				// console.log(res.data[0])
-
-			})
-			.catch(err => err)
-		return data
-	}
-
-	static async getAllOrders(): Promise<any> {
-		let data
-		await axios.get(`${BACKEND_URL}/order/getAll`)
-			.then(res => {
-				data = res.data
-				// console.log(res.data)
-
-			})
-			.catch(err => err)
-		return data
-	}
-
-		static async getAllCustomerOrders(id: string): Promise<any> {
-		let data
-		await axios.get(`${BACKEND_URL}/order/getAll/${id}`)
-			.then(res => {
-				data = res.data
-				// console.log(res.data)
-			})
-			.catch(err => err)
-		return data
-	}
-
-	static async createOrder(params: ICreateOrder): Promise<void> {
-	const status: string = params.status
-	const order_date: string = params.order_date
-	const shipping_address: string = params.shipping_address
-	const shipping_cost: string = params.shipping_cost
-	const shipping_option: string = params.shipping_option
-	const items: string = params.items
-		await axios.post(`${BACKEND_URL}/order/create`, {
-			status,
-			order_date,
-			shipping_address,
-			shipping_cost,
-			shipping_option,
-			items,
-		})
-			.then(res => {
-				console.log(res)
-			})
-			.catch(err => err)
-	}
-
-	static async updateOrder(params: any): Promise<void> {
-		const id: string = params.name
-		const property: string = params.property
-		const value: string = params.value 
-
-		await axios.post(`${BACKEND_URL}/order/update/${id}/${property}`, {
-			id, property, value
-		})
-			.then(res => {
-				console.log(res)
-			})
-			.catch(err => err)
-	}
-}
-export {
-	Authentication,
-	StoreManagement,
-	Order
-}
+export const authentication: IAuthenticationService = new Authentication()
+export const storeManagement: IStoreManagementService = new StoreManagement()

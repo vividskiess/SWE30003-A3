@@ -1,4 +1,4 @@
-import { StoreManagement } from '../server/api';
+import { storeManagement } from '../server/api';
 import { Product } from './Product';
 
 type ProductValidationErrors = {
@@ -127,8 +127,8 @@ export class StoreCatalogue {
         productData.qty
       );
       // Update in the backend if available
-      if (StoreManagement && StoreManagement.createProduct) {
-        StoreManagement.createProduct(product).catch(error => {
+      if (storeManagement && storeManagement.createProduct) {
+        storeManagement.createProduct(product).catch(error => {
           console.error('Failed to update product in backend:', error);
         });
       }
@@ -193,8 +193,8 @@ export class StoreCatalogue {
       Object.assign(product, updatedData);
       
       // Update in the backend if available
-      if (StoreManagement && StoreManagement.updateProduct) {
-        StoreManagement.updateProduct(product).catch(error => {
+      if (storeManagement && storeManagement.updateProduct) {
+        storeManagement.updateProduct(product).catch(error => {
           console.error('Failed to update product in backend:', error);
         });
       }
@@ -231,8 +231,8 @@ export class StoreCatalogue {
       }
 
       // Remove from backend if available
-      if (StoreManagement && StoreManagement.deleteProduct) {
-        StoreManagement.deleteProduct(productId).catch(error => {
+      if (storeManagement && storeManagement.deleteProduct) {
+        storeManagement.deleteProduct(Number(productId)).catch(error => {
           console.error('Failed to delete product from backend:', error);
         });
       }
@@ -255,7 +255,7 @@ export class StoreCatalogue {
     const product = this.getProductById(productId);
     if (product) {
       product.qty = quantity;
-      StoreManagement.updateProduct(product).then(() => {
+      storeManagement.updateProduct(product).then(() => {
         this.saveToLocalStorage();
       });
       this.notifyUpdate();

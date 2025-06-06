@@ -19,7 +19,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import EmailIcon from '@mui/icons-material/Email';
 import { User, UserData } from '../models/User';
-import { Authentication } from '../server/api';
+import { authentication } from '../server/api';
 import { sharedCustomer, sharedStaff } from '../models';
 
 
@@ -170,7 +170,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
     
     if (isEmailValid && isPasswordValid) {
       try {
-        const response = await Authentication.loginUser(email, password)
+        const response = await authentication.loginUser(email, password)
         if (response) {
           this.setState({ 
             isAuthenticated: true,
@@ -271,7 +271,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
           this.setState({
             errors: {
               ...this.state.errors,
-              login: response || 'Authentication failed'
+              login: response || 'authentication failed'
             },
             isSubmitting: false
           });

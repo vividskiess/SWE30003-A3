@@ -1,11 +1,11 @@
 import { Cart } from './Cart';
 import { Product } from './Product';
 import { StoreCatalogue } from './StoreCatalogue';
-import { Authentication, StoreManagement } from '../server/api';
+import { authentication, storeManagement } from '../server/api';
 import { Customer } from './Customer';
 import { Staff } from './Staff';
 import { Order } from './Order';
-import { User } from './User'; // Import User class
+import { User, UserData } from './User'; // Import User class
 
 export * from './Cart';
 export * from './Product';
@@ -23,10 +23,10 @@ const createDefaultInstances = () => {
 };
 
 // Store for all users
-export let allUsers: any[] = [];
+export let allUsers: UserData[] | undefined = [];
 
 // Function to save users to localStorage
-const saveUsersToLocalStorage = (users: any[]) => {
+const saveUsersToLocalStorage = (users: UserData[] | undefined) => {
   try {
     localStorage.setItem('app_users', JSON.stringify(users));
   } catch (error) {
@@ -48,7 +48,7 @@ const loadUsersFromLocalStorage = (): any[] => {
 // Function to update and save users
 export const updateUsers = async (): Promise<void> => {
   try {
-    const users = await Authentication.getAllUsers();
+    const users: UserData[] | undefined = await authentication.getAllUsers();
     allUsers = users;
     saveUsersToLocalStorage(users);
   } catch (error) {
@@ -59,8 +59,8 @@ export const updateUsers = async (): Promise<void> => {
 };
 
 // Function to add a new user to the array and save to localStorage
-export const addUser = (user: any): void => {
-  allUsers = [...allUsers, user];
+export const addUser = (user: UserData): void => {
+  allUsers = [...(allUsers ?? []), user];
   saveUsersToLocalStorage(allUsers);
 };
 
@@ -282,13 +282,13 @@ setupUserPersistence();
 
 // Initialize catalog with products if empty
 (async function initializeStore() {
-  // console.log(await Authentication.getAllUsers())
+  // console.log(await authentication.getAllUsers())
   if (sharedCatalogue.getProducts().length === 0) {
     console.log('Initializing store catalogue with products');
     
     try {
       // First try to load from the backend
-      const products = await StoreManagement.getAllProducts();
+      const products = await storeManagement.getAllProducts();
       if (products && products.length > 0) {
         // Clear existing products and add new ones
         products.forEach((product: any) => {

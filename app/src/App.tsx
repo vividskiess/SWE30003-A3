@@ -17,7 +17,6 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import Test from './pages/test';
 import OrderView from './pages/OrderView';
 // import StaffStoreCatalogueView from './pages/StaffStoreCatalogueView';
 
@@ -35,7 +34,6 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/checkout" element={<CheckOutView />} />
             <Route path="/order/:id" element={<OrderView />} />
-            <Route path="/test" element={<Test />} />
             {/* <Route path="/admin/products" element={<StaffStoreCatalogueView />} /> */}
           </Routes>
         </Layout>
